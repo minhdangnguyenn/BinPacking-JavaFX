@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+
+<?import javafx.scene.control.ScrollPane?>
+
+<?import javafx.scene.control.ComboBox?>
+
+<?import javafx.scene.text.Font?>
+<VBox
+        alignment="CENTER"
+        prefHeight="479.0"
+        prefWidth="734.0"
+        spacing="20.0"
+        xmlns:fx="http://javafx.com/fxml/1"
+        xmlns="http://javafx.com/javafx/17.0.12"
+        fx:controller="app.binpacking.BinPackingController"
+>
+
+    <BorderPane prefHeight="900" prefWidth="1600.0"
+                xmlns="http://javafx.com/javafx/25"
+                xmlns:fx="http://javafx.com/fxml/1"
+                >
+
+        <left>
+            <VBox alignment="TOP_CENTER" prefHeight="668.0" prefWidth="266.0" spacing="8">
+                <Label text="Rectangles number" />
+                <TextField fx:id="rectanglesNumberField" promptText="1000" />
+
+                <Label text="Min Width" />
+                <TextField fx:id="minWField" promptText="1" />
+
+                <Label text="Max Width" />
+                <TextField fx:id="maxWField" promptText="50" />
+
+                <Label text="Min Height" />
+                <TextField fx:id="minHField" promptText="1" />
+
+                <Label text="Max Height" />
+                <TextField fx:id="maxHField" promptText="50" />
+
+                <Label text="Box Length" />
+                <TextField fx:id="boxLField" promptText="100">
+                    <font>
+                        <Font size="12.0"/>
+                    </font>
+                </TextField>
+
+                <!-- Algorithm selection -->
+                <Label text="Algorithm" />
+                <ComboBox fx:id="algorithmCombo" promptText="Choose algorithm" />
+
+                <!-- Neighborhood type (enabled only for local search) -->
+                <Label text="Neighborhood type" />
+                <ComboBox fx:id="neighborhoodCombo" promptText="Choose neighborhood" disable="true" />
+
+                <!-- Selection strategy (enabled only for local search) -->
+                <Label text="Selection strategy" />
+                <ComboBox fx:id="selectionCombo" promptText="Choose strategy" disable="true" />
+
+                <!-- RUN BUTTON -->
+                <Button fx:id="runButton" text="Run Algorithm" onAction="#handleRun" />
+
+                <!-- Runtime Label -->
+                <Label fx:id="runtimeLabel" text="Runtime: " style="-fx-font-weight: bold;"/>
+
+                <!-- Number of boxes -->
+                <Label fx:id="boxesLabel" text="Boxes: " style="-fx-font-weight: bold;"/>
+
+                <!-- Number of rectangles used -->
+                <Label fx:id="rectanglesLabel" text="Rectangles: " style="-fx-font-weight: bold;"/>
+            </VBox>
+        </left>
+
+
+        <center>
+            <!-- Wrap the solution Pane in a ScrollPane -->
+            <ScrollPane fitToWidth="true" fitToHeight="true">
+                <Pane fx:id="solutionPane" prefWidth="800" prefHeight="600" style="-fx-background-color: lightgray;"/>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+</VBox>
