@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import model.algorithm.AbstractSolution;
 import model.core.Item;
 
-public class LocalSearchAlgorithm<I extends Item, B, S extends AbstractSolution<B, S>> {
+public class LocalSearchAlgorithm<B, S extends AbstractSolution<B, S>> {
 
     private S currentSolution;
     public LocalSearchAlgorithm(S initialSolution) {
