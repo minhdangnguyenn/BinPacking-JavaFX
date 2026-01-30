@@ -1,5 +1,6 @@
 package model.binpacking;
 
+
 import java.util.ArrayList;
 
 public class Box {
@@ -55,5 +56,14 @@ public class Box {
         }
 
         return true;
+    }
+
+    public void removeRectangle(BinRectangle rect) {
+        rect.setPosition(-1, -1);
+        if (this.rectangles.remove(rect)) {
+            System.out.println("Rectangle ID " + rect.id + " has been removed successfully");
+        } else {
+            System.out.println("Rectangle ID " + rect.id + " cannot be removed");
+        }
     }
 }
