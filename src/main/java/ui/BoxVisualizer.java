@@ -27,6 +27,9 @@ public class BoxVisualizer {
     public void drawBoxes(List<Box> boxes) {
         solutionPane.getChildren().clear();
 
+        double maxWidth = 0;
+        double maxHeight = 0;
+
         for (int i = 0; i < boxes.size(); i++) {
             Box box = boxes.get(i);
             int col = i % COLUMNS;
@@ -37,7 +40,15 @@ public class BoxVisualizer {
 
             drawBox(box, offsetX, offsetY);
             drawRectanglesInBox(box, offsetX, offsetY);
+
+            // Calculate the total content size
+            maxWidth = Math.max(maxWidth, offsetX + box.getLength() * SCALE + START_X);
+            maxHeight = Math.max(maxHeight, offsetY + box.getLength() * SCALE + START_Y);
         }
+
+        // Set the pane's preferred size so ScrollPane knows the content size
+        solutionPane.setPrefSize(maxWidth, maxHeight);
+        solutionPane.setMinSize(maxWidth, maxHeight);
     }
 
     private void drawBox(Box box, double offsetX, double offsetY) {
@@ -49,7 +60,7 @@ public class BoxVisualizer {
         solutionPane.getChildren().add(boxRect);
 
         Text boxIdText = new Text("Box: " + box.getId());
-        boxIdText.setX(offsetX + 5);
+        boxIdText.setX(offsetX + 3);
         boxIdText.setY(offsetY - 5);
         boxIdText.setFill(Color.BLACK);
         solutionPane.getChildren().add(boxIdText);
@@ -87,7 +98,7 @@ public class BoxVisualizer {
                 allBoxes.get(0),
                 allBoxes.get(1),
                 allBoxes.get(allBoxes.size() - 2),
-                allBoxes.get(allBoxes.size() - 1)
+                allBoxes.getLast()
         );
     }
 }
