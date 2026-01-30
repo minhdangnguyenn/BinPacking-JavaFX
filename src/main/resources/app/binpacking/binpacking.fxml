@@ -84,7 +84,7 @@
         <center>
             <!-- Wrap the solution Pane in a ScrollPane -->
             <ScrollPane fitToWidth="true" fitToHeight="true">
-                <Pane fx:id="solutionPane" prefWidth="800" prefHeight="600" style="-fx-background-color: lightgray;"/>
+                <Pane fx:id="solutionPane" prefWidth="900" prefHeight="600" style="-fx-background-color: lightgray;"/>
             </ScrollPane>
         </center>
 
