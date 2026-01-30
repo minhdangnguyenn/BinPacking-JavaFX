@@ -91,14 +91,17 @@ public class BoxVisualizer {
     }
 
     public static List<Box> selectBoxesToDisplay(List<Box> allBoxes) {
-        if (allBoxes.size() <= 4) {
-            return allBoxes;
-        }
-        return List.of(
-                allBoxes.get(0),
-                allBoxes.get(1),
-                allBoxes.get(allBoxes.size() - 2),
-                allBoxes.getLast()
-        );
+        // show only 4 boxes (first 2, last 2)
+//        if (allBoxes.size() <= 4) {
+//            return allBoxes;
+//        }
+//        return List.of(
+//                allBoxes.get(0),
+//                allBoxes.get(1),
+//                allBoxes.get(allBoxes.size() - 2),
+//                allBoxes.getLast()
+//        );
+        // I decide to show all boxes
+        return allBoxes;
     }
 }
