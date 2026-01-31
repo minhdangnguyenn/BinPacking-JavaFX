@@ -49,6 +49,9 @@ public class AlgorithmRunner {
 
     public void runAlgorithm(AlgorithmConfig config, Consumer<AlgorithmResult> onComplete) {
         new Thread(() -> {
+            if (this.tf == null) {
+                System.out.println("You need to generate instances first");
+            }
             if ("Greedy".equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null 
                         ? config.selectionStrategy 
