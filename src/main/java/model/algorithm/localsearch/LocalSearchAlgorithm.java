@@ -2,13 +2,12 @@ package model.algorithm.localsearch;
 
 import java.util.ArrayList;
 import model.algorithm.AbstractSolution;
-import model.core.Item;
 
 public class LocalSearchAlgorithm<B, S extends AbstractSolution<B, S>> {
 
     private S currentSolution;
     public LocalSearchAlgorithm(S initialSolution) {
-        currentSolution = initialSolution;
+        this.currentSolution = initialSolution;
     }
 
     public S getCurrentSolution() {
@@ -30,7 +29,7 @@ public class LocalSearchAlgorithm<B, S extends AbstractSolution<B, S>> {
         while (improved) {
             improved = false;
 
-            ArrayList<S> neighbors = currentSolution.generateNeighbors();
+            ArrayList<S> neighbors = currentSolution.getNeighbors();
 
             S bestNeighbor = currentSolution;
             double bestCost = objectiveFunction(currentSolution);

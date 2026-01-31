@@ -43,7 +43,7 @@ public class BottomLeftPlacer
         return canPlaceInABox(item, newBox);
     }
 
-    private ToPlacePosition canPlaceInABox(BinRectangle item, Box box) {
+    public ToPlacePosition canPlaceInABox(BinRectangle item, Box box) {
         // 1. normal orientation
         ToPlacePosition normalResult = tryPlaceInBox(item, box, false);
         if (normalResult != null) return normalResult;

@@ -40,19 +40,22 @@ public class AlgorithmRunner {
             );
             tf.generateInstances();
 
+           //  System.out.println(config.neighborhood);
+
             if ("Greedy".equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null 
                         ? config.selectionStrategy 
                         : "Area-based";
                 tf.runGreedy(strategy);
             } else if ("Local Search".equals(config.algorithm)) {
+                String strategy = config.selectionStrategy != null
+                        ? config.selectionStrategy
+                        : "Area-based";
+                tf.runGreedy(strategy);
                 String neigh = config.neighborhood != null 
                         ? config.neighborhood 
                         : "Geometry-based";
-                String select = config.selectionStrategy != null 
-                        ? config.selectionStrategy 
-                        : "Area-based";
-                // tf.runLocalSearch(neigh, select);
+                tf.runLocalSearch(neigh);
             }
 
             AlgorithmResult result = new AlgorithmResult();

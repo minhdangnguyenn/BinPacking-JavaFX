@@ -9,7 +9,7 @@ public class ToPlacePosition {
     private final int cid;
     private final int x;
     private final int y;
-    private Boolean shouldRotate; // nullable = optional
+    public Boolean shouldRotate; // nullable = optional
 
     // Constructor without rotation
     public ToPlacePosition(int cid, int x, int y) {

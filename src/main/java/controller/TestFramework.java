@@ -3,6 +3,7 @@ package controller;
 import java.util.ArrayList;
 import model.algorithm.greedy.GreedyAlgorithm;
 import model.algorithm.greedy.GreedySelection;
+import model.algorithm.localsearch.LocalSearchAlgorithm;
 import model.binpacking.AlgSolution;
 import model.binpacking.BinRectangle;
 import model.binpacking.Box;
@@ -109,14 +110,14 @@ public class TestFramework {
         GreedyAlgorithm<BinRectangle, Box, AlgSolution> alg =
             new GreedyAlgorithm<>(solution, strategy, placer);
 
-        AlgSolution sol = alg.solve();
-
-        System.out.println("Solution boxes: " + sol.getItems().size());
-        System.out.println("Runtime:" + sol.getFormattedRunTime());
+        // AlgSolution sol = alg.solve();
+        this.solution = alg.solve();
+        System.out.println("Solution boxes: " + this.solution.getItems().size());
+        System.out.println("Runtime:" + this.solution.getFormattedRunTime());
         System.out.println("\nBoxes with rectangles:");
 
-        for (int i = 0; i < sol.getItems().size(); i++) {
-            Box box = sol.getItems().get(i);
+        for (int i = 0; i < this.solution.getItems().size(); i++) {
+            Box box = this.solution.getItems().get(i);
 
             System.out.println(
                 "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
@@ -142,6 +143,63 @@ public class TestFramework {
             }
         }
 
-        sol.printStats();
+        this.solution.printStats();
     }
+
+    public void runLocalSearch(String neighborhood) {
+        // currently I am testing Geometry-based only -- neighborhood is always Geometry based
+        // Check if greedy solution exists
+        if (this.solution == null) {
+            throw new IllegalStateException(
+                    "No greedy solution found. Run runGreedy() first."
+            );
+        }
+
+        System.out.println("\n=== Starting Local Search ===");
+        int initialBoxes = this.solution.getNumberOfBins();
+        System.out.println("Initial boxes (from greedy): " + initialBoxes);
+
+        // Run local search
+        LocalSearchAlgorithm<Box, AlgSolution> localSearch =
+                new LocalSearchAlgorithm<>(this.solution);
+
+        AlgSolution improved = localSearch.solve();
+
+        // Update the solution with improved result
+        this.solution = improved;
+
+        // Print results
+        System.out.println("After local search: " + improved.getNumberOfBins() + " boxes");
+        System.out.println("Improvement: " +
+                (initialBoxes - improved.getNumberOfBins()) + " boxes saved");
+
+        // Print detailed results
+        System.out.println("\nFinal boxes with rectangles:");
+        for (int i = 0; i < improved.getItems().size(); i++) {
+            Box box = improved.getItems().get(i);
+
+            System.out.println(
+                    "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
+            );
+
+            for (BinRectangle rect : box.getRectangles()) {
+                System.out.println(
+                        "  Rectangle " +
+                                rect.getId() +
+                                ": Size (" +
+                                rect.getWidth() +
+                                "x" +
+                                rect.getHeight() +
+                                ") at (" +
+                                rect.getPosition().getX() +
+                                ", " +
+                                rect.getPosition().getY() +
+                                ")"
+                );
+            }
+        }
+
+        this.solution.printStats();
+    }
+
 }

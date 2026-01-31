@@ -59,7 +59,7 @@ public class Box {
     }
 
     public void removeRectangle(BinRectangle rect) {
-        rect.setPosition(-1, -1);
+        rect.setPosition(-1, -1); // -1 -1 means remove
         if (this.rectangles.remove(rect)) {
             System.out.println("Rectangle ID " + rect.id + " has been removed successfully");
         } else {
