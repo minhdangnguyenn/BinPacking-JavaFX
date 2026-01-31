@@ -91,6 +91,10 @@ public class TestFramework {
         );
     }
 
+    public ArrayList<BinRectangle> getRectangles() {
+        return this.rectangles;
+    }
+
     public void runGreedy(String greedyStrategy) {
         GreedySelection<BinRectangle> strategy;
 

@@ -1,34 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Pane?>
-
-<?import javafx.scene.control.ScrollPane?>
-
-<?import javafx.scene.control.ComboBox?>
-
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<VBox
-        alignment="CENTER"
-        prefHeight="479.0"
-        prefWidth="734.0"
-        spacing="20.0"
-        xmlns:fx="http://javafx.com/fxml/1"
-        xmlns="http://javafx.com/javafx/17.0.12"
-        fx:controller="app.binpacking.BinPackingController"
->
 
-    <BorderPane prefHeight="900" prefWidth="1600.0"
-                xmlns="http://javafx.com/javafx/25"
-                xmlns:fx="http://javafx.com/fxml/1"
-                >
+<VBox alignment="CENTER" prefHeight="479.0" prefWidth="734.0" spacing="20.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.binpacking.BinPackingController">
+
+    <BorderPane prefHeight="900" prefWidth="1600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
 
         <left>
             <VBox alignment="TOP_CENTER" prefHeight="668.0" prefWidth="266.0" spacing="8">
@@ -50,9 +34,11 @@
                 <Label text="Box Length" />
                 <TextField fx:id="boxLField" promptText="100">
                     <font>
-                        <Font size="12.0"/>
+                        <Font size="12.0" />
                     </font>
                 </TextField>
+            <Button fx:id="generateInstancesButton" onAction="#handleGenerateInstances" text="Generate Instances" />
+            <Label fx:id="generatedInstancesCount" prefHeight="18.0" prefWidth="211.0" text="Generated Instances" />
 
                 <!-- Algorithm selection -->
                 <Label text="Algorithm" />
@@ -60,31 +46,31 @@
 
                 <!-- Neighborhood type (enabled only for local search) -->
                 <Label text="Neighborhood type" />
-                <ComboBox fx:id="neighborhoodCombo" promptText="Choose neighborhood" disable="true" />
+                <ComboBox fx:id="neighborhoodCombo" disable="true" promptText="Choose neighborhood" />
 
                 <!-- Selection strategy (enabled only for local search) -->
                 <Label text="Selection strategy" />
-                <ComboBox fx:id="selectionCombo" promptText="Choose strategy" disable="true" />
+                <ComboBox fx:id="selectionCombo" disable="true" promptText="Choose strategy" />
 
                 <!-- RUN BUTTON -->
-                <Button fx:id="runButton" text="Run Algorithm" onAction="#handleRun" />
+                <Button fx:id="runButton" onAction="#handleRun" text="Run Algorithm" />
 
                 <!-- Runtime Label -->
-                <Label fx:id="runtimeLabel" text="Runtime: " style="-fx-font-weight: bold;"/>
+                <Label fx:id="runtimeLabel" style="-fx-font-weight: bold;" text="Runtime: " />
 
                 <!-- Number of boxes -->
-                <Label fx:id="boxesLabel" text="Boxes: " style="-fx-font-weight: bold;"/>
+                <Label fx:id="boxesLabel" style="-fx-font-weight: bold;" text="Boxes: " />
 
                 <!-- Number of rectangles used -->
-                <Label fx:id="rectanglesLabel" text="Rectangles: " style="-fx-font-weight: bold;"/>
+                <Label fx:id="rectanglesLabel" style="-fx-font-weight: bold;" text="Rectangles: " />
             </VBox>
         </left>
 
 
         <center>
             <!-- Wrap the solution Pane in a ScrollPane -->
-            <ScrollPane fitToWidth="true" fitToHeight="true">
-                <Pane fx:id="solutionPane" prefWidth="900" prefHeight="600" style="-fx-background-color: lightgray;"/>
+            <ScrollPane fitToHeight="true" fitToWidth="true">
+                <Pane fx:id="solutionPane" prefHeight="642.0" prefWidth="518.0" style="-fx-background-color: lightgray;" />
             </ScrollPane>
         </center>
 
