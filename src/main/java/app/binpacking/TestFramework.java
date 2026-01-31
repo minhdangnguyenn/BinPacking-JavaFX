@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import model.algorithm.greedy.GreedyAlgorithm;
 import model.algorithm.greedy.GreedySelection;
 import model.algorithm.localsearch.LocalSearchAlgorithm;
-import model.binpacking.greedy.GreedySolution;
+import model.binpacking.Solution;
 import model.binpacking.instances.BinRectangle;
 import model.binpacking.instances.Box;
 import model.binpacking.greedy.BottomLeftPlacer;
@@ -20,7 +20,7 @@ public class TestFramework {
     private int maxH;
     private ArrayList<BinRectangle> rectangles;
     private int boxL;
-    private GreedySolution solution;
+    private Solution solution;
 
     public TestFramework(
         int numberInstances,
@@ -72,7 +72,7 @@ public class TestFramework {
         this.solution = null;
     }
 
-    public GreedySolution getSolution() {
+    public Solution getSolution() {
         return this.solution;
     }
 
@@ -109,9 +109,9 @@ public class TestFramework {
         }
 
         BottomLeftPlacer placer = new BottomLeftPlacer(this.boxL);
-        this.solution = new GreedySolution(this.numberInstances);
+        this.solution = new Solution(this.numberInstances);
 
-        GreedyAlgorithm<BinRectangle, Box, GreedySolution> alg =
+        GreedyAlgorithm<BinRectangle, Box, Solution> alg =
             new GreedyAlgorithm<>(solution, strategy, placer);
 
         // set the solution attribute of this instance
@@ -167,10 +167,10 @@ public class TestFramework {
         System.out.println("Initial boxes (from greedy): " + initialBoxes);
 
         // Run local search
-        LocalSearchAlgorithm<Box, GreedySolution> localSearch =
+        LocalSearchAlgorithm<Box, Solution> localSearch =
                 new LocalSearchAlgorithm<>(this.solution);
 
-        GreedySolution improvedSolution = localSearch.solve();
+        Solution improvedSolution = localSearch.solve();
 
         // Update the solution with improvedSolution result
         this.solution = improvedSolution;

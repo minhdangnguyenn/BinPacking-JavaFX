@@ -1,18 +1,20 @@
-package model.binpacking.greedy;
+package model.binpacking;
 
 import java.util.ArrayList;
 import java.util.List;
 import model.algorithm.AbstractSolution;
 import model.algorithm.ToPlacePosition;
+import model.binpacking.greedy.BottomLeftPlacer;
 import model.binpacking.instances.BinRectangle;
 import model.binpacking.instances.Box;
+import model.binpacking.localsearch.neighborhood.GeometryBasedSolution;
 
-public class GreedySolution extends AbstractSolution<Box, GreedySolution> {
+public class Solution extends AbstractSolution<Box, Solution> {
 
     List<Box> items;
     private int numbRect;
 
-    public GreedySolution(int numbRect) {
+    public Solution(int numbRect) {
         super();
         this.items = new ArrayList<>();
         this.numbRect = numbRect;
@@ -64,24 +66,14 @@ public class GreedySolution extends AbstractSolution<Box, GreedySolution> {
         System.out.println("Run time: " + getRuntime() + "ms");
     }
 
-    public ArrayList<GreedySolution> generateNeighbors() {
-        ArrayList<GreedySolution> neighbors = new ArrayList<>();
 
-        if (items.size() <= 1) {
-            return neighbors;  // Empty list = no neighbors
-        }
-
-        // Strategy: Unpack last box and try to repack using greedy
-        // Need at least 2 boxes
-        GreedySolution neighbor = generateLastBoxRepackNeighbor();
-        if (neighbor != null) {
-            neighbors.add(neighbor);
-        }
-
-        return neighbors;
+    @Override
+    public ArrayList<Solution> generateNeighbors() {
+        GeometryBasedSolution geometryBased = new GeometryBasedSolution();
+        return geometryBased.generateNeighborsFor(this);
     }
 
-    private GreedySolution generateLastBoxRepackNeighbor() {
+    private Solution generateLastBoxRepackNeighbor() {
         // 1. Get the last box
         Box lastBox = items.getLast();
 
@@ -94,7 +86,7 @@ public class GreedySolution extends AbstractSolution<Box, GreedySolution> {
         }
 
         // 3. Create a copy of current solution WITHOUT the last box
-        GreedySolution neighbor = this.deepCopyWithoutLastBox();
+        Solution neighbor = this.deepCopyWithoutLastBox();
 
         // 4. Try to repack rectangles using greedy bottom-left placement
         BottomLeftPlacer placer = new BottomLeftPlacer(lastBox.getLength());
@@ -148,8 +140,8 @@ public class GreedySolution extends AbstractSolution<Box, GreedySolution> {
         return neighbor;
     }
 
-    private GreedySolution deepCopyWithoutLastBox() {
-        GreedySolution copy = new GreedySolution(this.numbRect);
+    private Solution deepCopyWithoutLastBox() {
+        Solution copy = new Solution(this.numbRect);
         copy.runtime = this.runtime;
 
         // Copy all boxes EXCEPT the last one
