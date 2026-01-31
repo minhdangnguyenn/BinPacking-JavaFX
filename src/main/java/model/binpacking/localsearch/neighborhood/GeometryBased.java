@@ -7,7 +7,7 @@ import model.binpacking.Box;
 
 import java.util.ArrayList;
 
-public class GeometryBased extends Neighbors<BinRectangle, Box> {
+public class GeometryBased extends Neighbors<AlgSolution> {
     private Box targetBox;
     private Box currentBox;
     private ArrayList<AlgSolution> neighbors;

@@ -72,7 +72,7 @@ public class BinPackingController {
         solutionPane.getChildren().clear();
 
         AlgorithmRunner.AlgorithmConfig config = new AlgorithmRunner.AlgorithmConfig();
-        config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 100);
+        config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
         config.minWidth = InputValidator.parseField(minWField, 1);
         config.maxWidth = InputValidator.parseField(maxWField, 50);
         config.minHeight = InputValidator.parseField(minHField, 1);
