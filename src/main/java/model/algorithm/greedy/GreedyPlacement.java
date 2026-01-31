@@ -8,8 +8,8 @@ package model.algorithm.greedy;
 
 import model.algorithm.AbstractSolution;
 import model.algorithm.ToPlacePosition;
-import model.core.Item;
-import model.core.PlacementStrategy;
+import model.interfaces.Item;
+import model.interfaces.PlacementStrategy;
 
 /**
  * check if it is possible to add an item into a solution

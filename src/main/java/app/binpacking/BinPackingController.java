@@ -5,7 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
-import model.binpacking.BinRectangle;
+import model.binpacking.instances.BinRectangle;
 import ui.AlgorithmRunner;
 import ui.BoxVisualizer;
 import ui.InputValidator;

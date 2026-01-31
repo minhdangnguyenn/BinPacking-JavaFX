@@ -1,9 +1,9 @@
 package ui;
 
-import controller.TestFramework;
+import app.binpacking.TestFramework;
 import javafx.application.Platform;
-import model.binpacking.BinRectangle;
-import model.binpacking.Box;
+import model.binpacking.instances.BinRectangle;
+import model.binpacking.instances.Box;
 
 import java.util.ArrayList;
 import java.util.List;

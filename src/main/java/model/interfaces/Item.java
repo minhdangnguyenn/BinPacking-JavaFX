@@ -1,4 +1,4 @@
-package model.core;
+package model.interfaces;
 
 public abstract class Item {
     int id;

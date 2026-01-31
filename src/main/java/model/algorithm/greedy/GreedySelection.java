@@ -1,7 +1,7 @@
 package model.algorithm.greedy;
 
 import java.util.ArrayList;
-import model.core.SelectionStrategy;
+import model.interfaces.SelectionStrategy;
 
 public abstract class GreedySelection<I> extends SelectionStrategy<I> {
 

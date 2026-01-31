@@ -3,13 +3,12 @@ package model.binpacking.greedy;
 import java.util.List;
 import model.algorithm.ToPlacePosition;
 import model.algorithm.greedy.GreedyPlacement;
-import model.binpacking.AlgSolution;
-import model.binpacking.BinRectangle;
-import model.binpacking.Box;
-import model.binpacking.InitPosition;
+import model.binpacking.instances.BinRectangle;
+import model.binpacking.instances.Box;
+import model.binpacking.instances.InitPosition;
 
 public class BottomLeftPlacer
-    extends GreedyPlacement<BinRectangle, Box, AlgSolution>
+    extends GreedyPlacement<BinRectangle, Box, GreedySolution>
 {
 
     private int boxL;
@@ -22,7 +21,7 @@ public class BottomLeftPlacer
     @Override
     protected ToPlacePosition canPlace(
         BinRectangle item,
-        AlgSolution solution
+        GreedySolution solution
     ) {
         List<Box> boxes = solution.getItems();
 
@@ -118,7 +117,7 @@ public class BottomLeftPlacer
     @Override
     protected void place(
         BinRectangle rect,
-        AlgSolution solution,
+        GreedySolution solution,
         ToPlacePosition pos
     ) {
         // Cast to ToPlacePosition

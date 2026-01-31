@@ -1,17 +1,17 @@
 package model.binpacking.localsearch.neighborhood;
 
-import model.algorithm.localsearch.Neighbors;
-import model.binpacking.AlgSolution;
-import model.binpacking.BinRectangle;
-import model.binpacking.Box;
+import model.algorithm.localsearch.NeighborsSolution;
+import model.binpacking.greedy.GreedySolution;
+import model.binpacking.instances.BinRectangle;
+import model.binpacking.instances.Box;
 
 import java.util.ArrayList;
 
-public class GeometryBased extends Neighbors<AlgSolution> {
+public class GeometryBasedSolution extends NeighborsSolution<GreedySolution> {
     private Box targetBox;
     private Box currentBox;
-    private ArrayList<AlgSolution> neighbors;
-    public GeometryBased() {
+    private ArrayList<GreedySolution> neighbors;
+    public GeometryBasedSolution() {
         
     }
 
@@ -26,7 +26,7 @@ public class GeometryBased extends Neighbors<AlgSolution> {
     }
 
     @Override
-    public ArrayList<AlgSolution> getNeighbors() {
+    public ArrayList<GreedySolution> getNeighbors() {
         // unpack the last box (because it is always the least occupied box)
 
         // try to pack unpacked rectangles into other box

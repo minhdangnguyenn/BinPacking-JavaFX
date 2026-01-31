@@ -1,17 +1,18 @@
-package model.binpacking;
+package model.binpacking.greedy;
 
 import java.util.ArrayList;
 import java.util.List;
 import model.algorithm.AbstractSolution;
 import model.algorithm.ToPlacePosition;
-import model.binpacking.greedy.BottomLeftPlacer;
+import model.binpacking.instances.BinRectangle;
+import model.binpacking.instances.Box;
 
-public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
+public class GreedySolution extends AbstractSolution<Box, GreedySolution> {
 
     List<Box> items;
     private int numbRect;
 
-    public AlgSolution(int numbRect) {
+    public GreedySolution(int numbRect) {
         super();
         this.items = new ArrayList<>();
         this.numbRect = numbRect;
@@ -40,9 +41,9 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         for (Box box : this.items) {
             int usedArea = 0;
             for (BinRectangle rectangle: box.getRectangles()) {
-                usedArea += rectangle.area;
+                usedArea += rectangle.getArea();
             }
-            totalUnusedArea += box.area - usedArea;
+            totalUnusedArea += box.getArea() - usedArea;
         }
         return totalUnusedArea;
     }
@@ -63,8 +64,8 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         System.out.println("Run time: " + getRuntime() + "ms");
     }
 
-    public ArrayList<AlgSolution> generateNeighbors() {
-        ArrayList<AlgSolution> neighbors = new ArrayList<>();
+    public ArrayList<GreedySolution> generateNeighbors() {
+        ArrayList<GreedySolution> neighbors = new ArrayList<>();
 
         if (items.size() <= 1) {
             return neighbors;  // Empty list = no neighbors
@@ -72,7 +73,7 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
 
         // Strategy: Unpack last box and try to repack using greedy
         // Need at least 2 boxes
-        AlgSolution neighbor = generateLastBoxRepackNeighbor();
+        GreedySolution neighbor = generateLastBoxRepackNeighbor();
         if (neighbor != null) {
             neighbors.add(neighbor);
         }
@@ -80,7 +81,7 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         return neighbors;
     }
 
-    private AlgSolution generateLastBoxRepackNeighbor() {
+    private GreedySolution generateLastBoxRepackNeighbor() {
         // 1. Get the last box
         Box lastBox = items.getLast();
 
@@ -93,7 +94,7 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         }
 
         // 3. Create a copy of current solution WITHOUT the last box
-        AlgSolution neighbor = this.deepCopyWithoutLastBox();
+        GreedySolution neighbor = this.deepCopyWithoutLastBox();
 
         // 4. Try to repack rectangles using greedy bottom-left placement
         BottomLeftPlacer placer = new BottomLeftPlacer(lastBox.getLength());
@@ -147,8 +148,8 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         return neighbor;
     }
 
-    private AlgSolution deepCopyWithoutLastBox() {
-        AlgSolution copy = new AlgSolution(this.numbRect);
+    private GreedySolution deepCopyWithoutLastBox() {
+        GreedySolution copy = new GreedySolution(this.numbRect);
         copy.runtime = this.runtime;
 
         // Copy all boxes EXCEPT the last one

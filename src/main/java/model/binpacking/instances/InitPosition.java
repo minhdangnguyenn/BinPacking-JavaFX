@@ -1,4 +1,4 @@
-package model.binpacking;
+package model.binpacking.instances;
 
 public class InitPosition {
 

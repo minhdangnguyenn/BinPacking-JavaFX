@@ -1,4 +1,4 @@
-package model.binpacking;
+package model.binpacking.instances;
 
 
 import java.util.ArrayList;
@@ -21,6 +21,8 @@ public class Box {
     public int getLength() {
         return this.boxL;
     }
+
+    public int getArea() { return this.area; }
 
     public int getId() {
         return id;

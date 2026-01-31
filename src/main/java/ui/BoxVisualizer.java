@@ -4,8 +4,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import model.binpacking.Box;
-import model.binpacking.BinRectangle;
+import model.binpacking.instances.Box;
+import model.binpacking.instances.BinRectangle;
 
 import java.util.List;
 

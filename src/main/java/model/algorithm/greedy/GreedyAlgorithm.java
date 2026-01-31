@@ -2,7 +2,7 @@ package model.algorithm.greedy;
 
 import java.util.ArrayList;
 import model.algorithm.AbstractSolution;
-import model.core.Item;
+import model.interfaces.Item;
 
 public class GreedyAlgorithm<I extends Item, B, S extends AbstractSolution<B, S>> {
 

@@ -1,6 +1,6 @@
-package model.binpacking;
+package model.binpacking.instances;
 
-import model.core.Item;
+import model.interfaces.Item;
 
 public class BinRectangle extends Item {
 

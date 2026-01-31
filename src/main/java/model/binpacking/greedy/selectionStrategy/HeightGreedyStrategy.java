@@ -3,7 +3,7 @@ package model.binpacking.greedy.selectionStrategy;
 import java.util.ArrayList;
 import java.util.Comparator;
 import model.algorithm.greedy.GreedySelection;
-import model.binpacking.BinRectangle;
+import model.binpacking.instances.BinRectangle;
 
 public class HeightGreedyStrategy extends GreedySelection<BinRectangle> {
 
