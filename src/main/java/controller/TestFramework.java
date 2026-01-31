@@ -114,8 +114,10 @@ public class TestFramework {
         GreedyAlgorithm<BinRectangle, Box, AlgSolution> alg =
             new GreedyAlgorithm<>(solution, strategy, placer);
 
-        // AlgSolution sol = alg.solve();
+        // set the solution attribute of this instance
+        // solve it
         this.solution = alg.solve();
+
         System.out.println("Solution boxes: " + this.solution.getItems().size());
         System.out.println("Runtime:" + this.solution.getFormattedRunTime());
         System.out.println("\nBoxes with rectangles:");
@@ -159,6 +161,7 @@ public class TestFramework {
             );
         }
 
+        // use the solution of greedy as initial solution
         System.out.println("\n=== Starting Local Search ===");
         int initialBoxes = this.solution.getNumberOfBins();
         System.out.println("Initial boxes (from greedy): " + initialBoxes);
@@ -167,20 +170,20 @@ public class TestFramework {
         LocalSearchAlgorithm<Box, AlgSolution> localSearch =
                 new LocalSearchAlgorithm<>(this.solution);
 
-        AlgSolution improved = localSearch.solve();
+        AlgSolution improvedSolution = localSearch.solve();
 
-        // Update the solution with improved result
-        this.solution = improved;
+        // Update the solution with improvedSolution result
+        this.solution = improvedSolution;
 
         // Print results
-        System.out.println("After local search: " + improved.getNumberOfBins() + " boxes");
+        System.out.println("After local search: " + improvedSolution.getNumberOfBins() + " boxes");
         System.out.println("Improvement: " +
-                (initialBoxes - improved.getNumberOfBins()) + " boxes saved");
+                (initialBoxes - improvedSolution.getNumberOfBins()) + " boxes saved");
 
         // Print detailed results
         System.out.println("\nFinal boxes with rectangles:");
-        for (int i = 0; i < improved.getItems().size(); i++) {
-            Box box = improved.getItems().get(i);
+        for (int i = 0; i < improvedSolution.getItems().size(); i++) {
+            Box box = improvedSolution.getItems().get(i);
 
             System.out.println(
                     "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"

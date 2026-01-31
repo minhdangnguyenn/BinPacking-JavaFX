@@ -29,12 +29,6 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         return items;
     }
 
-    // TODO: Implement these functions from parent class AbstractSolution
-//    @Override
-//    public ArrayList<AlgSolution> getNeighbors() {
-//        return null;
-//    }
-
     @Override
     public int getNumberOfBins() {
         return 0;
