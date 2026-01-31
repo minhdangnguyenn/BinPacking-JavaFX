@@ -1,7 +1,7 @@
 package model.binpacking.localsearch.neighborhood;
 
+import model.algorithm.AbstractSolution;
 import model.algorithm.ToPlacePosition;
-import model.algorithm.localsearch.NeighborsSolution;
 import model.binpacking.Solution;
 import model.binpacking.greedy.BottomLeftPlacer;
 import model.binpacking.instances.BinRectangle;
@@ -9,7 +9,7 @@ import model.binpacking.instances.Box;
 
 import java.util.ArrayList;
 
-public class GeometryBasedSolution extends NeighborsSolution<Solution> {
+public class GeometryBasedSolution extends AbstractSolution<Box, Solution> {
     private ArrayList<Solution> neighbors;
     public GeometryBasedSolution() {
         
@@ -145,8 +145,25 @@ public class GeometryBasedSolution extends NeighborsSolution<Solution> {
     }
 
     @Override
-    public ArrayList<Solution> generateNeighbors() {
-        // This method is not used, but required by parent class
+    public ArrayList<Solution> generateNeighbors(String neighborType) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public int getNumberOfBins() {
+        return this.items.size();
+    }
+
+    @Override
+    public double getTotalUnusedArea() {
+        double totalUnused = 0;
+        for (Box box : items) {
+            int usedArea = 0;
+            for (BinRectangle rect : box.getRectangles()) {
+                usedArea += rect.getArea();
+            }
+            totalUnused += (box.getArea() - usedArea);
+        }
+        return totalUnused;
     }
 }

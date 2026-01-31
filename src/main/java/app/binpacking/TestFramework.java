@@ -152,7 +152,7 @@ public class TestFramework {
         this.solution.printStats();
     }
 
-    public void runLocalSearch(String neighborhood) {
+    public void runLocalSearch(String neighborType) {
         // currently I am testing Geometry-based only -- neighborhood is always Geometry based
         // Check if greedy solution exists
         if (this.solution == null) {
@@ -168,7 +168,7 @@ public class TestFramework {
 
         // Run local search
         LocalSearchAlgorithm<Box, Solution> localSearch =
-                new LocalSearchAlgorithm<>(this.solution);
+                new LocalSearchAlgorithm<>(this.solution, neighborType);
 
         Solution improvedSolution = localSearch.solve();
 

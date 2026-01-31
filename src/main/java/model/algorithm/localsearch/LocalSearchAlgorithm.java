@@ -6,8 +6,11 @@ import model.algorithm.AbstractSolution;
 public class LocalSearchAlgorithm<B, S extends AbstractSolution<B, S>> {
 
     private S currentSolution;
-    public LocalSearchAlgorithm(S initialSolution) {
+    private final String neighborType;
+    public LocalSearchAlgorithm(S initialSolution, String neighborType) {
+
         this.currentSolution = initialSolution;
+        this.neighborType = neighborType;
     }
 
     public S getCurrentSolution() {
@@ -29,7 +32,7 @@ public class LocalSearchAlgorithm<B, S extends AbstractSolution<B, S>> {
         while (improved) {
             improved = false;
 
-            ArrayList<S> neighbors = currentSolution.generateNeighbors();
+            ArrayList<S> neighbors = currentSolution.generateNeighbors(this.neighborType);
 
             S bestNeighbor = currentSolution;
             double bestCost = objectiveFunction(currentSolution);

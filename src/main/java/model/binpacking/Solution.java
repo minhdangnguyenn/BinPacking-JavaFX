@@ -2,6 +2,8 @@ package model.binpacking;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import model.algorithm.AbstractSolution;
 import model.algorithm.ToPlacePosition;
 import model.binpacking.greedy.BottomLeftPlacer;
@@ -68,9 +70,12 @@ public class Solution extends AbstractSolution<Box, Solution> {
 
 
     @Override
-    public ArrayList<Solution> generateNeighbors() {
-        GeometryBasedSolution geometryBased = new GeometryBasedSolution();
-        return geometryBased.generateNeighborsFor(this);
+    public ArrayList<Solution> generateNeighbors(String neighborType) {
+        if (Objects.equals(neighborType, "Geometry-based")) {
+            GeometryBasedSolution geometryBased = new GeometryBasedSolution();
+            return geometryBased.generateNeighborsFor(this);
+        }
+        return null;
     }
 
     private Solution generateLastBoxRepackNeighbor() {

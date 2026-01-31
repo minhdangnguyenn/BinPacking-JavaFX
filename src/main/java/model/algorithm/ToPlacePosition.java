@@ -11,14 +11,6 @@ public class ToPlacePosition {
     private final int y;
     public Boolean shouldRotate; // nullable = optional
 
-    // Constructor without rotation
-    public ToPlacePosition(int cid, int x, int y) {
-        this.cid = cid;
-        this.x = x;
-        this.y = y;
-        this.shouldRotate = null;
-    }
-
     // Constructor with rotation
     public ToPlacePosition(int cid, int x, int y, Boolean shouldRotate) {
         this.cid = cid;

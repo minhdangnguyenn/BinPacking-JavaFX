@@ -1,5 +1,7 @@
 package model.algorithm;
 
+import model.binpacking.Solution;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public abstract class AbstractSolution<B, S extends AbstractSolution<B, S>> {
         return this.items;
     }
 
-    public abstract ArrayList<S> generateNeighbors();
+    public abstract ArrayList<S> generateNeighbors(String neighborType);
 
     public abstract int getNumberOfBins();
     public abstract double getTotalUnusedArea();
