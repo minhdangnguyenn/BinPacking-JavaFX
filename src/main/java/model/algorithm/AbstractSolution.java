@@ -30,7 +30,7 @@ public abstract class AbstractSolution<B, S extends AbstractSolution<B, S>> {
         return this.items;
     }
 
-    public abstract ArrayList<S> getNeighbors();
+    public abstract ArrayList<S> generateNeighbors();
 
     public abstract int getNumberOfBins();
     public abstract double getTotalUnusedArea();

@@ -29,7 +29,7 @@ public class LocalSearchAlgorithm<B, S extends AbstractSolution<B, S>> {
         while (improved) {
             improved = false;
 
-            ArrayList<S> neighbors = currentSolution.getNeighbors();
+            ArrayList<S> neighbors = currentSolution.generateNeighbors();
 
             S bestNeighbor = currentSolution;
             double bestCost = objectiveFunction(currentSolution);

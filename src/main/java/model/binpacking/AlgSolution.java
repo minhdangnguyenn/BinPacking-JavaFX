@@ -31,12 +31,20 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
 
     @Override
     public int getNumberOfBins() {
-        return 0;
+        return this.items.size();
     }
 
     @Override
     public double getTotalUnusedArea() {
-        return 0;
+        double totalUnusedArea = 0;
+        for (Box box : this.items) {
+            int usedArea = 0;
+            for (BinRectangle rectangle: box.getRectangles()) {
+                usedArea += rectangle.area;
+            }
+            totalUnusedArea += box.area - usedArea;
+        }
+        return totalUnusedArea;
     }
 
     public void setItems(List<Box> items) {
@@ -55,15 +63,18 @@ public class AlgSolution extends AbstractSolution<Box, AlgSolution> {
         System.out.println("Run time: " + getRuntime() + "ms");
     }
 
-    public ArrayList<AlgSolution> getNeighbors() {
+    public ArrayList<AlgSolution> generateNeighbors() {
         ArrayList<AlgSolution> neighbors = new ArrayList<>();
 
+        if (items.size() <= 1) {
+            return neighbors;  // Empty list = no neighbors
+        }
+
         // Strategy: Unpack last box and try to repack using greedy
-        if (items.size() > 1) {  // Need at least 2 boxes
-            AlgSolution neighbor = generateLastBoxRepackNeighbor();
-            if (neighbor != null) {
-                neighbors.add(neighbor);
-            }
+        // Need at least 2 boxes
+        AlgSolution neighbor = generateLastBoxRepackNeighbor();
+        if (neighbor != null) {
+            neighbors.add(neighbor);
         }
 
         return neighbors;
