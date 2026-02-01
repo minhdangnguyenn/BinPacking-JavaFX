@@ -133,4 +133,12 @@ public class Box {
         }
         return newBox;
     }
+
+    public int getUsedArea() {
+        int usedArea = 0;
+        for (Rectangle rect : this.rectangles) {
+            usedArea += rect.getArea();
+        }
+        return usedArea;
+    }
 }
