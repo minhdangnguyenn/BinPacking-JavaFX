@@ -49,7 +49,7 @@ public class AlgorithmRunner {
         // saved in rectangles attribute of this instance
         tf.generateInstances();
 
-        return tf.getRectangles();
+        return tf.getInstances();
     }
 
     public void runAlgorithm(AlgorithmConfig config, Consumer<AlgorithmResult> onComplete) {

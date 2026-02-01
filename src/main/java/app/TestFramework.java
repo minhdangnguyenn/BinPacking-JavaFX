@@ -1,8 +1,8 @@
 package app;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import algorithm.core.greedy.GreedyAlgorithm;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.solution.PackingSolution;
 import algorithm.model.Rectangle;
@@ -22,7 +22,7 @@ public class TestFramework {
     private int maxW;
     private int minH;
     private int maxH;
-    private ArrayList<Rectangle> rectangles;
+    private ArrayList<Rectangle> instances;
     private int boxL;
     private PackingSolution packingSolution;
 
@@ -71,7 +71,7 @@ public class TestFramework {
         this.maxW = maxW;
         this.minH = minH;
         this.maxH = maxH;
-        this.rectangles = new ArrayList<Rectangle>();
+        this.instances = new ArrayList<Rectangle>();
         this.boxL = boxL;
         this.packingSolution = null;
     }
@@ -87,20 +87,19 @@ public class TestFramework {
 
             Rectangle rect = new Rectangle(i, width, height);
 
-            this.rectangles.add(rect);
+            this.instances.add(rect);
         }
 
         System.out.println(
-            "Generated " + this.rectangles.size() + " rectangles in test-framework"
+            "Generated " + this.instances.size() + " rectangles in test-framework"
         );
     }
 
-    public ArrayList<Rectangle> getRectangles() {
-        return this.rectangles;
+    public ArrayList<Rectangle> getInstances() {
+        return this.instances;
     }
 
     public void runGreedy(String greedyStrategy) {
-        // 1. Select ordering strategy
         GreedyOrdering<Rectangle> ordering;
 
         if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
@@ -113,26 +112,15 @@ public class TestFramework {
             );
         }
 
-        // 2. Order rectangles
-        List<Rectangle> orderedRectangles = ordering.order(this.rectangles);
-
-        // 3. Create putting strategy (Bottom-Left)
+        PackingSolution initialSolution = new PackingSolution(this.boxL);
         PackingStrategy packingStrategy = new BottomLeft();
+        GreedyExtender<PackingSolution, Rectangle> greedyExtender = new FirstFitExtender(packingStrategy);
 
-        // 4. Create extender (First-Fit)
-        GreedyExtender<PackingSolution, Rectangle> extender = 
-            new FirstFitExtender(packingStrategy);
+        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = new GreedyAlgorithm<>(ordering, greedyExtender);
 
-        // 5. Initialize solution with first box
-        this.packingSolution = new PackingSolution(this.boxL);
-
-        // 6. Extend solution with each rectangle
+        // wrap into timer
         long start = System.nanoTime();
-        
-        for (Rectangle rect : orderedRectangles) {
-            this.packingSolution = extender.extend(this.packingSolution, rect);
-        }
-        
+        this.packingSolution = greedyAlgorithm.solve(initialSolution, instances);
         long runtimeMs = (System.nanoTime() - start) / 1_000_000;
 
         // 7. Print results
