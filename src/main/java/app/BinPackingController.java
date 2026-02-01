@@ -34,6 +34,7 @@ public class BinPackingController {
 
     private BoxVisualizer visualizer;
     private final AlgorithmRunner algorithmRunner = new AlgorithmRunner();
+
     @FXML
     public void initialize() {
         visualizer = new BoxVisualizer(solutionPane);
@@ -75,33 +76,14 @@ public class BinPackingController {
     @FXML
     public void handleRun() {
         solutionPane.getChildren().clear();
-
-        AlgorithmRunner.AlgorithmConfig config = new AlgorithmRunner.AlgorithmConfig();
-        config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
-        config.minWidth = InputValidator.parseField(minWField, 1);
-        config.maxWidth = InputValidator.parseField(maxWField, 50);
-        config.minHeight = InputValidator.parseField(minHField, 1);
-        config.maxHeight = InputValidator.parseField(maxHField, 50);
-        config.boxLength = InputValidator.parseField(boxLField, 100);
-        config.algorithm = algorithmCombo.getValue();
-        config.neighborhood = neighborhoodCombo.getValue();
-        config.selectionStrategy = selectionCombo.getValue();
+        AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
         System.out.println("Start running algorithm ... ");
         this.algorithmRunner.runAlgorithm(config, this::updateUIWithResults);
     }
 
     public void handleGenerateInstances() {
-        AlgorithmRunner.AlgorithmConfig config = new AlgorithmRunner.AlgorithmConfig();
-        config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
-        config.minWidth = InputValidator.parseField(minWField, 1);
-        config.maxWidth = InputValidator.parseField(maxWField, 50);
-        config.minHeight = InputValidator.parseField(minHField, 1);
-        config.maxHeight = InputValidator.parseField(maxHField, 50);
-        config.boxLength = InputValidator.parseField(boxLField, 100);
-        config.algorithm = algorithmCombo.getValue();
-        config.neighborhood = neighborhoodCombo.getValue();
-        config.selectionStrategy = selectionCombo.getValue();
+        AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
         this.testInstances = this.algorithmRunner.generateTestInstances(config);
         int numberGeneratedIstances = config.rectangleCount;
@@ -117,8 +99,23 @@ public class BinPackingController {
     }
 
     private void updateUIGenerateInstances(int numbInstances) {
-        // public Button generateInstancesButton;
         generatedInstancesCount.setText("Generated Instances: " + numbInstances);
+    }
+
+    private AlgorithmRunner.AlgorithmConfig parseConfig() {
+        AlgorithmRunner.AlgorithmConfig config = new AlgorithmRunner.AlgorithmConfig();
+
+        config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
+        config.minWidth = InputValidator.parseField(minWField, 1);
+        config.maxWidth = InputValidator.parseField(maxWField, 50);
+        config.minHeight = InputValidator.parseField(minHField, 1);
+        config.maxHeight = InputValidator.parseField(maxHField, 50);
+        config.boxLength = InputValidator.parseField(boxLField, 100);
+        config.algorithm = algorithmCombo.getValue();
+        config.neighborhood = neighborhoodCombo.getValue();
+        config.selectionStrategy = selectionCombo.getValue();
+
+        return config;
     }
 }
 
