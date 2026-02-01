@@ -21,6 +21,15 @@ public class GeometryBased implements Neighborhood <PackingSolution>{
 
     @Override
     public Iterable<PackingSolution> getNeighbors(PackingSolution solution) {
+        boolean isImproved = false;
+        // create a new solution (copy from current solution) but don't copy the last box
+
+        // unpack the last existing box, try to optimize the solution by repacking it into other boxes
+        // try to make box num -= 1
+
+        // keep do that, stop when 3 boxes repack but unoptimized
+
+
         return this.neighborSolutions;
     }
 }
