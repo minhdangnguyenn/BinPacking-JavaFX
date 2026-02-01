@@ -3,6 +3,7 @@ package app;
 import java.util.ArrayList;
 import java.util.List;
 
+import algorithm.greedy.ordering.GreedyOrderingType;
 import algorithm.solution.PackingSolution;
 import algorithm.instances.Rectangle;
 import algorithm.instances.Box;
@@ -11,8 +12,8 @@ import algorithm.greedy.ordering.LargestAreaFirst;
 import algorithm.greedy.ordering.LargestSideFirst;
 import algorithm.greedy.extender.GreedyExtender;
 import algorithm.greedy.extender.FirstFitExtender;
-import algorithm.greedy.putting.PuttingStrategy;
-import algorithm.greedy.putting.BottomLeft;
+import algorithm.greedy.packing.PackingStrategy;
+import algorithm.greedy.packing.BottomLeft;
 
 public class TestFramework {
 
@@ -102,9 +103,9 @@ public class TestFramework {
         // 1. Select ordering strategy
         GreedyOrdering<Rectangle> ordering;
 
-        if ("Area-based".equalsIgnoreCase(greedyStrategy)) {
+        if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
             ordering = new LargestAreaFirst();
-        } else if ("Height-based".equalsIgnoreCase(greedyStrategy)) {
+        } else if (GreedyOrderingType.LARGEST_SIDE_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
             ordering = new LargestSideFirst();
         } else {
             throw new IllegalArgumentException(
@@ -116,11 +117,11 @@ public class TestFramework {
         List<Rectangle> orderedRectangles = ordering.order(this.rectangles);
 
         // 3. Create putting strategy (Bottom-Left)
-        PuttingStrategy puttingStrategy = new BottomLeft();
+        PackingStrategy packingStrategy = new BottomLeft();
 
         // 4. Create extender (First-Fit)
         GreedyExtender<PackingSolution, Rectangle> extender = 
-            new FirstFitExtender(puttingStrategy);
+            new FirstFitExtender(packingStrategy);
 
         // 5. Initialize solution with first box
         this.packingSolution = new PackingSolution(this.boxL);

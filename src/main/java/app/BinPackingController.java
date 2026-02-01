@@ -1,6 +1,7 @@
 package app;
 
 
+import algorithm.greedy.ordering.GreedyOrderingType;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -51,7 +52,11 @@ public class BinPackingController {
         algorithmCombo.setItems(FXCollections.observableArrayList("Greedy", "Local Search"));
         algorithmCombo.getSelectionModel().selectFirst();
 
-        selectionCombo.setItems(FXCollections.observableArrayList("Area-based", "Height-based"));
+        selectionCombo.setItems(FXCollections.observableArrayList(
+                GreedyOrderingType.LARGEST_AREA_FIRST.name(),
+                GreedyOrderingType.LARGEST_SIDE_FIRST.name()
+        ));
+
         selectionCombo.getSelectionModel().selectFirst();
 
         neighborhoodCombo.setItems(FXCollections.observableArrayList(

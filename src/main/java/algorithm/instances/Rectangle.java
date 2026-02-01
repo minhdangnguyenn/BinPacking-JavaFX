@@ -22,7 +22,8 @@ public class Rectangle extends Item {
         this.id = id;
     }
 
-    public Rectangle(int width, int height, boolean rotated) {
+    public Rectangle(int id, int width, int height, boolean rotated) {
+        this.id = id;
         this.width = width;
         this.height = height;
         this.area = width * height;
@@ -61,7 +62,7 @@ public class Rectangle extends Item {
     }
 
     public Rectangle rotate() {
-        return new Rectangle(height, width, !rotated);
+        return new Rectangle(this.id, height, width, !rotated);
     }
 
     public boolean isSideway() {
@@ -73,7 +74,7 @@ public class Rectangle extends Item {
     }
 
     public Rectangle copy() {
-        Rectangle rect = new Rectangle(this.width, this.height, this.rotated);
+        Rectangle rect = new Rectangle(this.id, this.width, this.height, this.rotated);
         rect.setPosition(this.x, this.y);
         return rect;
     }

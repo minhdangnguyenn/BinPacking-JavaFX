@@ -1,16 +1,16 @@
 package algorithm.greedy.extender;
 
-import algorithm.greedy.putting.PuttingStrategy;
-import algorithm.greedy.putting.TryPutResult;
+import algorithm.greedy.packing.PackingStrategy;
+import algorithm.greedy.packing.TryPackResult;
 import algorithm.solution.PackingSolution;
 import algorithm.instances.Rectangle;
 import algorithm.instances.Box;
 
 
 public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectangle> {
-    private final PuttingStrategy putting;
+    private final PackingStrategy putting;
 
-    public FirstFitExtender(PuttingStrategy putting) {
+    public FirstFitExtender(PackingStrategy putting) {
         this.putting = putting;
     }
 
@@ -21,7 +21,7 @@ public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectang
     ) {
         // Try existing boxes
         for (Box box : solution.boxes()) {
-            TryPutResult result = this.putting.tryPut(rectangle, box);
+            TryPackResult result = this.putting.tryPut(rectangle, box);
             if (result != null) {
                 box.addRectangle(
                         result.rotated() ? rectangle.rotate() : rectangle,

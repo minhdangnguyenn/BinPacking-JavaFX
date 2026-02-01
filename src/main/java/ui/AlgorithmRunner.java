@@ -1,5 +1,6 @@
 package ui;
 
+import algorithm.greedy.ordering.GreedyOrderingType;
 import app.TestFramework;
 import javafx.application.Platform;
 import algorithm.instances.Rectangle;
@@ -61,7 +62,7 @@ public class AlgorithmRunner {
             if ("Greedy".equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null 
                         ? config.selectionStrategy 
-                        : "Area-based";
+                        : GreedyOrderingType.LARGEST_AREA_FIRST.name();
                 this.tf.runGreedy(strategy);
             }
 //            else if ("Local Search".equals(config.algorithm)) {

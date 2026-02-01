@@ -1,4 +1,4 @@
-package algorithm.greedy.putting;
+package algorithm.greedy.packing;
 
 import algorithm.instances.Box;
 import algorithm.instances.Rectangle;
@@ -6,12 +6,12 @@ import algorithm.instances.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BottomLeft implements PuttingStrategy {
+public class BottomLeft implements PackingStrategy {
 
     private record Candidate(int x, int y) { }
 
     @Override
-    public TryPutResult tryPut(Rectangle rectangle, Box box) {
+    public TryPackResult tryPut(Rectangle rectangle, Box box) {
         List<Candidate> candidates = new ArrayList<>();
         // First candidate is the origin
         candidates.add(new Candidate(0, 0));
@@ -56,7 +56,7 @@ public class BottomLeft implements PuttingStrategy {
                 boolean isOverlapping = box.isOverlapping(testRect);
 
                 if (!isOverflow && !isOverlapping) {
-                    return new TryPutResult(
+                    return new TryPackResult(
                             candidate.x(),
                             candidate.y(),
                             rotated
@@ -65,6 +65,6 @@ public class BottomLeft implements PuttingStrategy {
             }
         }
 
-        return TryPutResult.fail();
+        return TryPackResult.fail();
     }
 }
