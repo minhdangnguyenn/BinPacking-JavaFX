@@ -197,7 +197,7 @@ public class TestFramework {
         // Run local search
         Neighborhood<PackingSolution> neighborhood = new GeometryBased();
         Objective mininizeBox = new MinimizeBoxesNumber();
-        int maxIteration = 200;
+        int maxIteration = 1000;
         LocalSearchAlgorithm<PackingSolution> localSearch =
                 new LocalSearchAlgorithm<PackingSolution>(
                         this.packingSolution,

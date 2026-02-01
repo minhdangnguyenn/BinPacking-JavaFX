@@ -1,7 +1,9 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 public enum NeighborhoodType {
-    GEOMETRY("Geometry-based");
+    GEOMETRY("Geometry-based"),
+    RULEBASED("Rule-Based"),
+    OVERLAP("Partially Overlapped");
 
     private final String name;
 

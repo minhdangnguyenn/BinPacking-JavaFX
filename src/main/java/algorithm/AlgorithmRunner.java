@@ -61,13 +61,13 @@ public class AlgorithmRunner {
             
             long start = System.nanoTime();
             
-            if ("Greedy".equals(config.algorithm)) {
+            if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null 
                         ? config.selectionStrategy 
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
                 this.tf.runGreedy(strategy);
             }
-            else if ("Local Search".equals(config.algorithm)) {
+            else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null
                         ? config.selectionStrategy
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();

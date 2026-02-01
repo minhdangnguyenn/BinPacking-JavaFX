@@ -141,4 +141,8 @@ public class Box {
         }
         return usedArea;
     }
+
+    public double getUtilization() {
+        return ((double) this.getUsedArea() / this.area) * 100;
+    }
 }

@@ -29,7 +29,7 @@ public class LocalSearchAlgorithm<S extends Solution>{
     public S solve() {
         int i = 0;
         int unimprovedIter = 0;
-        while (i < this.maxIteration && unimprovedIter < 10) { // stop after 5 unimproved iteration
+        while (i < this.maxIteration && unimprovedIter < 100) { // stop after 5 unimproved iteration
             // each iteration has different neighbors
             // because after each iteration, currentSolution is updated
             // each iteration, some neighbor (>1) should be returned

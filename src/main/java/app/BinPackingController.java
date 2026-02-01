@@ -1,7 +1,9 @@
 package app;
 
 
+import algorithm.AlgorithmType;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
+import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -50,7 +52,11 @@ public class BinPackingController {
     }
 
     private void initializeComboBoxes() {
-        algorithmCombo.setItems(FXCollections.observableArrayList("Greedy", "Local Search"));
+        algorithmCombo.setItems(FXCollections.observableArrayList(
+                AlgorithmType.GREEDY.name(),
+                AlgorithmType.LOCALSEARCH.name()
+                )
+        );
         algorithmCombo.getSelectionModel().selectFirst();
 
         selectionCombo.setItems(FXCollections.observableArrayList(
@@ -61,14 +67,17 @@ public class BinPackingController {
         selectionCombo.getSelectionModel().selectFirst();
 
         neighborhoodCombo.setItems(FXCollections.observableArrayList(
-                "Geometry-based", "Partially Overlapped", "Rule-based"
+                NeighborhoodType.GEOMETRY.name(),
+                NeighborhoodType.RULEBASED.name(),
+                NeighborhoodType.OVERLAP.name()
         ));
+
         neighborhoodCombo.getSelectionModel().selectFirst();
     }
 
 
     private void updateAlgorithmUI() {
-        boolean isLocal = "Local Search".equals(algorithmCombo.getValue());
+        boolean isLocal = AlgorithmType.LOCALSEARCH.name().equals(algorithmCombo.getValue());
         selectionCombo.setDisable(isLocal);
         neighborhoodCombo.setDisable(!isLocal);
     }

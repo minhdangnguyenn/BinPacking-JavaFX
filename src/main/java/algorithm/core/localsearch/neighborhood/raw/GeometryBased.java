@@ -1,6 +1,7 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.extender.raw.BestFitExtender;
 import algorithm.core.greedy.extender.raw.FirstFitExtender;
 import algorithm.core.greedy.extender.generic.GreedyExtender;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
@@ -21,7 +22,7 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
     public GeometryBased() {
         PackingStrategy packingStrategy = new BottomLeft();
         GreedyOrdering<Rectangle> greedyOrdering = new LargestAreaFirst();
-        GreedyExtender<PackingSolution, Rectangle> greedyExtender = new FirstFitExtender(packingStrategy);
+        GreedyExtender<PackingSolution, Rectangle> greedyExtender = new BestFitExtender(packingStrategy);
         this.greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyExtender);
     }
 
