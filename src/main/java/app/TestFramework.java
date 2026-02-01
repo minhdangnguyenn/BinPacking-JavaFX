@@ -124,61 +124,61 @@ public class TestFramework {
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = new GreedyAlgorithm<>(ordering, greedyExtender);
 
         // wrap into timer
-        long start = System.nanoTime();
+        // long start = System.nanoTime();
         this.packingSolution = greedyAlgorithm.solve(initialSolution, instances);
-        long runtimeMs = (System.nanoTime() - start) / 1_000_000;
+        // long runtimeMs = (System.nanoTime() - start) / 1_000_000;
 
         // 7. Print results
-        System.out.println("Solution boxes: " + this.packingSolution.boxes().size());
-        System.out.println("Runtime: " + runtimeMs + " ms");
-        System.out.println("\nBoxes with rectangles:");
-
-        for (int i = 0; i < this.packingSolution.boxes().size(); i++) {
-            Box box = this.packingSolution.boxes().get(i);
-
-            System.out.println(
-                "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
-            );
-
-            for (Rectangle rect : box.getRectangles()) {
-                System.out.println(
-                    "  Rectangle " +
-                        rect.getId() +
-                        ": Size (" +
-                        rect.getWidth() +
-                        "x" +
-                        rect.getHeight() +
-                        ") at (" +
-                        rect.getX() +
-                        ", " +
-                        rect.getY() +
-                        ")"
-                );
-            }
-        }
-
-        printStats();
+//        System.out.println("Solution boxes: " + this.packingSolution.boxes().size());
+//        System.out.println("Runtime: " + runtimeMs + " ms");
+//        System.out.println("\nBoxes with rectangles:");
+//
+//        for (int i = 0; i < this.packingSolution.boxes().size(); i++) {
+//            Box box = this.packingSolution.boxes().get(i);
+//
+//            System.out.println(
+//                "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
+//            );
+//
+//            for (Rectangle rect : box.getRectangles()) {
+//                System.out.println(
+//                    "  Rectangle " +
+//                        rect.getId() +
+//                        ": Size (" +
+//                        rect.getWidth() +
+//                        "x" +
+//                        rect.getHeight() +
+//                        ") at (" +
+//                        rect.getX() +
+//                        ", " +
+//                        rect.getY() +
+//                        ")"
+//                );
+//            }
+//        }
+//
+//        printStats();
     }
 
-    private void printStats() {
-        if (this.packingSolution == null) {
-            System.out.println("No solution available");
-            return;
-        }
-
-        int totalRectangles = 0;
-        for (Box box : this.packingSolution.boxes()) {
-            totalRectangles += box.getRectangles().size();
-        }
-
-        System.out.println(
-            "\nNumber of boxes: " +
-                this.packingSolution.boxes().size() +
-                " for " +
-                totalRectangles +
-                " rectangles"
-        );
-    }
+//    private void printStats() {
+//        if (this.packingSolution == null) {
+//            System.out.println("No solution available");
+//            return;
+//        }
+//
+//        int totalRectangles = 0;
+//        for (Box box : this.packingSolution.boxes()) {
+//            totalRectangles += box.getRectangles().size();
+//        }
+//
+//        System.out.println(
+//            "\nNumber of boxes: " +
+//                this.packingSolution.boxes().size() +
+//                " for " +
+//                totalRectangles +
+//                " rectangles"
+//        );
+//    }
 
     public void runLocalSearch(String neighborType) {
         // currently I am testing Geometry-based only -- neighborhood is always Geometry based
@@ -212,37 +212,37 @@ public class TestFramework {
         this.packingSolution = improvedSolution;
 
         // Print results
-        System.out.println("After local search: " + improvedSolution.boxes().size() + " boxes");
-        System.out.println("Improvement: " +
-                (initialBoxes - improvedSolution.boxes().size()) + " boxes saved");
-
-        // Print detailed results
-        System.out.println("\nFinal boxes with rectangles:");
-        for (int i = 0; i < improvedSolution.boxes().size(); i++) {
-            Box box = improvedSolution.boxes().get(i);
-
-            System.out.println(
-                    "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
-            );
-
-            for (Rectangle rect : box.getRectangles()) {
-                System.out.println(
-                        "  Rectangle " +
-                                rect.getId() +
-                                ": Size (" +
-                                rect.getWidth() +
-                                "x" +
-                                rect.getHeight() +
-                                ") at (" +
-                                rect.getX() +
-                                ", " +
-                                rect.getY() +
-                                ")"
-                );
-            }
-        }
-
-        printStats();
+//        System.out.println("After local search: " + improvedSolution.boxes().size() + " boxes");
+//        System.out.println("Improvement: " +
+//                (initialBoxes - improvedSolution.boxes().size()) + " boxes saved");
+//
+//        // Print detailed results
+//        System.out.println("\nFinal boxes with rectangles:");
+//        for (int i = 0; i < improvedSolution.boxes().size(); i++) {
+//            Box box = improvedSolution.boxes().get(i);
+//
+//            System.out.println(
+//                    "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
+//            );
+//
+//            for (Rectangle rect : box.getRectangles()) {
+//                System.out.println(
+//                        "  Rectangle " +
+//                                rect.getId() +
+//                                ": Size (" +
+//                                rect.getWidth() +
+//                                "x" +
+//                                rect.getHeight() +
+//                                ") at (" +
+//                                rect.getX() +
+//                                ", " +
+//                                rect.getY() +
+//                                ")"
+//                );
+//            }
+//        }
+//
+//        printStats();
     }
 
 }
