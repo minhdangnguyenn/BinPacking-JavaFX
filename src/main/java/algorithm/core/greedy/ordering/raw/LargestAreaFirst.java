@@ -1,5 +1,6 @@
-package algorithm.greedy.ordering;
+package algorithm.core.greedy.ordering.raw;
 
+import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.instances.Rectangle;
 
 import java.util.Comparator;

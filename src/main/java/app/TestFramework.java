@@ -3,17 +3,17 @@ package app;
 import java.util.ArrayList;
 import java.util.List;
 
-import algorithm.greedy.ordering.GreedyOrderingType;
+import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.solution.PackingSolution;
 import algorithm.instances.Rectangle;
 import algorithm.instances.Box;
-import algorithm.greedy.ordering.GreedyOrdering;
-import algorithm.greedy.ordering.LargestAreaFirst;
-import algorithm.greedy.ordering.LargestSideFirst;
-import algorithm.greedy.extender.GreedyExtender;
-import algorithm.greedy.extender.FirstFitExtender;
-import algorithm.greedy.packing.PackingStrategy;
-import algorithm.greedy.packing.BottomLeft;
+import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
+import algorithm.core.greedy.ordering.raw.LargestSideFirst;
+import algorithm.core.greedy.extender.generic.GreedyExtender;
+import algorithm.core.greedy.extender.raw.FirstFitExtender;
+import algorithm.core.greedy.packing.generic.PackingStrategy;
+import algorithm.core.greedy.packing.raw.BottomLeft;
 
 public class TestFramework {
 
@@ -187,21 +187,21 @@ public class TestFramework {
         );
     }
 
-//    public void runLocalSearch(String neighborType) {
-//        // currently I am testing Geometry-based only -- neighborhood is always Geometry based
-//        // Check if greedy solution exists
-//        if (this.packingSolution == null) {
-//            throw new IllegalStateException(
-//                    "No greedy solution found. Run runGreedy() first."
-//            );
-//        }
-//
-//        // use the solution of greedy as initial solution
-//        System.out.println("\n=== Starting Local Search ===");
-//        int initialBoxes = this.packingSolution.boxes().size();
-//        System.out.println("Initial boxes (from greedy): " + initialBoxes);
-//
-//        // Run local search
+    public void runLocalSearch(String neighborType) {
+        // currently I am testing Geometry-based only -- neighborhood is always Geometry based
+        // Check if greedy solution exists
+        if (this.packingSolution == null) {
+            throw new IllegalStateException(
+                    "No greedy solution found. Run runGreedy() first."
+            );
+        }
+
+        // use the solution of greedy as initial solution
+        System.out.println("\n=== Starting Local Search ===");
+        int initialBoxes = this.packingSolution.boxes().size();
+        System.out.println("Initial boxes (from greedy): " + initialBoxes);
+
+        // Run local search
 //        LocalSearchAlgorithm<Box, PackingSolution> localSearch =
 //                new LocalSearchAlgorithm<>(this.packingSolution, neighborType);
 //
@@ -242,6 +242,6 @@ public class TestFramework {
 //        }
 //
 //        printStats();
-//    }
+    }
 
 }

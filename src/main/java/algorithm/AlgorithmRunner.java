@@ -1,10 +1,12 @@
-package ui;
+package algorithm;
 
-import algorithm.greedy.ordering.GreedyOrderingType;
+import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
+import algorithm.core.localsearch.neighborhood.NeighborhoodType;
 import app.TestFramework;
 import javafx.application.Platform;
 import algorithm.instances.Rectangle;
 import algorithm.instances.Box;
+import ui.BoxVisualizer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,16 +67,16 @@ public class AlgorithmRunner {
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
                 this.tf.runGreedy(strategy);
             }
-//            else if ("Local Search".equals(config.algorithm)) {
-//                String strategy = config.selectionStrategy != null
-//                        ? config.selectionStrategy
-//                        : "Area-based";
-//                this.tf.runGreedy(strategy);
-//                String neigh = config.neighborhood != null
-//                        ? config.neighborhood
-//                        : "Geometry-based";
-//                this.tf.runLocalSearch(neigh);
-//            }
+            else if ("Local Search".equals(config.algorithm)) {
+                String strategy = config.selectionStrategy != null
+                        ? config.selectionStrategy
+                        : GreedyOrderingType.LARGEST_AREA_FIRST.name();
+                this.tf.runGreedy(strategy);
+                String neigh = config.neighborhood != null
+                        ? config.neighborhood
+                        : NeighborhoodType.GEOMETRY.name();
+                this.tf.runLocalSearch(neigh);
+            }
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
 

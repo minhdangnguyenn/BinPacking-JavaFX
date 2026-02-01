@@ -1,4 +1,4 @@
-package algorithm.greedy.packing;
+package algorithm.core.greedy.packing.raw;
 
 public enum PackingStrategyType {
     BOTTOM_LEFT("Bottom Left");

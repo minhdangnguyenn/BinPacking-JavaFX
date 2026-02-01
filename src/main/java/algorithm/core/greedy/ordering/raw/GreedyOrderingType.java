@@ -1,4 +1,4 @@
-package algorithm.greedy.ordering;
+package algorithm.core.greedy.ordering.raw;
 
 public enum GreedyOrderingType {
     LARGEST_AREA_FIRST("Largest Area First"),

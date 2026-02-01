@@ -1,5 +1,6 @@
-package algorithm.greedy.packing;
+package algorithm.core.greedy.packing.raw;
 
+import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.instances.Box;
 import algorithm.instances.Rectangle;
 
@@ -11,7 +12,7 @@ public class BottomLeft implements PackingStrategy {
     private record Candidate(int x, int y) { }
 
     @Override
-    public TryPackResult tryPut(Rectangle rectangle, Box box) {
+    public TryPackResult tryPack(Rectangle rectangle, Box box) {
         List<Candidate> candidates = new ArrayList<>();
         // First candidate is the origin
         candidates.add(new Candidate(0, 0));

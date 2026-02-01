@@ -1,13 +1,13 @@
 package app;
 
 
-import algorithm.greedy.ordering.GreedyOrderingType;
+import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import algorithm.instances.Rectangle;
-import ui.AlgorithmRunner;
+import algorithm.AlgorithmRunner;
 import ui.BoxVisualizer;
 import ui.InputValidator;
 import java.util.ArrayList;

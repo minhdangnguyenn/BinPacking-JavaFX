@@ -1,4 +1,4 @@
-package algorithm.greedy.extender;
+package algorithm.core.greedy.extender.raw;
 
 public enum GreedyPlaceType {
     FIRST_FIT("First Fit"),

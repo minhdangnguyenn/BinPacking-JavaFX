@@ -1,4 +1,4 @@
-package algorithm.greedy.ordering;
+package algorithm.core.greedy.ordering.generic;
 
 import java.util.List;
 

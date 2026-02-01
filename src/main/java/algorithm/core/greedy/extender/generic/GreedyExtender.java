@@ -1,4 +1,4 @@
-package algorithm.greedy.extender;
+package algorithm.core.greedy.extender.generic;
 
 import algorithm.solution.Solution;
 import algorithm.interfaces.Item;

@@ -1,17 +1,18 @@
-package algorithm.greedy.extender;
+package algorithm.core.greedy.extender.raw;
 
-import algorithm.greedy.packing.PackingStrategy;
-import algorithm.greedy.packing.TryPackResult;
+import algorithm.core.greedy.extender.generic.GreedyExtender;
+import algorithm.core.greedy.packing.generic.PackingStrategy;
+import algorithm.core.greedy.packing.raw.TryPackResult;
 import algorithm.solution.PackingSolution;
 import algorithm.instances.Rectangle;
 import algorithm.instances.Box;
 
 
 public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectangle> {
-    private final PackingStrategy putting;
+    private final PackingStrategy packingStrategy;
 
-    public FirstFitExtender(PackingStrategy putting) {
-        this.putting = putting;
+    public FirstFitExtender(PackingStrategy packingStrategy) {
+        this.packingStrategy = packingStrategy;
     }
 
     @Override
@@ -21,7 +22,7 @@ public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectang
     ) {
         // Try existing boxes
         for (Box box : solution.boxes()) {
-            TryPackResult result = this.putting.tryPut(rectangle, box);
+            TryPackResult result = this.packingStrategy.tryPack(rectangle, box);
             if (result != null) {
                 box.addRectangle(
                         result.rotated() ? rectangle.rotate() : rectangle,
