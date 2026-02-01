@@ -7,10 +7,11 @@ import algorithm.solution.Solution;
 
 import java.util.List;
 
-/*
-* This is a generic class for Greedy Algorithm
-* This class is generic as exercise requirements
-* */
+/**
+ * This is a generic class for greedy as exercise requirements
+ * @param <S> (solution -- in non generic case)
+ * @param <I> (rectangle -- in non generic case)
+ */
 public class GreedyAlgorithm<S extends Solution, I extends Item>{
     private final GreedyOrdering<I> ordering;
     private final GreedyExtender<S, I> extender;

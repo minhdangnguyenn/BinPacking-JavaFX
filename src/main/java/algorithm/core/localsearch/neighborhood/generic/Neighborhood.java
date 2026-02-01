@@ -1,4 +1,4 @@
-package algorithm.core.localsearch.neighborhood;
+package algorithm.core.localsearch.neighborhood.generic;
 
 import algorithm.solution.Solution;
 

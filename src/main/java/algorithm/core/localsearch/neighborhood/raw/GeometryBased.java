@@ -1,4 +1,4 @@
-package algorithm.core.localsearch.neighborhood;
+package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.extender.raw.FirstFitExtender;
 import algorithm.core.greedy.extender.generic.GreedyExtender;
@@ -6,12 +6,13 @@ import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
+import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.model.Rectangle;
 import algorithm.solution.PackingSolution;
 
 import java.util.ArrayList;
 
-public class GeometryBased implements Neighborhood <PackingSolution>{
+public class GeometryBased implements Neighborhood<PackingSolution> {
     private Iterable<PackingSolution> neighborSolutions = new ArrayList<>();
     public GeometryBased() {
         PackingStrategy packingStrategy = new BottomLeft();

@@ -1,4 +1,4 @@
-package algorithm.core.localsearch.neighborhood;
+package algorithm.core.localsearch.neighborhood.raw;
 
 public enum NeighborhoodType {
     GEOMETRY("Geometry-based");
@@ -7,9 +7,5 @@ public enum NeighborhoodType {
 
     NeighborhoodType(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
     }
 }

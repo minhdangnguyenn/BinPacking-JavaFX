@@ -1,7 +1,7 @@
 package algorithm;
 
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
-import algorithm.core.localsearch.neighborhood.NeighborhoodType;
+import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
 import app.TestFramework;
 import javafx.application.Platform;
 import algorithm.model.Rectangle;
