@@ -2,10 +2,9 @@ package ui;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import model.binpacking.instances.Box;
-import model.binpacking.instances.BinRectangle;
+import algorithm.instances.Box;
+import algorithm.instances.Rectangle;
 
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class BoxVisualizer {
     }
 
     private void drawBox(Box box, double offsetX, double offsetY) {
-        Rectangle boxRect = new Rectangle(box.getLength() * SCALE, box.getLength() * SCALE);
+        javafx.scene.shape.Rectangle boxRect = new javafx.scene.shape.Rectangle(box.getLength() * SCALE, box.getLength() * SCALE);
         boxRect.setFill(Color.LIGHTGRAY);
         boxRect.setStroke(Color.BLACK);
         boxRect.setX(offsetX);
@@ -69,16 +68,16 @@ public class BoxVisualizer {
     private void drawRectanglesInBox(Box box, double offsetX, double offsetY) {
         double boxSize = box.getLength() * SCALE;
 
-        for (BinRectangle rect : box.getRectangles()) {
-            double rx = offsetX + rect.getPosition().getX() * SCALE;
-            double ry = offsetY + boxSize - (rect.getPosition().getY() + rect.getHeight()) * SCALE;
+        for (Rectangle rect : box.getRectangles()) {
+            double rx = offsetX + rect.getX() * SCALE;
+            double ry = offsetY + boxSize - (rect.getY() + rect.getHeight()) * SCALE;
             double rw = rect.getWidth() * SCALE;
             double rh = rect.getHeight() * SCALE;
 
-            Rectangle r = new Rectangle(rw, rh);
+            javafx.scene.shape.Rectangle r = new javafx.scene.shape.Rectangle(rw, rh);
             r.setX(rx);
             r.setY(ry);
-            r.setFill(rect.getIsRotated() ? Color.RED : Color.BLUE);
+            r.setFill(rect.isRotated() ? Color.RED : Color.BLUE);
             r.setStroke(Color.BLACK);
             solutionPane.getChildren().add(r);
 
