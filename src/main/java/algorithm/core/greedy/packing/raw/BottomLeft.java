@@ -1,8 +1,8 @@
 package algorithm.core.greedy.packing.raw;
 
 import algorithm.core.greedy.packing.generic.PackingStrategy;
-import algorithm.instances.Box;
-import algorithm.instances.Rectangle;
+import algorithm.model.Box;
+import algorithm.model.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;

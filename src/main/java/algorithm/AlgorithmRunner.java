@@ -4,8 +4,8 @@ import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.core.localsearch.neighborhood.NeighborhoodType;
 import app.TestFramework;
 import javafx.application.Platform;
-import algorithm.instances.Rectangle;
-import algorithm.instances.Box;
+import algorithm.model.Rectangle;
+import algorithm.model.Box;
 import ui.BoxVisualizer;
 
 import java.util.ArrayList;

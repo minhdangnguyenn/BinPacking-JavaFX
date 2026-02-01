@@ -6,7 +6,7 @@ import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
-import algorithm.instances.Rectangle;
+import algorithm.model.Rectangle;
 import algorithm.solution.PackingSolution;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package algorithm.instances;
+package algorithm.model;
 
 
 import java.util.ArrayList;

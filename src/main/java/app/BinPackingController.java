@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
-import algorithm.instances.Rectangle;
+import algorithm.model.Rectangle;
 import algorithm.AlgorithmRunner;
 import ui.BoxVisualizer;
 import ui.InputValidator;

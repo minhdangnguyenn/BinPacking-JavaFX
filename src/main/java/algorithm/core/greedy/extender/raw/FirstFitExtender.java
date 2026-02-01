@@ -4,8 +4,8 @@ import algorithm.core.greedy.extender.generic.GreedyExtender;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.TryPackResult;
 import algorithm.solution.PackingSolution;
-import algorithm.instances.Rectangle;
-import algorithm.instances.Box;
+import algorithm.model.Rectangle;
+import algorithm.model.Box;
 
 
 public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectangle> {
@@ -34,7 +34,8 @@ public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectang
         }
 
         // Create new box if no existing box can fit the rectangle
-        Box newBox = new Box(0, solution.boxes().getFirst().getLength());
+        int newBoxId = solution.boxes().size();
+        Box newBox = new Box(newBoxId, solution.boxes().getFirst().getLength());
         newBox.addRectangle(rectangle, 0, 0);
 
         // Add new box to solution

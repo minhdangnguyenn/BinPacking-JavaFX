@@ -5,8 +5,8 @@ import java.util.List;
 
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.solution.PackingSolution;
-import algorithm.instances.Rectangle;
-import algorithm.instances.Box;
+import algorithm.model.Rectangle;
+import algorithm.model.Box;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
 import algorithm.core.greedy.ordering.raw.LargestSideFirst;

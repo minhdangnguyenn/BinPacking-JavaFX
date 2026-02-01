@@ -3,8 +3,8 @@ package ui;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import algorithm.instances.Box;
-import algorithm.instances.Rectangle;
+import algorithm.model.Box;
+import algorithm.model.Rectangle;
 
 import java.util.List;
 

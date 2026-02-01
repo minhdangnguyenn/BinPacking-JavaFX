@@ -1,8 +1,6 @@
-package algorithm.instances;
+package algorithm.model;
 
-import algorithm.interfaces.Item;
-
-public class Rectangle extends Item {
+public class Rectangle implements Item {
 
     private final int width;
     private final int height;

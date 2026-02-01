@@ -1,6 +1,6 @@
 package algorithm.solution;
 
-import algorithm.instances.Box;
+import algorithm.model.Box;
 
 import java.util.ArrayList;
 import java.util.List;
