@@ -1,7 +1,6 @@
-package algorithm.core.localsearch.objective;
+package algorithm.core.localsearch.objective.raw;
 
-import algorithm.model.Box;
-import algorithm.model.Rectangle;
+import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.solution.PackingSolution;
 
 public class MinimizeBoxesNumber implements Objective<PackingSolution> {

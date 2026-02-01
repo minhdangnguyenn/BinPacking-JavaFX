@@ -4,6 +4,11 @@ import java.util.ArrayList;
 
 import algorithm.core.greedy.GreedyAlgorithm;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
+import algorithm.core.localsearch.neighborhood.LocalSearchAlgorithm;
+import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
+import algorithm.core.localsearch.neighborhood.raw.GeometryBased;
+import algorithm.core.localsearch.objective.generic.Objective;
+import algorithm.core.localsearch.objective.raw.MinimizeBoxesNumber;
 import algorithm.solution.PackingSolution;
 import algorithm.model.Rectangle;
 import algorithm.model.Box;
@@ -190,46 +195,54 @@ public class TestFramework {
         System.out.println("Initial boxes (from greedy): " + initialBoxes);
 
         // Run local search
-//        LocalSearchAlgorithm<Box, PackingSolution> localSearch =
-//                new LocalSearchAlgorithm<>(this.packingSolution, neighborType);
-//
-//        PackingSolution improvedSolution = localSearch.solve();
-//
-//        // Update the solution with improvedSolution result
-//        this.packingSolution = improvedSolution;
-//
-//        // Print results
-//        System.out.println("After local search: " + improvedSolution.boxes().size() + " boxes");
-//        System.out.println("Improvement: " +
-//                (initialBoxes - improvedSolution.boxes().size()) + " boxes saved");
-//
-//        // Print detailed results
-//        System.out.println("\nFinal boxes with rectangles:");
-//        for (int i = 0; i < improvedSolution.boxes().size(); i++) {
-//            Box box = improvedSolution.boxes().get(i);
-//
-//            System.out.println(
-//                    "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
-//            );
-//
-//            for (Rectangle rect : box.getRectangles()) {
-//                System.out.println(
-//                        "  Rectangle " +
-//                                rect.getId() +
-//                                ": Size (" +
-//                                rect.getWidth() +
-//                                "x" +
-//                                rect.getHeight() +
-//                                ") at (" +
-//                                rect.getX() +
-//                                ", " +
-//                                rect.getY() +
-//                                ")"
-//                );
-//            }
-//        }
-//
-//        printStats();
+        Neighborhood<PackingSolution> neighborhood = new GeometryBased();
+        Objective mininizeBox = new MinimizeBoxesNumber();
+        int maxIteration = 200;
+        LocalSearchAlgorithm<PackingSolution> localSearch =
+                new LocalSearchAlgorithm<PackingSolution>(
+                        this.packingSolution,
+                        neighborhood,
+                        mininizeBox,
+                        maxIteration
+                ); //use greedy solution as initial solution
+
+        PackingSolution improvedSolution = localSearch.solve();
+
+        // Update the solution with improvedSolution result
+        this.packingSolution = improvedSolution;
+
+        // Print results
+        System.out.println("After local search: " + improvedSolution.boxes().size() + " boxes");
+        System.out.println("Improvement: " +
+                (initialBoxes - improvedSolution.boxes().size()) + " boxes saved");
+
+        // Print detailed results
+        System.out.println("\nFinal boxes with rectangles:");
+        for (int i = 0; i < improvedSolution.boxes().size(); i++) {
+            Box box = improvedSolution.boxes().get(i);
+
+            System.out.println(
+                    "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
+            );
+
+            for (Rectangle rect : box.getRectangles()) {
+                System.out.println(
+                        "  Rectangle " +
+                                rect.getId() +
+                                ": Size (" +
+                                rect.getWidth() +
+                                "x" +
+                                rect.getHeight() +
+                                ") at (" +
+                                rect.getX() +
+                                ", " +
+                                rect.getY() +
+                                ")"
+                );
+            }
+        }
+
+        printStats();
     }
 
 }

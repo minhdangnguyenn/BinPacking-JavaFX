@@ -1,7 +1,7 @@
 package algorithm.core.localsearch.neighborhood;
 
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
-import algorithm.core.localsearch.objective.Objective;
+import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.solution.Solution;
 
 /**
@@ -17,7 +17,7 @@ public class LocalSearchAlgorithm<S extends Solution>{
     public LocalSearchAlgorithm(
             S initialSolution,
             Neighborhood<S> neighborhood,
-            Objective objective,
+            Objective<S> objective,
             int maxInteration
     ) {
         this.currentSolution = initialSolution;
@@ -29,20 +29,23 @@ public class LocalSearchAlgorithm<S extends Solution>{
     public S solve() {
         int i = 0;
         int unimprovedIter = 0;
-        while (i < this.maxIteration && unimprovedIter < 5) { // stop after 5 unimproved iteration
+        while (i < this.maxIteration && unimprovedIter < 200) { // stop after 5 unimproved iteration
             // each iteration has different neighbors
             // because after each iteration, currentSolution is updated
+            // each iteration, some neighbor (>1) should be returned
             Iterable<S> neighbors = this.neighborhood.getNeighbors(this.currentSolution);
 
             S betterSolution = selectBest(neighbors);
-
+            i++;
             // cannot find a better solution for this iteration
             if (betterSolution == null) {
                 unimprovedIter ++;
+                System.out.println("Unimprove after at " + i + " iteration");
                 continue;
             };
 
             currentSolution = betterSolution;
+
             unimprovedIter = 0; // reset if found a better solution
         }
 

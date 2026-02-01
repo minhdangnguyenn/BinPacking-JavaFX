@@ -1,4 +1,4 @@
-package algorithm.core.localsearch.objective;
+package algorithm.core.localsearch.objective.generic;
 
 import algorithm.solution.Solution;
 
