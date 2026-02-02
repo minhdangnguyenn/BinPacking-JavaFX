@@ -6,11 +6,21 @@ import algorithm.solution.generic.Solution;
 import java.util.ArrayList;
 import java.util.List;
 
-public record PackingSolution(List<Box> boxes) implements Solution {
+public class PackingSolution implements Solution {
 
-    public PackingSolution(int boxSize) {
+    private final List<Box> boxes;
+
+    public PackingSolution(List<Box> boxes) {
+        this.boxes = boxes;
+    }
+
+    public PackingSolution(int boxLength) {
         this(new ArrayList<>());
-        this.boxes.add(new Box(0, boxSize));
+        this.boxes.add(new Box(this.boxes.size(), boxLength));
+    }
+
+    public List<Box> boxes() {
+        return boxes;
     }
 
     public void addBox(Box box) {

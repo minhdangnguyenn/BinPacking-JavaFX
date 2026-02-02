@@ -1,12 +1,72 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
+import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.raw.AreaDescOrder;
+import algorithm.core.greedy.packing.generic.PackingStrategy;
+import algorithm.core.greedy.packing.raw.BottomLeft;
+import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
+import algorithm.model.Rectangle;
 import algorithm.solution.raw.PackingSolution;
+import algorithm.solution.raw.PermutationSolution;
 
-public class Permutation implements Neighborhood<PackingSolution> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
+public class Permutation implements Neighborhood<PermutationSolution> {
+
+    static GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
+
+    private final int boxLength;
+
+    public Permutation(int boxLength) {
+        if (greedyAlgorithm == null) {
+            GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
+            PackingStrategy putting = new BottomLeft();
+            GreedyStrategy<PackingSolution, Rectangle> packer = new FirstFitStrategy(putting);
+            greedyAlgorithm = new GreedyAlgorithm<>(ordering, packer);
+        }
+        this.boxLength = boxLength;
+    }
+
+
+    /**
+     * Many different permutations, derived from the given one permutation
+     * @param initialSolution the first initial solution
+     * @return a list of permutation solution
+     * each permutation solution stores only different orders of triangles
+     */
     @Override
-    public Iterable<PackingSolution> getNeighbors(PackingSolution initialSolution) {
-        return null;
+    public Iterable<PermutationSolution> getNeighbors(PermutationSolution initialSolution) {
+        List<PermutationSolution> neighbors = new ArrayList<>();
+
+        PermutationSolution temp = initialSolution.copy();
+
+        // Swap randomly 2 rectangles in the permutation solution to create a new permutation
+        Random random = new Random();
+        int chosenIndex = random.nextInt(temp.getRectangles().size());
+        int swapIndex;
+        do {
+            swapIndex = random.nextInt(temp.getRectangles().size());
+        } while (chosenIndex == swapIndex);
+
+        // Swap the 2 rectangles
+        Rectangle rectangle = temp.getRectangles().get(swapIndex);
+        temp.getRectangles().set(swapIndex, temp.getRectangles().get(chosenIndex));
+        temp.getRectangles().set(chosenIndex, rectangle);
+
+        neighbors.add(temp);
+        return neighbors;
+    }
+
+    public PackingSolution decode(PermutationSolution permutationSolution) {
+        // take the permutation solution (contains a permutation of rectangles)
+        // convert it into PackingSolution (with boxes and coordinates)
+        PackingSolution packingSolution = new PackingSolution(this.boxLength);
+        return greedyAlgorithm.solve(packingSolution, permutationSolution.getRectangles());
+
     }
 }
