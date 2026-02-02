@@ -86,7 +86,18 @@ public class AlgorithmRunner {
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
 
             AlgorithmResult result = new AlgorithmResult();
-            result.boxes = BoxVisualizer.selectBoxesToDisplay(this.tf.getGreedySolution().boxes());
+            
+            // Show local search solution if available, otherwise show greedy
+            if (this.tf.getLocalSearchSolution() != null) {
+                result.boxes = BoxVisualizer.selectBoxesToDisplay(
+                        this.tf.getLocalSearchSolution().boxes()
+                );
+            } else {
+                result.boxes = BoxVisualizer.selectBoxesToDisplay(
+                        this.tf.getGreedySolution().boxes()
+                );
+            }
+            
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
             result.totalGreedyBoxes = this.tf.getGreedySolution().boxes().size();
             result.totalLocalSearchBoxes =

@@ -104,8 +104,20 @@ public class BinPackingController {
     private void updateUIWithResults(AlgorithmRunner.AlgorithmResult result) {
         visualizer.drawBoxes(result.boxes);
         runtimeLabel.setText("Runtime: " + result.runtime);
-        greedyBoxesLabel.setText("Greedy used Boxes: " + result.totalGreedyBoxes);
-        localSearchBoxesLabel.setText("Local Search used Boxes: " + result.totalLocalSearchBoxes);
+        
+        // Show greedy boxes count
+        greedyBoxesLabel.setText("Greedy Boxes: " + result.totalGreedyBoxes);
+        
+        // Show local search boxes count (if available)
+        if (result.totalLocalSearchBoxes > 0) {
+            localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
+                    " (Saved: " + (result.totalGreedyBoxes - result.totalLocalSearchBoxes) + ")");
+            localSearchBoxesLabel.setVisible(true);
+        } else {
+            localSearchBoxesLabel.setText("");
+            localSearchBoxesLabel.setVisible(false);
+        }
+        
         rectanglesLabel.setText("Rectangles: " + result.totalRectangles);
     }
 
