@@ -152,22 +152,22 @@ public class BinPackingController {
         }
 
         if (config.minWidth > config.maxWidth) throw new IllegalArgumentException(
-                "minW cannot be greater than maxW."
+                "min width cannot be greater than max width."
         );
         if (config.minHeight > config.maxHeight) throw new IllegalArgumentException(
-                "minH cannot be greater than maxH."
+                "min height cannot be greater than max height."
         );
 
         // Ensure boxL can fit the min/max rectangle sizes
         if (config.boxLength < config.minWidth || config.boxLength < config.minHeight) {
             throw new IllegalArgumentException(
-                    "Box length must be at least as big as minW and minH."
+                    "Box length must be at least as big as minW and min height."
             );
         }
 
         if (config.boxLength < config.maxWidth || config.boxLength < config.maxHeight) {
             throw new IllegalArgumentException(
-                    "Box length cannot be smaller than maxW or maxH."
+                    "Box length cannot be smaller than max width or max height."
             );
         }
     }
