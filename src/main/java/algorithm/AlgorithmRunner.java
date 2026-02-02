@@ -8,8 +8,8 @@ import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
 import algorithm.core.greedy.ordering.raw.LargestSideFirst;
-import algorithm.core.greedy.extender.generic.GreedyExtender;
-import algorithm.core.greedy.extender.raw.FirstFitExtender;
+import algorithm.core.greedy.extender.generic.GreedyStrategy;
+import algorithm.core.greedy.extender.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearchAlgorithm;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.GeometryBased;
@@ -175,11 +175,11 @@ public class AlgorithmRunner {
         }
 
         PackingSolution initialSolution = new PackingSolution(this.boxLength);
-        GreedyExtender<PackingSolution, Rectangle> greedyExtender = 
-                new FirstFitExtender(packingStrategy);
+        GreedyStrategy<PackingSolution, Rectangle> greedySelection =
+                new FirstFitStrategy(packingStrategy);
 
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
-                new GreedyAlgorithm<>(ordering, greedyExtender);
+                new GreedyAlgorithm<>(ordering, greedySelection);
 
         this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
         

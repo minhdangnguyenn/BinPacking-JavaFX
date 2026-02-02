@@ -1,24 +1,24 @@
 package algorithm.core.greedy.extender.raw;
 
-import algorithm.core.greedy.extender.generic.GreedyExtender;
+import algorithm.core.greedy.extender.generic.GreedyStrategy;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.TryPackResult;
 import algorithm.model.Box;
 import algorithm.model.Rectangle;
 import algorithm.solution.PackingSolution;
 
-public class BestFitExtender
-        implements GreedyExtender<PackingSolution, Rectangle>
+public class BestFitStrategy
+        implements GreedyStrategy<PackingSolution, Rectangle>
 {
 
     private final PackingStrategy putting;
 
-    public BestFitExtender(PackingStrategy putting) {
+    public BestFitStrategy(PackingStrategy putting) {
         this.putting = putting;
     }
 
     @Override
-    public PackingSolution extend(
+    public PackingSolution select(
             PackingSolution solution,
             Rectangle rectangle
     ) {

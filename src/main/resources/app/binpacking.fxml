@@ -4,25 +4,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox
-        alignment="CENTER"
-        prefHeight="479.0"
-        prefWidth="734.0"
-        spacing="20.0"
-        xmlns="http://javafx.com/javafx/17.0.12"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="app.BinPackingController"
->
+<VBox alignment="CENTER" prefHeight="780.0" prefWidth="889.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.BinPackingController">
 
-    <BorderPane
-            prefHeight="900"
-            prefWidth="1600.0"
-            xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-    >
+    <BorderPane prefHeight="900" prefWidth="1600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
 
         <left>
-            <VBox alignment="TOP_CENTER" prefHeight="668.0" prefWidth="266.0" spacing="8">
+            <VBox alignment="TOP_CENTER" prefHeight="752.0" prefWidth="266.0" spacing="8">
                 <Label text="Rectangles number" />
                 <TextField fx:id="rectanglesNumberField" promptText="1000" />
 
@@ -66,8 +53,8 @@
                 <Label fx:id="runtimeLabel" style="-fx-font-weight: bold;" text="Runtime: " />
 
                 <!-- Number of boxes -->
-                <Label fx:id="greedyBoxesLabel" style="-fx-font-weight: bold;" text="Boxes: " />
-                <Label fx:id="localSearchBoxesLabel" style="-fx-font-weight: bold;" text="Boxes: " />
+                <Label fx:id="greedyBoxesLabel" style="-fx-font-weight: bold;" text="Greedy Boxes: " />
+                <Label fx:id="localSearchBoxesLabel" style="-fx-font-weight: bold;" text="Local Search Boxes: " />
 
 
                 <!-- Number of rectangles used -->
@@ -79,7 +66,7 @@
         <center>
             <!-- Wrap the solution Pane in a ScrollPane -->
             <ScrollPane fitToHeight="true" fitToWidth="true">
-                <Pane fx:id="solutionPane" prefHeight="642.0" prefWidth="518.0" style="-fx-background-color: lightgray;" />
+                <Pane fx:id="solutionPane" prefHeight="749.0" prefWidth="466.0" style="-fx-background-color: lightgray;" />
             </ScrollPane>
         </center>
 

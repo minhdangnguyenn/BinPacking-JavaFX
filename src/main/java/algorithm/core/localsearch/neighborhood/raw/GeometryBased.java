@@ -2,9 +2,9 @@ package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.GreedyAlgorithm;
 // import algorithm.core.greedy.extender.raw.BestFitExtender;
-import algorithm.core.greedy.extender.raw.FirstFitExtender;
+import algorithm.core.greedy.extender.raw.FirstFitStrategy;
 import java.util.Comparator;
-import algorithm.core.greedy.extender.generic.GreedyExtender;
+import algorithm.core.greedy.extender.generic.GreedyStrategy;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
 import algorithm.core.greedy.packing.raw.BottomLeft;
@@ -23,8 +23,8 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
     public GeometryBased() {
         PackingStrategy packingStrategy = new BottomLeft();
         GreedyOrdering<Rectangle> greedyOrdering = new LargestAreaFirst();
-        GreedyExtender<PackingSolution, Rectangle> greedyExtender = new FirstFitExtender(packingStrategy);
-        this.greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyExtender);
+        GreedyStrategy<PackingSolution, Rectangle> greedyStrategy = new FirstFitStrategy(packingStrategy);
+        this.greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyStrategy);
     }
 
     @Override
@@ -33,9 +33,7 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
 
         // create a new solution (copy from current solution) but don't copy the last box
         PackingSolution cloneSolution = solution.copy();
-        // unpack the last existing box, try to optimize the solution by repacking it into other boxes
-        int numberUnpackedBox = 0;
-        int maxUnpackedBox = 10;
+
         PackingSolution clone = solution.copy();
 
         List<Rectangle> unpackedRectangles = new ArrayList<>();

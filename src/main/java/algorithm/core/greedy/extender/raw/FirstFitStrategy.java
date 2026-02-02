@@ -1,6 +1,6 @@
 package algorithm.core.greedy.extender.raw;
 
-import algorithm.core.greedy.extender.generic.GreedyExtender;
+import algorithm.core.greedy.extender.generic.GreedyStrategy;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.TryPackResult;
 import algorithm.solution.PackingSolution;
@@ -8,15 +8,15 @@ import algorithm.model.Rectangle;
 import algorithm.model.Box;
 
 
-public class FirstFitExtender implements GreedyExtender<PackingSolution, Rectangle> {
+public class FirstFitStrategy implements GreedyStrategy<PackingSolution, Rectangle> {
     private final PackingStrategy packingStrategy;
 
-    public FirstFitExtender(PackingStrategy packingStrategy) {
+    public FirstFitStrategy(PackingStrategy packingStrategy) {
         this.packingStrategy = packingStrategy;
     }
 
     @Override
-    public PackingSolution extend(
+    public PackingSolution select(
             PackingSolution solution,
             Rectangle rectangle
     ) {
