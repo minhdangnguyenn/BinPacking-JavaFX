@@ -136,7 +136,40 @@ public class BinPackingController {
         config.neighborhood = neighborhoodCombo.getValue();
         config.selectionStrategy = selectionCombo.getValue();
 
+        validConfig(config);
+
         return config;
+    }
+
+    private void validConfig(AlgorithmRunner.AlgorithmConfig config) {
+        if (config.rectangleCount <= 0 || config.minWidth <= 0
+                || config.maxWidth <= 0 || config.minHeight <= 0
+                || config.maxHeight <= 0 || config.boxLength <= 0
+        ) {
+            throw new IllegalArgumentException(
+                    "All inputs must be positive integers."
+            );
+        }
+
+        if (config.minWidth > config.maxWidth) throw new IllegalArgumentException(
+                "minW cannot be greater than maxW."
+        );
+        if (config.minHeight > config.maxHeight) throw new IllegalArgumentException(
+                "minH cannot be greater than maxH."
+        );
+
+        // Ensure boxL can fit the min/max rectangle sizes
+        if (config.boxLength < config.minWidth || config.boxLength < config.minHeight) {
+            throw new IllegalArgumentException(
+                    "Box length must be at least as big as minW and minH."
+            );
+        }
+
+        if (config.boxLength < config.maxWidth || config.boxLength < config.maxHeight) {
+            throw new IllegalArgumentException(
+                    "Box length cannot be smaller than maxW or maxH."
+            );
+        }
     }
 }
 
