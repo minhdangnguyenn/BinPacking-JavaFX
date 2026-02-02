@@ -52,6 +52,7 @@ public class AlgorithmRunner {
         public int totalGreedyBoxes;
         public int totalLocalSearchBoxes;
         public int totalRectangles;
+        public String initRuntime;
     }
 
     public ArrayList<Rectangle> generateTestInstances(AlgorithmConfig config) {
@@ -108,7 +109,8 @@ public class AlgorithmRunner {
                 System.out.println("You need to generate instances first");
                 return;
             }
-            
+
+            AlgorithmResult result = new AlgorithmResult();
             long start = System.nanoTime();
             
             if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
@@ -122,8 +124,13 @@ public class AlgorithmRunner {
                 String strategy = config.selectionStrategy != null
                         ? config.selectionStrategy
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
+
                 PackingStrategy randomPacker = new RandomPacking();
-                runGreedy(strategy, randomPacker);
+
+                long startInit = System.nanoTime();
+                runGreedy(strategy, randomPacker); // create init solution
+                long initTime = (System.nanoTime() - startInit) / 1_000_000;
+                result.initRuntime = String.format("%.2f ms", (double) initTime);
                 
                 String neigh = config.neighborhood != null
                         ? config.neighborhood
@@ -133,7 +140,7 @@ public class AlgorithmRunner {
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
 
-            AlgorithmResult result = new AlgorithmResult();
+
             
             // Show local search solution if available, otherwise show greedy
             if (this.localSearchSolution != null) {
@@ -147,6 +154,7 @@ public class AlgorithmRunner {
             }
             
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
+
             result.totalGreedyBoxes = this.greedySolution.boxes().size();
             result.totalLocalSearchBoxes =
                     this.localSearchSolution == null
