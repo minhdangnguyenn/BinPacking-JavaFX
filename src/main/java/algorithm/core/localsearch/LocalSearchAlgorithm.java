@@ -25,7 +25,7 @@ public class LocalSearchAlgorithm<S extends Solution>{
 
     public S solve(S initialSolution) {
         int i = 0;
-        double maxScore = objective.evaluate(initialSolution);
+        double minScore = objective.evaluate(initialSolution);
         S currentSolution = initialSolution;
         boolean isImproved = false;
         int unimproveIter = 0;
@@ -36,9 +36,9 @@ public class LocalSearchAlgorithm<S extends Solution>{
             Iterable<S> neighbors = this.neighborhood.getNeighbors(currentSolution);
             for (S neighbor : neighbors) {
                 double currentScore = objective.evaluate(neighbor);
-                if (maxScore < currentScore) {
+                if (currentScore < minScore) {
                     currentSolution = neighbor;
-                    maxScore = currentScore;
+                    minScore = currentScore;
                     isImproved = true;
                 }
             }

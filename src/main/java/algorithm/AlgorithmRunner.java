@@ -119,6 +119,7 @@ public class AlgorithmRunner {
                         ? config.selectionStrategy 
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
                 runGreedy(strategy, bottomLeft);
+                System.out.println("FFDA greedy: " + this.greedySolution.boxes().size() + " boxes");
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null
@@ -130,12 +131,16 @@ public class AlgorithmRunner {
                 long startInit = System.nanoTime();
                 runGreedy(strategy, randomPacker); // create init solution
                 long initTime = (System.nanoTime() - startInit) / 1_000_000;
+                System.out.println("initial greedy: " + this.greedySolution.boxes().size() + " boxes");
+
                 result.initRuntime = String.format("%.2f ms", (double) initTime);
                 
                 String neigh = config.neighborhood != null
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
+
                 runLocalSearch(neigh);
+                System.out.println("localsearch: " + this.localSearchSolution.boxes().size() + " boxes");
             }
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
@@ -190,8 +195,6 @@ public class AlgorithmRunner {
                 new GreedyAlgorithm<>(ordering, greedySelection);
 
         this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
-        
-        System.out.println("Greedy solution: " + this.greedySolution.boxes().size() + " boxes");
     }
     
     /**

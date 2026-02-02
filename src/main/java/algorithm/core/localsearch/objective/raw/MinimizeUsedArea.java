@@ -15,6 +15,6 @@ public class MinimizeUsedArea implements Objective<PackingSolution> {
         for (Box box : boxes) {
             totalUsedArea += (int) Math.pow(box.getUtilization(), 2);
         }
-        return (double) totalUsedArea / boxes.size();
+        return (double) -totalUsedArea / boxes.size();
     }
 }

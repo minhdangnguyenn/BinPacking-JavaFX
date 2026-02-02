@@ -109,7 +109,7 @@ public class BinPackingController {
         if (result.totalLocalSearchBoxes > 0) {
             localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
                     " (Saved: " + (result.totalGreedyBoxes - result.totalLocalSearchBoxes)
-            + "\n Init Runtime: " + result.initRuntime);
+            + "\n Init greedy runtime: " + result.initRuntime);
             localSearchBoxesLabel.setVisible(true);
         } else {
             localSearchBoxesLabel.setText("");
