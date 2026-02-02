@@ -27,19 +27,31 @@ public class LocalSearchAlgorithm<S extends Solution>{
         int i = 0;
         double maxScore = objective.evaluate(initialSolution);
         S currentSolution = initialSolution;
-        while (i < this.maxIteration) {
-            Iterable<S> neighbors = this.neighborhood.getNeighbors(currentSolution);
+        boolean isImproved = false;
+        int unimproveIter = 0;
+        int earlyStopIter = 10;
 
+        while (i < this.maxIteration) {
+            isImproved = false; // reset at start of next iteration
+            Iterable<S> neighbors = this.neighborhood.getNeighbors(currentSolution);
             for (S neighbor : neighbors) {
-                double curretScore = objective.evaluate(neighbor);
-                if (maxScore < curretScore) {
+                double currentScore = objective.evaluate(neighbor);
+                if (maxScore < currentScore) {
                     currentSolution = neighbor;
-                    maxScore =  curretScore;
+                    maxScore = currentScore;
+                    isImproved = true;
                 }
             }
 
-            i++;
+            if (isImproved) {
+                unimproveIter = 0;
+            } else {
+                unimproveIter += 1;
+            }
 
+            if (unimproveIter > earlyStopIter) break;
+
+            i++;
         }
 
         return currentSolution;
