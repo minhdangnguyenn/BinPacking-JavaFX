@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import algorithm.core.greedy.GreedyAlgorithm;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
+import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.localsearch.neighborhood.LocalSearchAlgorithm;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.GeometryBased;
@@ -11,7 +12,6 @@ import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeBoxesNumber;
 import algorithm.solution.PackingSolution;
 import algorithm.model.Rectangle;
-import algorithm.model.Box;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
 import algorithm.core.greedy.ordering.raw.LargestSideFirst;
@@ -29,7 +29,8 @@ public class TestFramework {
     private int maxH;
     private ArrayList<Rectangle> instances;
     private int boxL;
-    private PackingSolution packingSolution;
+    private PackingSolution greedySolution;
+    private PackingSolution localSearchSolution;
 
     public TestFramework(
         int numberInstances,
@@ -78,11 +79,12 @@ public class TestFramework {
         this.maxH = maxH;
         this.instances = new ArrayList<Rectangle>();
         this.boxL = boxL;
-        this.packingSolution = null;
+        this.greedySolution = null;
+        this.localSearchSolution = null;
     }
 
-    public PackingSolution getPackingSolution() {
-        return this.packingSolution;
+    public PackingSolution getGreedySolution() {
+        return this.greedySolution;
     }
 
     public void generateInstances() {
@@ -104,7 +106,7 @@ public class TestFramework {
         return this.instances;
     }
 
-    public void runGreedy(String greedyStrategy) {
+    public PackingSolution runGreedy(String greedyStrategy, PackingStrategy packingStrategy) {
         GreedyOrdering<Rectangle> ordering;
 
         if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
@@ -118,72 +120,23 @@ public class TestFramework {
         }
 
         PackingSolution initialSolution = new PackingSolution(this.boxL);
-        PackingStrategy packingStrategy = new BottomLeft();
+        PackingStrategy bottomLeft = new BottomLeft();
+        PackingStrategy randomPacker = new RandomPacking();
         GreedyExtender<PackingSolution, Rectangle> greedyExtender = new FirstFitExtender(packingStrategy);
 
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = new GreedyAlgorithm<>(ordering, greedyExtender);
 
         // wrap into timer
         // long start = System.nanoTime();
-        this.packingSolution = greedyAlgorithm.solve(initialSolution, instances);
-        // long runtimeMs = (System.nanoTime() - start) / 1_000_000;
+        this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
 
-        // 7. Print results
-//        System.out.println("Solution boxes: " + this.packingSolution.boxes().size());
-//        System.out.println("Runtime: " + runtimeMs + " ms");
-//        System.out.println("\nBoxes with rectangles:");
-//
-//        for (int i = 0; i < this.packingSolution.boxes().size(); i++) {
-//            Box box = this.packingSolution.boxes().get(i);
-//
-//            System.out.println(
-//                "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
-//            );
-//
-//            for (Rectangle rect : box.getRectangles()) {
-//                System.out.println(
-//                    "  Rectangle " +
-//                        rect.getId() +
-//                        ": Size (" +
-//                        rect.getWidth() +
-//                        "x" +
-//                        rect.getHeight() +
-//                        ") at (" +
-//                        rect.getX() +
-//                        ", " +
-//                        rect.getY() +
-//                        ")"
-//                );
-//            }
-//        }
-//
-//        printStats();
+        return this.greedySolution;
     }
-
-//    private void printStats() {
-//        if (this.packingSolution == null) {
-//            System.out.println("No solution available");
-//            return;
-//        }
-//
-//        int totalRectangles = 0;
-//        for (Box box : this.packingSolution.boxes()) {
-//            totalRectangles += box.getRectangles().size();
-//        }
-//
-//        System.out.println(
-//            "\nNumber of boxes: " +
-//                this.packingSolution.boxes().size() +
-//                " for " +
-//                totalRectangles +
-//                " rectangles"
-//        );
-//    }
 
     public void runLocalSearch(String neighborType) {
         // currently I am testing Geometry-based only -- neighborhood is always Geometry based
         // Check if greedy solution exists
-        if (this.packingSolution == null) {
+        if (this.greedySolution == null) {
             throw new IllegalStateException(
                     "No greedy solution found. Run runGreedy() first."
             );
@@ -191,7 +144,7 @@ public class TestFramework {
 
         // use the solution of greedy as initial solution
         System.out.println("\n=== Starting Local Search ===");
-        int initialBoxes = this.packingSolution.boxes().size();
+        int initialBoxes = this.greedySolution.boxes().size();
         System.out.println("Initial boxes (from greedy): " + initialBoxes);
 
         // Run local search
@@ -200,49 +153,16 @@ public class TestFramework {
         int maxIteration = 1000;
         LocalSearchAlgorithm<PackingSolution> localSearch =
                 new LocalSearchAlgorithm<PackingSolution>(
-                        this.packingSolution,
                         neighborhood,
                         mininizeBox,
                         maxIteration
                 ); //use greedy solution as initial solution
 
-        PackingSolution improvedSolution = localSearch.solve();
+        PackingSolution improvedSolution = localSearch.solve(this.greedySolution);
 
         // Update the solution with improvedSolution result
-        this.packingSolution = improvedSolution;
-
-        // Print results
-//        System.out.println("After local search: " + improvedSolution.boxes().size() + " boxes");
-//        System.out.println("Improvement: " +
-//                (initialBoxes - improvedSolution.boxes().size()) + " boxes saved");
-//
-//        // Print detailed results
-//        System.out.println("\nFinal boxes with rectangles:");
-//        for (int i = 0; i < improvedSolution.boxes().size(); i++) {
-//            Box box = improvedSolution.boxes().get(i);
-//
-//            System.out.println(
-//                    "\nBox " + i + ": " + box.getRectangles().size() + " rectangles"
-//            );
-//
-//            for (Rectangle rect : box.getRectangles()) {
-//                System.out.println(
-//                        "  Rectangle " +
-//                                rect.getId() +
-//                                ": Size (" +
-//                                rect.getWidth() +
-//                                "x" +
-//                                rect.getHeight() +
-//                                ") at (" +
-//                                rect.getX() +
-//                                ", " +
-//                                rect.getY() +
-//                                ")"
-//                );
-//            }
-//        }
-//
-//        printStats();
+        this.localSearchSolution = improvedSolution;
     }
 
+    public PackingSolution getLocalSearchSolution() { return this.localSearchSolution; }
 }

@@ -1,8 +1,9 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.GreedyAlgorithm;
-import algorithm.core.greedy.extender.raw.BestFitExtender;
+// import algorithm.core.greedy.extender.raw.BestFitExtender;
 import algorithm.core.greedy.extender.raw.FirstFitExtender;
+import java.util.Comparator;
 import algorithm.core.greedy.extender.generic.GreedyExtender;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
@@ -22,7 +23,7 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
     public GeometryBased() {
         PackingStrategy packingStrategy = new BottomLeft();
         GreedyOrdering<Rectangle> greedyOrdering = new LargestAreaFirst();
-        GreedyExtender<PackingSolution, Rectangle> greedyExtender = new BestFitExtender(packingStrategy);
+        GreedyExtender<PackingSolution, Rectangle> greedyExtender = new FirstFitExtender(packingStrategy);
         this.greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyExtender);
     }
 
@@ -34,28 +35,36 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
         PackingSolution cloneSolution = solution.copy();
         // unpack the last existing box, try to optimize the solution by repacking it into other boxes
         int numberUnpackedBox = 0;
-        int maxUnpackedBox = 5;
+        int maxUnpackedBox = 10;
+        PackingSolution clone = solution.copy();
 
-        while (numberUnpackedBox < maxUnpackedBox) {
-            PackingSolution tempSolution = cloneSolution.copy();
-            Box lastBox = tempSolution.boxes().getLast();
+        List<Rectangle> unpackedRectangles = new ArrayList<>();
 
-            // get a list of placed rectangles in the last box
-            List<Rectangle> unpackedRectangle = lastBox.getRectangles()
-                    .stream()
-                    .map(Rectangle::copy)
-                    .toList();
+        // sort utilization asc
+        clone.boxes().sort(Comparator.comparingInt(Box::getUsedArea));
 
-            // try to make box num -= 1
-            tempSolution.boxes().remove(lastBox); // remove the last box
-            PackingSolution baseSolution = tempSolution.copy();
+        // get the 20% of numb boxes
+        int numUnpackBox = solution.boxes().size() / 5;
+        PackingSolution tempSolution = cloneSolution.copy();
+        for (int i = 0; i < numUnpackBox; i++) {
+            Box unpackBox = tempSolution.boxes().get(i);
 
-            PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, unpackedRectangle);
-            neighborSolutions.add(improvedSolution);
+            for (Rectangle rectangle : unpackBox.getRectangles()) {
+                unpackedRectangles.add(rectangle.copy());
+            }
 
-            numberUnpackedBox ++;
+            tempSolution.boxes().remove(unpackBox);
         }
 
-        return neighborSolutions;
+        //reorder by area desc
+        unpackedRectangles.sort(Comparator.comparingInt(Rectangle::getArea).reversed());
+
+        PackingSolution baseSolution = tempSolution.copy();
+
+        PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, unpackedRectangles);
+
+        neighborSolutions.add(improvedSolution);
+
+       return neighborSolutions;
     }
 }

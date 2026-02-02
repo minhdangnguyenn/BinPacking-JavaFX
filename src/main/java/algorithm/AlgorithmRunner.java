@@ -1,6 +1,9 @@
 package algorithm;
 
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
+import algorithm.core.greedy.packing.generic.PackingStrategy;
+import algorithm.core.greedy.packing.raw.BottomLeft;
+import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
 import app.TestFramework;
 import javafx.application.Platform;
@@ -31,7 +34,8 @@ public class AlgorithmRunner {
     public static class AlgorithmResult {
         public List<Box> boxes;
         public String runtime;
-        public int totalBoxes;
+        public int totalGreedyBoxes;
+        public int totalLocalSearchBoxes;
         public int totalRectangles;
     }
 
@@ -45,8 +49,6 @@ public class AlgorithmRunner {
                 config.boxLength
         );
 
-        // create test instances for this tf instance
-        // saved in rectangles attribute of this instance
         tf.generateInstances();
 
         return tf.getInstances();
@@ -62,16 +64,20 @@ public class AlgorithmRunner {
             long start = System.nanoTime();
             
             if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
+                PackingStrategy bottomLeft = new BottomLeft();
+                PackingStrategy randomPacker = new RandomPacking();
                 String strategy = config.selectionStrategy != null 
                         ? config.selectionStrategy 
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
-                this.tf.runGreedy(strategy);
+                this.tf.runGreedy(strategy, randomPacker);
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null
                         ? config.selectionStrategy
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
-                this.tf.runGreedy(strategy);
+                PackingStrategy bottomLeft = new BottomLeft();
+                PackingStrategy randomPacker = new RandomPacking();
+                this.tf.runGreedy(strategy, randomPacker);
                 String neigh = config.neighborhood != null
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
@@ -81,10 +87,14 @@ public class AlgorithmRunner {
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
 
             AlgorithmResult result = new AlgorithmResult();
-            result.boxes = BoxVisualizer.selectBoxesToDisplay(this.tf.getPackingSolution().boxes());
+            result.boxes = BoxVisualizer.selectBoxesToDisplay(this.tf.getGreedySolution().boxes());
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
-            result.totalBoxes = this.tf.getPackingSolution().boxes().size();
-            result.totalRectangles = this.tf.getPackingSolution().boxes().stream()
+            result.totalGreedyBoxes = this.tf.getGreedySolution().boxes().size();
+            result.totalLocalSearchBoxes =
+                    this.tf.getLocalSearchSolution() == null
+                            ? 0
+                            : this.tf.getLocalSearchSolution().boxes().size();
+            result.totalRectangles = this.tf.getGreedySolution().boxes().stream()
                     .mapToInt(b -> b.getRectangles().size())
                     .sum();
 

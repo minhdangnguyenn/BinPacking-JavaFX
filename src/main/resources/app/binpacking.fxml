@@ -66,7 +66,9 @@
                 <Label fx:id="runtimeLabel" style="-fx-font-weight: bold;" text="Runtime: " />
 
                 <!-- Number of boxes -->
-                <Label fx:id="boxesLabel" style="-fx-font-weight: bold;" text="Boxes: " />
+                <Label fx:id="greedyBoxesLabel" style="-fx-font-weight: bold;" text="Boxes: " />
+                <Label fx:id="localSearchBoxesLabel" style="-fx-font-weight: bold;" text="Boxes: " />
+
 
                 <!-- Number of rectangles used -->
                 <Label fx:id="rectanglesLabel" style="-fx-font-weight: bold;" text="Rectangles: " />

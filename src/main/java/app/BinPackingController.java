@@ -16,13 +16,14 @@ import java.util.ArrayList;
 
 public class BinPackingController {
 
-    public Label boxesLabel;
+    public Label greedyBoxesLabel;
     public Label rectanglesLabel;
     public Button runButton;
     public Label runtimeLabel;
     public ArrayList<Rectangle> testInstances = new ArrayList<>();
     public Button generateInstancesButton;
     public Label generatedInstancesCount;
+    public Label localSearchBoxesLabel;
     @FXML private ComboBox<String> algorithmCombo;
     @FXML private ComboBox<String> neighborhoodCombo;
     @FXML private ComboBox<String> selectionCombo;
@@ -103,7 +104,8 @@ public class BinPackingController {
     private void updateUIWithResults(AlgorithmRunner.AlgorithmResult result) {
         visualizer.drawBoxes(result.boxes);
         runtimeLabel.setText("Runtime: " + result.runtime);
-        boxesLabel.setText("Used Boxes: " + result.totalBoxes);
+        greedyBoxesLabel.setText("Greedy used Boxes: " + result.totalGreedyBoxes);
+        localSearchBoxesLabel.setText("Local Search used Boxes: " + result.totalLocalSearchBoxes);
         rectanglesLabel.setText("Rectangles: " + result.totalRectangles);
     }
 
