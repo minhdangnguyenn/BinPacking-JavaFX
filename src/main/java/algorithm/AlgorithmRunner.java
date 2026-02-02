@@ -65,11 +65,10 @@ public class AlgorithmRunner {
             
             if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
                 PackingStrategy bottomLeft = new BottomLeft();
-                PackingStrategy randomPacker = new RandomPacking();
                 String strategy = config.selectionStrategy != null 
                         ? config.selectionStrategy 
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
-                this.tf.runGreedy(strategy, randomPacker);
+                this.tf.runGreedy(strategy, bottomLeft);
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
                 String strategy = config.selectionStrategy != null
