@@ -191,12 +191,12 @@ public class AlgorithmRunner {
      */
     private void runLocalSearch(String neighborType) {
         if (this.greedySolution == null) {
-            throw new IllegalStateException("No greedy solution found. Run greedy first.");
+            throw new IllegalStateException("No greedy solution found. Check again initial solution !");
         }
 
         System.out.println("\n=== Starting Local Search ===");
         int initialBoxes = this.greedySolution.boxes().size();
-        System.out.println("Initial boxes (from greedy): " + initialBoxes);
+        System.out.println("Initial boxes (from random place greedy): " + initialBoxes);
 
         // Create neighborhood
         Neighborhood<PackingSolution> neighborhood = new GeometryBased();
@@ -211,8 +211,8 @@ public class AlgorithmRunner {
                 );
 
         this.localSearchSolution = localSearch.solve(this.greedySolution);
-        
+
         System.out.println("Local search solution: " + this.localSearchSolution.boxes().size() + " boxes");
-        System.out.println("Improvement: " + (initialBoxes - this.localSearchSolution.boxes().size()) + " boxes saved");
+        System.out.println("Improvement: " + (initialBoxes - this.localSearchSolution.boxes().size()) + " boxes saved-compared to initial solution");
     }
 }

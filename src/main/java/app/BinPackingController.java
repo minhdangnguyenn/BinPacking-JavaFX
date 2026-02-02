@@ -76,7 +76,6 @@ public class BinPackingController {
         neighborhoodCombo.getSelectionModel().selectFirst();
     }
 
-
     private void updateAlgorithmUI() {
         boolean isLocal = AlgorithmType.LOCALSEARCH.name().equals(algorithmCombo.getValue());
         selectionCombo.setDisable(isLocal);
@@ -88,7 +87,6 @@ public class BinPackingController {
         solutionPane.getChildren().clear();
         AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
-        System.out.println("Start running algorithm ... ");
         this.algorithmRunner.runAlgorithm(config, this::updateUIWithResults);
     }
 
@@ -96,9 +94,8 @@ public class BinPackingController {
         AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
         this.testInstances = this.algorithmRunner.generateTestInstances(config);
-        int numberGeneratedIstances = config.rectangleCount;
 
-        this.updateUIGenerateInstances(numberGeneratedIstances);
+        this.updateUIGenerateInstances(config.rectangleCount);
     }
 
     private void updateUIWithResults(AlgorithmRunner.AlgorithmResult result) {
@@ -111,7 +108,7 @@ public class BinPackingController {
         // Show local search boxes count (if available)
         if (result.totalLocalSearchBoxes > 0) {
             localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
-                    " (Saved: " + (result.totalGreedyBoxes - result.totalLocalSearchBoxes) + ")");
+                    " (Saved: " + (result.totalGreedyBoxes - result.totalLocalSearchBoxes));
             localSearchBoxesLabel.setVisible(true);
         } else {
             localSearchBoxesLabel.setText("");

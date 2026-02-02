@@ -9,7 +9,7 @@
     <BorderPane prefHeight="900" prefWidth="1600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
 
         <left>
-            <VBox alignment="TOP_CENTER" prefHeight="752.0" prefWidth="266.0" spacing="8">
+            <VBox alignment="TOP_CENTER" prefHeight="780.0" prefWidth="328.0" spacing="8">
                 <Label text="Rectangles number" />
                 <TextField fx:id="rectanglesNumberField" promptText="1000" />
 

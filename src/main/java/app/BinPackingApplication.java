@@ -12,7 +12,7 @@ public class BinPackingApplication extends Application {
     public void start(Stage stage) throws IOException {
         // Load FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("binpacking.fxml"));
-        Scene scene = new Scene(loader.load(), 1200, 700); // width x height
+        Scene scene = new Scene(loader.load(), 1200, 900); // width x height
 
         stage.setTitle("Bin Packing Problem");
         stage.setScene(scene);
