@@ -2,7 +2,7 @@ package algorithm.core.localsearch;
 
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.objective.generic.Objective;
-import algorithm.solution.Solution;
+import algorithm.solution.generic.Solution;
 
 /**
  * This is a generic class as exercise requirements

@@ -20,7 +20,7 @@ public class BinPackingController {
     public Label rectanglesLabel;
     public Button runButton;
     public Label runtimeLabel;
-    public ArrayList<Rectangle> testInstances = new ArrayList<>();
+    public ArrayList<Rectangle> rectangles = new ArrayList<>();
     public Button generateInstancesButton;
     public Label generatedInstancesCount;
     public Label localSearchBoxesLabel;
@@ -93,7 +93,7 @@ public class BinPackingController {
     public void handleGenerateInstances() {
         AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
-        this.testInstances = this.algorithmRunner.generateTestInstances(config);
+        this.rectangles = this.algorithmRunner.generateTestInstances(config);
 
         this.updateUIGenerateInstances(config.rectangleCount);
     }

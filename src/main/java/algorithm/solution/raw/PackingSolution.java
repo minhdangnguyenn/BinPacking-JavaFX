@@ -1,6 +1,7 @@
-package algorithm.solution;
+package algorithm.solution.raw;
 
 import algorithm.model.Box;
+import algorithm.solution.generic.Solution;
 
 import java.util.ArrayList;
 import java.util.List;

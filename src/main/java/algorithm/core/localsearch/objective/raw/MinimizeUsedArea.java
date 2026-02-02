@@ -2,11 +2,11 @@ package algorithm.core.localsearch.objective.raw;
 
 import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.model.Box;
-import algorithm.solution.PackingSolution;
+import algorithm.solution.raw.PackingSolution;
 
 import java.util.List;
 
-public class MinimizeBoxesNumber implements Objective<PackingSolution> {
+public class MinimizeUsedArea implements Objective<PackingSolution> {
 
     @Override
     public double evaluate(PackingSolution solution) {

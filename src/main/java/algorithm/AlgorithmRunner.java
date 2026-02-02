@@ -8,15 +8,15 @@ import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
-import algorithm.core.greedy.extender.generic.GreedyStrategy;
-import algorithm.core.greedy.extender.raw.FirstFitStrategy;
+import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearchAlgorithm;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.GeometryBased;
 import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
 import algorithm.core.localsearch.objective.generic.Objective;
-import algorithm.core.localsearch.objective.raw.MinimizeBoxesNumber;
-import algorithm.solution.PackingSolution;
+import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
+import algorithm.solution.raw.PackingSolution;
 import javafx.application.Platform;
 import algorithm.model.Rectangle;
 import algorithm.model.Box;
@@ -208,7 +208,7 @@ public class AlgorithmRunner {
 
         // Create neighborhood
         Neighborhood<PackingSolution> neighborhood = new GeometryBased();
-        Objective<PackingSolution> objective = new MinimizeBoxesNumber();
+        Objective<PackingSolution> objective = new MinimizeUsedArea();
         int maxIteration = 1000;
         
         LocalSearchAlgorithm<PackingSolution> localSearch =

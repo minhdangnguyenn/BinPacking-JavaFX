@@ -1,9 +1,9 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.GreedyAlgorithm;
-import algorithm.core.greedy.extender.raw.FirstFitStrategy;
+import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import java.util.Comparator;
-import algorithm.core.greedy.extender.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.raw.BottomLeft;
@@ -11,7 +11,7 @@ import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.model.Box;
 import algorithm.model.Rectangle;
-import algorithm.solution.PackingSolution;
+import algorithm.solution.raw.PackingSolution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
 
     @Override
     public Iterable<PackingSolution> getNeighbors(PackingSolution solution) {
-            List<PackingSolution> neighborSolutions = new ArrayList<>();
+        List<PackingSolution> neighborSolutions = new ArrayList<>();
 
         // create a new solution (copy from current solution) but don't copy the last box
         PackingSolution cloneSolution = solution.copy();

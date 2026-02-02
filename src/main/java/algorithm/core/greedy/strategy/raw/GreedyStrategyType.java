@@ -1,4 +1,4 @@
-package algorithm.core.greedy.extender.raw;
+package algorithm.core.greedy.strategy.raw;
 
 public enum GreedyStrategyType {
     FIRST_FIT("First Fit"),

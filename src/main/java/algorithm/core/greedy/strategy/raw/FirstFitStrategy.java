@@ -1,9 +1,9 @@
-package algorithm.core.greedy.extender.raw;
+package algorithm.core.greedy.strategy.raw;
 
-import algorithm.core.greedy.extender.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.TryPackResult;
-import algorithm.solution.PackingSolution;
+import algorithm.solution.raw.PackingSolution;
 import algorithm.model.Rectangle;
 import algorithm.model.Box;
 

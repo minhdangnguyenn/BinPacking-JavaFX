@@ -1,9 +1,9 @@
 package algorithm.core.greedy;
 
-import algorithm.core.greedy.extender.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.model.Item;
-import algorithm.solution.Solution;
+import algorithm.solution.generic.Solution;
 
 import java.util.List;
 
