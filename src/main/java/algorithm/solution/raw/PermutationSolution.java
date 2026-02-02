@@ -7,7 +7,6 @@ import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
-import algorithm.model.Box;
 import algorithm.model.Rectangle;
 import algorithm.solution.generic.Solution;
 

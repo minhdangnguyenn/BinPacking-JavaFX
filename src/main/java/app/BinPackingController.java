@@ -39,6 +39,7 @@ public class BinPackingController {
 
     private BoxVisualizer visualizer;
     private final AlgorithmRunner algorithmRunner = new AlgorithmRunner();
+    private final static int MAXITERATION = 1000; // max iteration for local search
 
     @FXML
     public void initialize() {
@@ -89,7 +90,7 @@ public class BinPackingController {
         solutionPane.getChildren().clear();
         AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
-        this.algorithmRunner.runAlgorithm(config, this::updateUIWithResults);
+        this.algorithmRunner.runAlgorithm(config, this::updateUIWithResults, MAXITERATION);
     }
 
     public void handleGenerateInstances() {

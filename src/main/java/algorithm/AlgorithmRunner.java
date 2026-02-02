@@ -37,8 +37,9 @@ public class AlgorithmRunner {
     private PackingSolution greedySolution;
     private PackingSolution localSearchSolution;
     private PackingSolution badSolution;
-    // private GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
     private long runtimeMs;
+
+    private final static int MAXITERATION = 1000;
     
     public static class AlgorithmConfig {
         public int rectangleCount;
@@ -87,7 +88,7 @@ public class AlgorithmRunner {
         return this.instances;
     }
 
-    public void runAlgorithm(AlgorithmConfig config, Consumer<AlgorithmResult> onComplete) {
+    public void runAlgorithm(AlgorithmConfig config, Consumer<AlgorithmResult> onComplete, int maxIteration) {
         new Thread(() -> {
             if (this.instances == null || this.instances.isEmpty()) {
                 System.out.println("You need to generate instances first");
@@ -106,25 +107,13 @@ public class AlgorithmRunner {
                 System.out.println("FFDA greedy: " + this.greedySolution.boxes().size() + " boxes");
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
-                String strategy = config.selectionStrategy != null
-                        ? config.selectionStrategy
-                        : GreedyOrderingType.LARGEST_AREA_FIRST.name();
+                initBadGreedySolution(result);
 
-                PackingStrategy randomPacker = new RandomPacking();
-
-                long startInit = System.nanoTime();
-                this.badSolution = runGreedy(strategy, randomPacker); // create bad init solution
-                long initTime = (System.nanoTime() - startInit) / 1_000_000;
-                System.out.println("initial bad greedy: " + this.greedySolution.boxes().size() + " boxes");
-
-                result.initRuntime = String.format("%.2f ms", (double) initTime);
-                
                 String neighborType = config.neighborhood != null
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
 
-                runLocalSearch(neighborType);
-//                System.out.println("localsearch: " + this.localSearchSolution.boxes().size() + " boxes");
+                runLocalSearch(neighborType, maxIteration);
             }
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
@@ -154,19 +143,16 @@ public class AlgorithmRunner {
             Platform.runLater(() -> onComplete.accept(result));
         }).start();
     }
-    
-    /**
-     * Run greedy algorithm
-     */
-    private PackingSolution runGreedy(String greedyStrategy, PackingStrategy packingStrategy) {
+
+    private PackingSolution runGreedy(String orderStrategy, PackingStrategy packingStrategy) {
         GreedyOrdering<Rectangle> ordering;
 
-        if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
+        if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(orderStrategy)) {
             ordering = new AreaDescOrder();
-        } else if (GreedyOrderingType.LARGEST_SIDE_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
+        } else if (GreedyOrderingType.LARGEST_SIDE_FIRST.name().equalsIgnoreCase(orderStrategy)) {
             ordering = new SideDescOrder();
         } else {
-            throw new IllegalArgumentException("Unknown greedy strategy: " + greedyStrategy);
+            throw new IllegalArgumentException("Unknown greedy strategy: " + orderStrategy);
         }
 
         PackingSolution initialSolution = new PackingSolution(this.boxLength);
@@ -179,11 +165,8 @@ public class AlgorithmRunner {
         this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
         return this.greedySolution;
     }
-    
-    /**
-     * Run local search algorithm
-     */
-    private void runLocalSearch(String neighborType) {
+
+    private void runLocalSearch(String neighborType, int maxIteration) {
         if (this.badSolution == null) {
             throw new IllegalStateException("No greedy solution found. Check again initial solution !");
         }
@@ -194,9 +177,9 @@ public class AlgorithmRunner {
 
         // Create neighborhood
         if (NeighborhoodType.GEOMETRY.name().equalsIgnoreCase(neighborType)) {
-            runGeometry();
+            runGeometry(maxIteration);
         } else if (NeighborhoodType.RULEBASED.name().equalsIgnoreCase(neighborType)) {
-            runPermutation();
+            runPermutation(maxIteration);
         }
         else if (NeighborhoodType.OVERLAP.name().equalsIgnoreCase(neighborType)) {
             System.out.println("NOT YET IMPLEMENTED");
@@ -205,11 +188,11 @@ public class AlgorithmRunner {
         }
     }
 
-    public void runGeometry() {
+    public void runGeometry(int maxIteration) {
         int numInitialBoxes = this.badSolution.boxes().size();
         Neighborhood<PackingSolution> neighborhood = new GeometryBased();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
-        int maxIteration = 1000;
+        // int maxIteration = 1000;
 
         LocalSearchAlgorithm<PackingSolution> localSearch =
                 new LocalSearchAlgorithm<>(
@@ -227,7 +210,7 @@ public class AlgorithmRunner {
         System.out.println("Improvement: " + (numInitialBoxes - geometrySolution.boxes().size()) + " boxes saved compared to initial solution");
     }
 
-    private void runPermutation() {
+    private void runPermutation(int maxIteration) {
         System.out.println("\n=== Starting Permutation-based Local Search ===");
         int initialBoxes = this.badSolution.boxes().size();
         System.out.println("Initial boxes (from random place greedy): " + initialBoxes);
@@ -235,7 +218,7 @@ public class AlgorithmRunner {
         // Create neighborhood and objective
         Neighborhood<PermutationSolution> neighborhood = new Permutation(this.boxLength);
         Objective<PermutationSolution> objective = new PermutationObjective();
-        int maxIteration = 1000;
+        // int maxIteration = 1000;
 
         LocalSearchAlgorithm<PermutationSolution> localSearch =
                 new LocalSearchAlgorithm<>(
@@ -258,5 +241,16 @@ public class AlgorithmRunner {
 
         System.out.println("Local search Permutation solution: " + decodedSolution.boxes().size() + " boxes, runtime: " + runtime + " ms");
         System.out.println("Improvement: " + (initialBoxes - decodedSolution.boxes().size()) + " boxes saved compared to initial solution");
+    }
+
+    public void initBadGreedySolution(AlgorithmResult result) {
+        PackingStrategy randomPacker = new RandomPacking();
+
+        long startInit = System.nanoTime();
+        String defaultStrategy = GreedyOrderingType.LARGEST_AREA_FIRST.name();
+        this.badSolution = runGreedy(defaultStrategy, randomPacker); // create bad init solution
+        long initTime = (System.nanoTime() - startInit) / 1_000_000;
+        System.out.println("initial bad greedy: " + this.greedySolution.boxes().size() + " boxes");
+        result.initRuntime = String.format("%.2f ms", (double) initTime);
     }
 }
