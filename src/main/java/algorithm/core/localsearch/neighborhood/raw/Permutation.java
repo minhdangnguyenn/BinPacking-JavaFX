@@ -1,12 +1,6 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.GreedyAlgorithm;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
-import algorithm.core.greedy.ordering.raw.AreaDescOrder;
-import algorithm.core.greedy.packing.generic.PackingStrategy;
-import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
-import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.PackingSolution;
@@ -23,12 +17,6 @@ public class Permutation implements Neighborhood<PermutationSolution> {
     private final int boxLength;
 
     public Permutation(int boxLength) {
-        if (greedyAlgorithm == null) {
-            GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
-            PackingStrategy putting = new BottomLeft();
-            GreedyStrategy<PackingSolution, Rectangle> packer = new FirstFitStrategy(putting);
-            greedyAlgorithm = new GreedyAlgorithm<>(ordering, packer);
-        }
         this.boxLength = boxLength;
     }
 
@@ -60,13 +48,5 @@ public class Permutation implements Neighborhood<PermutationSolution> {
 
         neighbors.add(temp);
         return neighbors;
-    }
-
-    public PackingSolution decode(PermutationSolution permutationSolution) {
-        // take the permutation solution (contains a permutation of rectangles)
-        // convert it into PackingSolution (with boxes and coordinates)
-        PackingSolution packingSolution = new PackingSolution(this.boxLength);
-        return greedyAlgorithm.solve(packingSolution, permutationSolution.getRectangles());
-
     }
 }
