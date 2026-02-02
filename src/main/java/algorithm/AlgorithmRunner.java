@@ -39,8 +39,6 @@ public class AlgorithmRunner {
     private PackingSolution badSolution;
     private long runtimeMs;
 
-    private final static int MAXITERATION = 1000;
-    
     public static class AlgorithmConfig {
         public int rectangleCount;
         public int minWidth;
@@ -88,7 +86,11 @@ public class AlgorithmRunner {
         return this.instances;
     }
 
-    public void runAlgorithm(AlgorithmConfig config, Consumer<AlgorithmResult> onComplete, int maxIteration) {
+    public void runAlgorithm(
+            AlgorithmConfig config,
+            Consumer<AlgorithmResult> onComplete,
+            int maxIteration
+    ) {
         new Thread(() -> {
             if (this.instances == null || this.instances.isEmpty()) {
                 System.out.println("You need to generate instances first");
@@ -144,7 +146,10 @@ public class AlgorithmRunner {
         }).start();
     }
 
-    private PackingSolution runGreedy(String orderStrategy, PackingStrategy packingStrategy) {
+    private PackingSolution runGreedy(
+            String orderStrategy,
+            PackingStrategy packingStrategy
+    ) {
         GreedyOrdering<Rectangle> ordering;
 
         if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(orderStrategy)) {
@@ -166,7 +171,10 @@ public class AlgorithmRunner {
         return this.greedySolution;
     }
 
-    private void runLocalSearch(String neighborType, int maxIteration) {
+    private void runLocalSearch(
+            String neighborType,
+            int maxIteration
+    ) {
         if (this.badSolution == null) {
             throw new IllegalStateException("No greedy solution found. Check again initial solution !");
         }
