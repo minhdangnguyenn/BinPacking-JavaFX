@@ -6,8 +6,8 @@ import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
-import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
-import algorithm.core.greedy.ordering.raw.LargestSideFirst;
+import algorithm.core.greedy.ordering.raw.AreaDescOrder;
+import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.extender.generic.GreedyStrategy;
 import algorithm.core.greedy.extender.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearchAlgorithm;
@@ -175,9 +175,9 @@ public class AlgorithmRunner {
         GreedyOrdering<Rectangle> ordering;
 
         if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
-            ordering = new LargestAreaFirst();
+            ordering = new AreaDescOrder();
         } else if (GreedyOrderingType.LARGEST_SIDE_FIRST.name().equalsIgnoreCase(greedyStrategy)) {
-            ordering = new LargestSideFirst();
+            ordering = new SideDescOrder();
         } else {
             throw new IllegalArgumentException("Unknown greedy strategy: " + greedyStrategy);
         }

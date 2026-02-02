@@ -6,7 +6,7 @@ import algorithm.model.Rectangle;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LargestSideFirst implements GreedyOrdering<Rectangle> {
+public class SideDescOrder implements GreedyOrdering<Rectangle> {
 
     @Override
     public List<Rectangle> order(List<Rectangle> elements) {

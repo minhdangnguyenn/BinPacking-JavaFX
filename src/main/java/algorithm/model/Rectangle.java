@@ -10,7 +10,7 @@ public class Rectangle implements Item {
     private int x;
     private int y;
     private final boolean rotated; // compared to the original
-    private int id;
+    private final int id;
 
     public Rectangle(int id, int width, int height) {
         this.width = width;

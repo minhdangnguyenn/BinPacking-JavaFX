@@ -1,12 +1,11 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.GreedyAlgorithm;
-// import algorithm.core.greedy.extender.raw.BestFitExtender;
 import algorithm.core.greedy.extender.raw.FirstFitStrategy;
 import java.util.Comparator;
 import algorithm.core.greedy.extender.generic.GreedyStrategy;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
-import algorithm.core.greedy.ordering.raw.LargestAreaFirst;
+import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
@@ -22,7 +21,7 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
 
     public GeometryBased() {
         PackingStrategy packingStrategy = new BottomLeft();
-        GreedyOrdering<Rectangle> greedyOrdering = new LargestAreaFirst();
+        GreedyOrdering<Rectangle> greedyOrdering = new AreaDescOrder();
         GreedyStrategy<PackingSolution, Rectangle> greedyStrategy = new FirstFitStrategy(packingStrategy);
         this.greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyStrategy);
     }
