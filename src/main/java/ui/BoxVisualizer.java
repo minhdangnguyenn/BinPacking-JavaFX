@@ -81,11 +81,11 @@ public class BoxVisualizer {
             r.setStroke(Color.BLACK);
             solutionPane.getChildren().add(r);
 
-            Text idText = new Text(String.valueOf(rect.getId()));
-            idText.setX(rx + rw / 4);
-            idText.setY(ry + rh / 2);
-            idText.setFill(Color.WHITE);
-            solutionPane.getChildren().add(idText);
+            // Text idText = new Text(String.valueOf(rect.getId()));
+            // idText.setX(rx + rw / 4);
+            // idText.setY(ry + rh / 2);
+            // idText.setFill(Color.WHITE);
+            // solutionPane.getChildren().add(idText);
         }
     }
 
