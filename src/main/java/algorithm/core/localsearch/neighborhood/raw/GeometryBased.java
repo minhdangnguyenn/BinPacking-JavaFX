@@ -62,6 +62,6 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
 
         neighborSolutions.add(improvedSolution);
 
-       return neighborSolutions;
+        return neighborSolutions;
     }
 }
