@@ -18,6 +18,7 @@ import algorithm.core.localsearch.neighborhood.raw.Overlap;
 import algorithm.core.localsearch.neighborhood.raw.Permutation;
 import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
+import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.core.localsearch.objective.raw.PermutationObjective;
 import algorithm.solution.raw.PackingSolution;
 import algorithm.solution.raw.PermutationSolution;
@@ -255,7 +256,7 @@ public class AlgorithmRunner {
     private void runOverlap(int maxIteration) {
         int numInitialBoxes = this.badSolution.boxes().size();
         Neighborhood<PackingSolution> neighborhood = new Overlap(0.2);
-        Objective<PackingSolution> objective = new MinimizeUsedArea();
+        Objective<PackingSolution> objective = new OverlapObjective();
         // int maxIteration = 1000;
 
         LocalSearchAlgorithm<PackingSolution> localSearch =

@@ -108,7 +108,6 @@ public class Box {
     }
 
 
-
     public boolean isOverflow(Rectangle rectangle) {
         return (
                 rectangle.getX() + rectangle.getWidth() > boxL ||
@@ -145,4 +144,14 @@ public class Box {
     public double getUtilization() {
         return ((double) this.getUsedArea() / this.area) * 100;
     }
+
+    public boolean isOverlapping(Rectangle rectangle, double maxOverlapPercent) {
+        for (Rectangle rect : rectangles) {
+            if (overlapRate(rect, rectangle) > maxOverlapPercent) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

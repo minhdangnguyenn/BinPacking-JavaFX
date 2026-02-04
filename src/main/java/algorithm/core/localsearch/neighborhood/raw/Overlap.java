@@ -55,8 +55,6 @@ public class Overlap implements Neighborhood<PackingSolution> {
             }
 
             tempSolution.boxes().remove(unpackBox);
-            i--; // adjust index because we removed an element
-            numUnpackBox--; // reduce target since list shrank
         }
 
         // reorder by area desc
