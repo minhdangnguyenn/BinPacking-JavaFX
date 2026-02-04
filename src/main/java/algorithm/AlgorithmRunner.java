@@ -14,6 +14,7 @@ import algorithm.core.localsearch.LocalSearchAlgorithm;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.GeometryBased;
 import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
+import algorithm.core.localsearch.neighborhood.raw.Overlap;
 import algorithm.core.localsearch.neighborhood.raw.Permutation;
 import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
@@ -190,7 +191,7 @@ public class AlgorithmRunner {
             runPermutation(maxIteration);
         }
         else if (NeighborhoodType.OVERLAP.name().equalsIgnoreCase(neighborType)) {
-            System.out.println("NOT YET IMPLEMENTED");
+            runOverlap(maxIteration);
         } else {
             throw new IllegalArgumentException("Unknown neighborhood type: " + neighborType);
         }
@@ -249,6 +250,28 @@ public class AlgorithmRunner {
 
         System.out.println("Local search Permutation solution: " + decodedSolution.boxes().size() + " boxes, runtime: " + runtime + " ms");
         System.out.println("Improvement: " + (initialBoxes - decodedSolution.boxes().size()) + " boxes saved compared to initial solution");
+    }
+
+    private void runOverlap(int maxIteration) {
+        int numInitialBoxes = this.badSolution.boxes().size();
+        Neighborhood<PackingSolution> neighborhood = new Overlap(0.2);
+        Objective<PackingSolution> objective = new MinimizeUsedArea();
+        // int maxIteration = 1000;
+
+        LocalSearchAlgorithm<PackingSolution> localSearch =
+                new LocalSearchAlgorithm<>(
+                        neighborhood,
+                        objective,
+                        maxIteration
+                );
+
+        PackingSolution geometrySolution = localSearch.solve(this.badSolution);
+
+        // Store the result in localSearchSolution
+        this.localSearchSolution = geometrySolution;
+
+        System.out.println("Local search solution: " + geometrySolution.boxes().size() + " boxes");
+        System.out.println("Improvement: " + (numInitialBoxes - geometrySolution.boxes().size()) + " boxes saved compared to initial solution");
     }
 
     public void initBadGreedySolution(AlgorithmResult result) {
