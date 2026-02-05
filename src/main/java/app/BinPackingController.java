@@ -26,6 +26,7 @@ public class BinPackingController {
     public Button generateInstancesButton;
     public Label generatedInstancesCount;
     public Label localSearchBoxesLabel;
+    public CheckBox showRectangleID;
     @FXML private ComboBox<String> algorithmCombo;
     @FXML private ComboBox<String> neighborhoodCombo;
     @FXML private ComboBox<String> selectionCombo;
@@ -90,7 +91,10 @@ public class BinPackingController {
         solutionPane.getChildren().clear();
         AlgorithmRunner.AlgorithmConfig config = parseConfig();
 
-        this.algorithmRunner.runAlgorithm(config, this::updateUIWithResults, MAXITERATION);
+        this.algorithmRunner.runAlgorithm(
+                config,
+                result->updateUIWithResults(result, showRectangleID.isSelected()),
+                MAXITERATION);
     }
 
     public void handleGenerateInstances() {
@@ -101,8 +105,8 @@ public class BinPackingController {
         this.updateUIGenerateInstances(config.rectangleCount);
     }
 
-    private void updateUIWithResults(AlgorithmRunner.AlgorithmResult result) {
-        visualizer.drawBoxes(result.boxes);
+    private void updateUIWithResults(AlgorithmRunner.AlgorithmResult result, boolean showRectangleID) {
+        visualizer.drawBoxes(result.boxes, showRectangleID);
         runtimeLabel.setText("Runtime: " + result.runtime);
         
         // Show greedy boxes count
@@ -138,12 +142,9 @@ public class BinPackingController {
         config.algorithm = algorithmCombo.getValue();
         config.neighborhood = neighborhoodCombo.getValue();
         config.selectionStrategy = selectionCombo.getValue();
-
         Utils.validConfig(config);
 
         return config;
     }
-
-
 }
 

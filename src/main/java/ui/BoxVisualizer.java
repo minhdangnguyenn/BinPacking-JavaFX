@@ -23,7 +23,7 @@ public class BoxVisualizer {
         this.solutionPane = solutionPane;
     }
 
-    public void drawBoxes(List<Box> boxes) {
+    public void drawBoxes(List<Box> boxes, boolean showRectangleID) {
         solutionPane.getChildren().clear();
 
         double maxWidth = 0;
@@ -38,7 +38,7 @@ public class BoxVisualizer {
             double offsetY = START_Y + row * (box.getLength() * SCALE + SPACING_Y);
 
             drawBox(box, offsetX, offsetY);
-            drawRectanglesInBox(box, offsetX, offsetY);
+            drawRectanglesInBox(box, offsetX, offsetY, showRectangleID);
 
             // Calculate the total content size
             maxWidth = Math.max(maxWidth, offsetX + box.getLength() * SCALE + START_X);
@@ -65,7 +65,7 @@ public class BoxVisualizer {
         solutionPane.getChildren().add(boxIdText);
     }
 
-    private void drawRectanglesInBox(Box box, double offsetX, double offsetY) {
+    private void drawRectanglesInBox(Box box, double offsetX, double offsetY, boolean isShownRectID) {
         double boxSize = box.getLength() * SCALE;
 
         for (Rectangle rect : box.getRectangles()) {
@@ -81,11 +81,13 @@ public class BoxVisualizer {
             r.setStroke(Color.BLACK);
             solutionPane.getChildren().add(r);
 
-            // Text idText = new Text(String.valueOf(rect.getId()));
-            // idText.setX(rx + rw / 4);
-            // idText.setY(ry + rh / 2);
-            // idText.setFill(Color.WHITE);
-            // solutionPane.getChildren().add(idText);
+            if (isShownRectID) {
+                 Text idText = new Text(String.valueOf(rect.getId()));
+                 idText.setX(rx + rw / 4);
+                 idText.setY(ry + rh / 2);
+                 idText.setFill(Color.WHITE);
+                 solutionPane.getChildren().add(idText);
+            }
         }
     }
 
