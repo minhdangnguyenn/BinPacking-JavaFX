@@ -11,10 +11,6 @@ public class OverlapObjective implements Objective<PackingSolution> {
     private static final int PENALTY_WEIGHT = 1000;
     private double allowedOverlapPercent = 100.0;
 
-    public void setAllowedOverlap(double allowedOverlapPercent) {
-        this.allowedOverlapPercent = allowedOverlapPercent;
-    }
-
     @Override
     public double evaluate(PackingSolution solution) {
         List<Box> boxes = solution.boxes();
@@ -24,6 +20,8 @@ public class OverlapObjective implements Objective<PackingSolution> {
 
         long totalUsedArea = 0;
         double overlapPenalty = 0.0;
+
+        double allowedOverlapPercent = solution.allowedOverlapPercent();
 
         for (Box box : boxes) {
             totalUsedArea += (int) Math.pow(box.getUtilization(), 2);

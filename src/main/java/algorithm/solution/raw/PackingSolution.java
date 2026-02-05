@@ -9,6 +9,7 @@ import java.util.List;
 public class PackingSolution implements Solution {
 
     private final List<Box> boxes;
+    private double allowedOverlapPercent = 100.0;
 
     public PackingSolution(List<Box> boxes) {
         this.boxes = boxes;
@@ -27,11 +28,21 @@ public class PackingSolution implements Solution {
         boxes.add(box);
     }
 
+    public double allowedOverlapPercent() {
+        return allowedOverlapPercent;
+    }
+
+    public void setAllowedOverlapPercent(double allowedOverlapPercent) {
+        this.allowedOverlapPercent = allowedOverlapPercent;
+    }
+
     public PackingSolution copy() {
         List<Box> newBoxes = new ArrayList<>();
         for (Box box : boxes) {
             newBoxes.add(box.copy());
         }
-        return new PackingSolution(newBoxes);
+        PackingSolution copy = new PackingSolution(newBoxes);
+        copy.setAllowedOverlapPercent(this.allowedOverlapPercent);
+        return copy;
     }
 }

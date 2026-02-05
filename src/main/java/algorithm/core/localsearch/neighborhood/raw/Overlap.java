@@ -19,6 +19,7 @@ import java.util.List;
 public class Overlap implements Neighborhood<PackingSolution> {
     private final GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
     private final double unpackFraction; // e.g. 0.2 (number of boxes to unpack: 20%)
+    private int currentIteration = 0;
 
     public Overlap(double unpackFraction) {
         PackingStrategy packingStrategy = new BottomLeft();
@@ -31,10 +32,15 @@ public class Overlap implements Neighborhood<PackingSolution> {
 
     @Override
     public Iterable<PackingSolution> getNeighbors(PackingSolution solution) {
+        currentIteration += 1;
+        double progress = Math.min(1.0, (double) currentIteration / 200);
+        double allowedOverlapPercent = 100.0 * (1.0 - progress);
+
         List<PackingSolution> neighborSolutions = new ArrayList<>();
 
         // copy the solution
         PackingSolution tempSolution = solution.copy();
+        tempSolution.setAllowedOverlapPercent(allowedOverlapPercent);
 
         List<Rectangle> unpackedRectangles = new ArrayList<>();
 
@@ -64,6 +70,7 @@ public class Overlap implements Neighborhood<PackingSolution> {
         PackingSolution baseSolution = tempSolution.copy();
         PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, unpackedRectangles);
 
+        improvedSolution.setAllowedOverlapPercent(allowedOverlapPercent);
         neighborSolutions.add(improvedSolution);
         return neighborSolutions;
     }

@@ -267,6 +267,9 @@ public class AlgorithmRunner {
                 );
 
         PackingSolution geometrySolution = localSearch.solve(this.badSolution);
+        if (hasOverlaps(geometrySolution)) {
+            geometrySolution = repackAllRectangles(geometrySolution);
+        }
 
         // Store the result in localSearchSolution
         this.localSearchSolution = geometrySolution;
@@ -284,5 +287,39 @@ public class AlgorithmRunner {
         long initTime = (System.nanoTime() - startInit) / 1_000_000;
         System.out.println("initial bad greedy: " + this.greedySolution.boxes().size() + " boxes");
         result.initRuntime = String.format("%.2f ms", (double) initTime);
+    }
+
+    private boolean hasOverlaps(PackingSolution solution) {
+        for (Box box : solution.boxes()) {
+            List<Rectangle> rectangles = box.getRectangles();
+            for (int i = 0; i < rectangles.size(); i++) {
+                for (int j = i + 1; j < rectangles.size(); j++) {
+                    if (box.isOverlapping(rectangles.get(i), rectangles.get(j))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private PackingSolution repackAllRectangles(PackingSolution solution) {
+        List<Rectangle> rectanglesToRepack = new ArrayList<>();
+        for (Box box : solution.boxes()) {
+            for (Rectangle rectangle : box.getRectangles()) {
+                rectanglesToRepack.add(rectangle.copy());
+            }
+        }
+
+        rectanglesToRepack.sort((a, b) -> Integer.compare(b.getArea(), a.getArea()));
+        PackingSolution baseSolution = new PackingSolution(this.boxLength);
+
+        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
+        GreedyStrategy<PackingSolution, Rectangle> greedyStrategy =
+                new FirstFitStrategy(new BottomLeft());
+        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm =
+                new GreedyAlgorithm<>(ordering, greedyStrategy);
+
+        return greedyAlgorithm.solve(baseSolution, rectanglesToRepack);
     }
 }
