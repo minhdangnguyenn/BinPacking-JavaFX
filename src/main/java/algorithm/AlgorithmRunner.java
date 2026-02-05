@@ -252,7 +252,15 @@ public class AlgorithmRunner {
         int numInitialBoxes = initial.boxes().size();
         Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
         Objective<OverlapPackingSolution> objective = new OverlapObjective();
+        // test the overlap first
+        Iterable<OverlapPackingSolution> temps = neighborhood.getNeighbors(initial);
+        List<OverlapPackingSolution> solutions = new ArrayList<>();
 
+        for (OverlapPackingSolution sol : temps) {
+            solutions.add(sol);
+        }
+
+        OverlapPackingSolution solution = solutions.getFirst();
         LocalSearchAlgorithm<OverlapPackingSolution> localSearch =
                 new LocalSearchAlgorithm<>(
                         neighborhood,
@@ -260,16 +268,12 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        PackingSolution geometrySolution = localSearch.solve(initial);
-        if (hasOverlaps(geometrySolution)) {
-            geometrySolution = repackAllRectangles(geometrySolution);
-        }
+        // temporary comment
+        this.localSearchSolution =solution;
 
-        // Store the result in localSearchSolution
-        this.localSearchSolution = geometrySolution;
-
-        System.out.println("Local search solution: " + geometrySolution.boxes().size() + " boxes");
-        System.out.println("Improvement: " + (numInitialBoxes - geometrySolution.boxes().size()) + " boxes saved compared to initial solution");
+        // OverlapPackingSolution solution = localSearch.solve(initial);
+        System.out.println("Local search solution: " + solution.boxes().size() + " boxes");
+        System.out.println("Improvement: " + (numInitialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
     }
 
     public void initBadGreedySolution(AlgorithmResult result) {

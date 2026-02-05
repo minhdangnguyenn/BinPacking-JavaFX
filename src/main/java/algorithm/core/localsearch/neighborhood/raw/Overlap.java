@@ -8,6 +8,7 @@ import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
+import algorithm.model.Box;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.OverlapPackingSolution;
 import algorithm.solution.raw.PackingSolution;
@@ -34,7 +35,20 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
 
         List<OverlapPackingSolution> neighbors = new ArrayList<>();
 
+        List<Rectangle> rectangles = new ArrayList<>();
+        OverlapPackingSolution temp = new OverlapPackingSolution(solution.boxes().getFirst().getLength());
 
+        // first I try to put all rectangles to the corner
+        for (Box box: solution.boxes()) {
+            for (Rectangle rect: box.getRectangles()) {
+                Rectangle copy = rect.copy();
+                copy.setPosition(0,0);
+                rectangles.add(copy);
+                temp.boxes().getFirst().addRectangle(copy, 0, 0);
+            }
+        }
+
+        neighbors.add(temp);
 
         return neighbors;
     }
