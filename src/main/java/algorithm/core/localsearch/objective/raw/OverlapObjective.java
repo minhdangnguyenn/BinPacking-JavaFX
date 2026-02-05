@@ -2,45 +2,52 @@ package algorithm.core.localsearch.objective.raw;
 
 import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.model.Box;
-import algorithm.model.Rectangle;
-import algorithm.solution.raw.PackingSolution;
+import algorithm.solution.raw.OverlapPackingSolution;
 
-import java.util.List;
 
-public class OverlapObjective implements Objective<PackingSolution> {
-    private static final int PENALTY_WEIGHT = 1000;
-    private double allowedOverlapPercent = 100.0;
+public class OverlapObjective implements Objective<OverlapPackingSolution> {
+
+
+    /**
+     * This creates a decreasing threshold
+     * @param iteration current interation
+     * @param maxIterations max allowed iteration
+     * @return a threshold value
+     */
+    private double OverlapThreshold(int iteration, int maxIterations) {
+        double progress = (double) iteration / maxIterations;
+        return 100 * Math.pow((1 - progress), 2);
+    }
+
+    private int penalty(double threshold) {
+        return (int) threshold / 5;
+    }
 
     @Override
-    public double evaluate(PackingSolution solution) {
-        List<Box> boxes = solution.boxes();
-        if (boxes.isEmpty()) {
-            return 0.0;
+    public double evaluate(OverlapPackingSolution solution) {
+
+        if (solution.currentIteration == solution.maxIterations) {
+            return Double.POSITIVE_INFINITY;
         }
+        int numBoxes = solution.boxes().size();
 
-        long totalUsedArea = 0;
-        double overlapPenalty = 0.0;
+        double total_overlap_penalty = 0;
+        double threshold = OverlapThreshold(solution.currentIteration, solution.maxIterations);
+        double factor = penalty(threshold);
 
-        double allowedOverlapPercent = solution.allowedOverlapPercent();
+        for (Box box : solution.boxes()) {
+            for (int i = 0; i < box.getRectangles().size() - 1; i++) {
+                for (int j = i+1; j < box.getRectangles().size(); j++) {
+                    double overlap = box.overlapRate(box.getRectangles().get(i), box.getRectangles().get(j));
 
-        for (Box box : boxes) {
-            totalUsedArea += (int) Math.pow(box.getUtilization(), 2);
-
-            List<Rectangle> rectangles = box.getRectangles();
-            for (int i = 0; i < rectangles.size(); i++) {
-                for (int j = i + 1; j < rectangles.size(); j++) {
-                    // calculate the overlap rate of two nearby rectangle iteration
-                    double overlapRate = box.overlapRate(rectangles.get(i), rectangles.get(j));
-                    if (overlapRate > allowedOverlapPercent) {
-                        double violation = overlapRate - allowedOverlapPercent;
-                        overlapPenalty += violation * violation;
+                    if (overlap > threshold) {
+                        double violation = overlap - threshold;
+                        total_overlap_penalty += factor * Math.pow(violation, 2);
                     }
                 }
             }
         }
 
-        double baseScore = (double) -totalUsedArea / boxes.size();
-
-        return baseScore + (PENALTY_WEIGHT * overlapPenalty);
+        return (double) - 1000 * numBoxes - total_overlap_penalty;
     }
 }
