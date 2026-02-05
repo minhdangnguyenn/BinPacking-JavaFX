@@ -8,7 +8,7 @@ import algorithm.solution.raw.PackingSolution;
 import java.util.List;
 
 public class OverlapObjective implements Objective<PackingSolution> {
-    private static final double PENALTY_WEIGHT = 1000.0;
+    private static final int PENALTY_WEIGHT = 1000;
     private double allowedOverlapPercent = 100.0;
 
     public void setAllowedOverlap(double allowedOverlapPercent) {
@@ -18,6 +18,10 @@ public class OverlapObjective implements Objective<PackingSolution> {
     @Override
     public double evaluate(PackingSolution solution) {
         List<Box> boxes = solution.boxes();
+        if (boxes.isEmpty()) {
+            return 0.0;
+        }
+
         long totalUsedArea = 0;
         double overlapPenalty = 0.0;
 
@@ -27,15 +31,18 @@ public class OverlapObjective implements Objective<PackingSolution> {
             List<Rectangle> rectangles = box.getRectangles();
             for (int i = 0; i < rectangles.size(); i++) {
                 for (int j = i + 1; j < rectangles.size(); j++) {
+                    // calculate the overlap rate of two nearby rectangle iteration
                     double overlapRate = box.overlapRate(rectangles.get(i), rectangles.get(j));
                     if (overlapRate > allowedOverlapPercent) {
-                        overlapPenalty += (overlapRate - allowedOverlapPercent);
+                        double violation = overlapRate - allowedOverlapPercent;
+                        overlapPenalty += violation * violation;
                     }
                 }
             }
         }
 
         double baseScore = (double) -totalUsedArea / boxes.size();
+
         return baseScore + (PENALTY_WEIGHT * overlapPenalty);
     }
 }
