@@ -82,4 +82,22 @@ public class OverlapPackingSolution extends PackingSolution {
         newSolution.maxIterations = this.maxIterations;
         return newSolution;
     }
+
+    public static OverlapPackingSolution getFromPackingSolution(
+            PackingSolution base,
+            int maxIterations
+    ) {
+        // Deep copy boxes
+        List<Box> copiedBoxes = base.boxes().stream()
+                .map(Box::copy)
+                .toList();
+
+        OverlapPackingSolution solution =
+                new OverlapPackingSolution(copiedBoxes);
+
+        solution.currentIteration = 0;
+        solution.maxIterations = maxIterations;
+
+        return solution;
+    }
 }

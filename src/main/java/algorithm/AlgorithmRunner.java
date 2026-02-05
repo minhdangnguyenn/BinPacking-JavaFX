@@ -20,6 +20,7 @@ import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
 import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.core.localsearch.objective.raw.PermutationObjective;
+import algorithm.solution.raw.OverlapPackingSolution;
 import algorithm.solution.raw.PackingSolution;
 import algorithm.solution.raw.PermutationSolution;
 import javafx.application.Platform;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class AlgorithmRunner {
-    // Instance data
     private ArrayList<Rectangle> instances;
     private int boxLength;
     private PackingSolution greedySolution;
@@ -63,13 +63,10 @@ public class AlgorithmRunner {
     }
 
     public ArrayList<Rectangle> generateTestInstances(AlgorithmConfig config) {
-        // Validate inputs
         Utils.validConfig(config);
 
-        // Store box length
         this.boxLength = config.boxLength;
-        
-        // Generate rectangles
+
         this.instances = new ArrayList<>();
         for (int i = 0; i < config.rectangleCount; i++) {
             int width = (int) (Math.random() * (config.maxWidth - config.minWidth + 1)) + config.minWidth;
@@ -80,8 +77,7 @@ public class AlgorithmRunner {
         }
 
         System.out.println("Generated " + this.instances.size() + " rectangles");
-        
-        // Reset solutions
+
         this.greedySolution = null;
         this.localSearchSolution = null;
 
@@ -202,7 +198,6 @@ public class AlgorithmRunner {
         int numInitialBoxes = this.badSolution.boxes().size();
         Neighborhood<PackingSolution> neighborhood = new GeometryBased();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
-        // int maxIteration = 1000;
 
         LocalSearchAlgorithm<PackingSolution> localSearch =
                 new LocalSearchAlgorithm<>(
@@ -228,7 +223,6 @@ public class AlgorithmRunner {
         // Create neighborhood and objective
         Neighborhood<PermutationSolution> neighborhood = new Permutation(this.boxLength);
         Objective<PermutationSolution> objective = new PermutationObjective();
-        // int maxIteration = 1000;
 
         LocalSearchAlgorithm<PermutationSolution> localSearch =
                 new LocalSearchAlgorithm<>(
@@ -254,19 +248,19 @@ public class AlgorithmRunner {
     }
 
     private void runOverlap(int maxIteration) {
-        int numInitialBoxes = this.badSolution.boxes().size();
-        Neighborhood<PackingSolution> neighborhood = new Overlap(0.2);
-        Objective<PackingSolution> objective = new OverlapObjective();
-        // int maxIteration = 1000;
+        OverlapPackingSolution initial = OverlapPackingSolution.getFromPackingSolution(this.badSolution, 100);
+        int numInitialBoxes = initial.boxes().size();
+        Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
+        Objective<OverlapPackingSolution> objective = new OverlapObjective();
 
-        LocalSearchAlgorithm<PackingSolution> localSearch =
+        LocalSearchAlgorithm<OverlapPackingSolution> localSearch =
                 new LocalSearchAlgorithm<>(
                         neighborhood,
                         objective,
                         maxIteration
                 );
 
-        PackingSolution geometrySolution = localSearch.solve(this.badSolution);
+        PackingSolution geometrySolution = localSearch.solve(initial);
         if (hasOverlaps(geometrySolution)) {
             geometrySolution = repackAllRectangles(geometrySolution);
         }

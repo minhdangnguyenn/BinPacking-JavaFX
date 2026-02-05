@@ -8,19 +8,24 @@ import algorithm.solution.raw.OverlapPackingSolution;
 public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
 
-    /**
-     * This creates a decreasing threshold
-     * @param iteration current interation
-     * @param maxIterations max allowed iteration
-     * @return a threshold value
-     */
     private double OverlapThreshold(int iteration, int maxIterations) {
         double progress = (double) iteration / maxIterations;
         return 100 * Math.pow((1 - progress), 2);
     }
 
     private int penalty(double threshold) {
-        return (int) threshold / 5;
+//        if (threshold > 70) {
+//            return 10;
+//        }
+//        else if (threshold > 50) {
+//            return 100;
+//        }
+//        else if (threshold > 20) {
+//            return 1000;
+//        } else if (threshold > 5) {
+//            return 5000;
+//        } else return 10000;
+        return (int)threshold / 5;
     }
 
     @Override
@@ -44,6 +49,7 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
                         double violation = overlap - threshold;
                         total_overlap_penalty += factor * Math.pow(violation, 2);
                     }
+
                 }
             }
         }
