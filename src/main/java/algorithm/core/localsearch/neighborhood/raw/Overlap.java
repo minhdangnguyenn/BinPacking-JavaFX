@@ -176,14 +176,14 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         // Bottom Left Placement for boxes with Utilization < 100%
         List<Rectangle> rectanglesToRepack = new ArrayList<>();
 
+
+
         for (Box box : temp.boxes()) {
             if (ContainsOverlap(box)) {
                 System.out.println("Box " + box.getId() + " contains overlap " + box.getRectangles().size());
                 ResolveOverlapsInBox(box, 100);
             }
         }
-
-
 
 //            for (Box box : temp.boxes()) {
 //                if (box.getUtilization() < 100.0 && ContainsOverlap(box)) {
@@ -362,9 +362,10 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
 //        }
 
             // neighbors.add(neighbor_5);
+        neighbors.add(temp);
 
-            return neighbors;
-        }
+        return neighbors;
+    }
 
 //    @Override
 //    public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
