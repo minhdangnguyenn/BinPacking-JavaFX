@@ -261,10 +261,11 @@ public class AlgorithmRunner {
                         objective,
                         maxIteration
                 );
+
         // assign to render
         this.localSearchSolution = localSearch.solve(initialOverlapSolution);
 
-        System.out.println("Local search solution: " + this.localSearchSolution.boxes().size() + " boxes");
+        System.out.println("Overlap solution: " + this.localSearchSolution.boxes().size() + " boxes");
         System.out.println("Improvement: " + (numInitialBoxes - this.localSearchSolution.boxes().size()) + " boxes saved compared to initial solution");
     }
 
