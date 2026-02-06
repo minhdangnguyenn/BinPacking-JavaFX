@@ -36,7 +36,7 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
         }
         int numBoxes = solution.boxes().size();
 
-        double total_overlap_penalty = 0;
+        double totalOverlapPenalty = 0;
         double threshold = OverlapThreshold(solution.currentIteration, solution.maxIterations);
         double factor = penalty(threshold);
 
@@ -47,13 +47,13 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
                     if (overlap > threshold) {
                         double violation = overlap - threshold;
-                        total_overlap_penalty += factor * Math.pow(violation, 2);
+                        totalOverlapPenalty += factor * Math.pow(violation, 2);
                     }
 
                 }
             }
         }
 
-        return (double) - 1000 * numBoxes - total_overlap_penalty;
+        return (double) - 1000 * numBoxes - totalOverlapPenalty;
     }
 }
