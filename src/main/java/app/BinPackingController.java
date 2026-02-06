@@ -57,9 +57,10 @@ public class BinPackingController {
     }
 
     private void initializeComboBoxes() {
-        algorithmCombo.setItems(FXCollections.observableArrayList(
-                AlgorithmType.GREEDY.name(),
-                AlgorithmType.LOCALSEARCH.name()
+        algorithmCombo.setItems(
+                FXCollections.observableArrayList(
+                    AlgorithmType.GREEDY.name(),
+                    AlgorithmType.LOCALSEARCH.name()
                 )
         );
         algorithmCombo.getSelectionModel().selectFirst();
