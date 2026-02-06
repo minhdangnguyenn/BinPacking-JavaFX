@@ -40,7 +40,7 @@ public class BinPackingController {
 
     private BoxVisualizer visualizer;
     private final AlgorithmRunner algorithmRunner = new AlgorithmRunner();
-    private final static int MAXITERATION = 1000; // max iteration for local search
+    private final static int MAXITERATION = 100; // max iteration for local search
 
     @FXML
     public void initialize() {

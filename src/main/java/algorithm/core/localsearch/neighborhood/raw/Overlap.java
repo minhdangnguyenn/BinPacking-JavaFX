@@ -211,6 +211,8 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         neighbors.add(neighbor2);
 
         System.out.println("Generated " + neighbors.size() + " neighbors");
+
+
         return neighbors;
     }
 }
