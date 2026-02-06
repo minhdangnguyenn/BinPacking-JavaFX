@@ -27,19 +27,12 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyStrategy);
     }
 
-
-
-    @Override
-    public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
-        currentIteration++;
-
-        List<OverlapPackingSolution> neighbors = new ArrayList<>();
-
+    public static OverlapPackingSolution collapsePackingSolution(PackingSolution packingSolution) {
         List<Rectangle> rectangles = new ArrayList<>();
-        OverlapPackingSolution temp = new OverlapPackingSolution(solution.boxes().getFirst().getLength());
+        OverlapPackingSolution temp = new OverlapPackingSolution(packingSolution.boxes().getFirst().getLength());
 
         // first I try to put all rectangles to the corner
-        for (Box box: solution.boxes()) {
+        for (Box box: packingSolution.boxes()) {
             for (Rectangle rect: box.getRectangles()) {
                 Rectangle copy = rect.copy();
                 copy.setPosition(0,0);
@@ -48,7 +41,17 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
             }
         }
 
-        neighbors.add(temp);
+        System.out.println("temp boxes: " + temp.boxes().size());
+        return temp;
+    }
+
+    @Override
+    public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
+        currentIteration++;
+
+        List<OverlapPackingSolution> neighbors = new ArrayList<>();
+
+        // neighbors.add(temp);
 
         return neighbors;
     }

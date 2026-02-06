@@ -7,7 +7,6 @@ import algorithm.solution.raw.OverlapPackingSolution;
 
 public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
-
     private double OverlapThreshold(int iteration, int maxIterations) {
         double progress = (double) iteration / maxIterations;
         return 100 * Math.pow((1 - progress), 2);
