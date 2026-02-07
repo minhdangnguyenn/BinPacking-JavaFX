@@ -114,6 +114,10 @@ public class AlgorithmRunner {
                 this.localSearchSolution = runLocalSearch(neighborType, maxIteration);
             }
 
+            if (this.greedySolution == null) {
+                this.greedySolution = this.badSolution;
+            }
+
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
             
             // Show local search solution if available, otherwise show greedy
@@ -129,16 +133,13 @@ public class AlgorithmRunner {
             
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
 
-            if (this.greedySolution == null) {
-                result.totalGreedyBoxes = 0;
-            } else {
-                result.totalGreedyBoxes = this.greedySolution.boxes().size();
-            }
+            result.totalGreedyBoxes = this.greedySolution.boxes().size();
 
             result.totalLocalSearchBoxes =
                     this.localSearchSolution == null
                             ? 0
                             : this.localSearchSolution.boxes().size();
+
             result.totalRectangles = this.greedySolution.boxes().stream()
                     .mapToInt(b -> b.getRectangles().size())
                     .sum();
@@ -168,7 +169,7 @@ public class AlgorithmRunner {
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
                 new GreedyAlgorithm<>(ordering, greedySelection);
 
-        this.greedySolution = greedyAlgorithm.solve(this.badSolution, instances);
+        this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
         return this.greedySolution;
     }
 
@@ -274,18 +275,18 @@ public class AlgorithmRunner {
 
     public void initBadGreedySolution(AlgorithmResult result) {
         long startInit = System.nanoTime();
-        
+
         // Create a simple bad solution by placing each rectangle in a new box
         // This is fast but very inefficient
         this.badSolution = new PackingSolution(this.boxLength);
-        
+
         for (Rectangle rect : this.instances) {
             Box newBox = new Box(this.badSolution.boxes().size(), this.boxLength);
             rect.setPosition(0, 0); // Place at origin
             newBox.addRectangle(rect, 0, 0);
             this.badSolution.addBox(newBox);
         }
-        
+
         long initTime = (System.nanoTime() - startInit) / 1_000_000;
         System.out.println("initial bad solution (one rectangle per box): " + this.badSolution.boxes().size() + " boxes");
         result.initRuntime = String.format("%.2f ms", (double) initTime);
