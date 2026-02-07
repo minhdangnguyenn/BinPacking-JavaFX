@@ -111,7 +111,7 @@ public class AlgorithmRunner {
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
 
-                runLocalSearch(neighborType, maxIteration);
+                this.localSearchSolution = runLocalSearch(neighborType, maxIteration);
             }
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
@@ -167,7 +167,7 @@ public class AlgorithmRunner {
         return this.greedySolution;
     }
 
-    private void runLocalSearch(
+    private PackingSolution runLocalSearch(
             String neighborType,
             int maxIteration
     ) {
@@ -181,18 +181,18 @@ public class AlgorithmRunner {
 
         // Create neighborhood
         if (NeighborhoodType.GEOMETRY.name().equalsIgnoreCase(neighborType)) {
-            runGeometry(maxIteration);
+            return runGeometry(maxIteration);
         } else if (NeighborhoodType.RULEBASED.name().equalsIgnoreCase(neighborType)) {
-            runPermutation(maxIteration);
+            return runPermutation(maxIteration);
         }
         else if (NeighborhoodType.OVERLAP.name().equalsIgnoreCase(neighborType)) {
-            runOverlap(maxIteration);
+            return runOverlap(maxIteration);
         } else {
             throw new IllegalArgumentException("Unknown neighborhood type: " + neighborType);
         }
     }
 
-    public void runGeometry(int maxIteration) {
+    public PackingSolution runGeometry(int maxIteration) {
         int numInitialBoxes = this.badSolution.boxes().size();
         Neighborhood<PackingSolution> neighborhood = new GeometryBased();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
@@ -204,16 +204,15 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        PackingSolution geometrySolution = localSearch.solve(this.badSolution);
-        
-        // Store the result in localSearchSolution
-        this.localSearchSolution = geometrySolution;
+        PackingSolution solution = localSearch.solve(this.badSolution);
 
-        System.out.println("Local search solution: " + geometrySolution.boxes().size() + " boxes");
-        System.out.println("Improvement: " + (numInitialBoxes - geometrySolution.boxes().size()) + " boxes saved compared to initial solution");
+        System.out.println("Local search solution: " + solution.boxes().size() + " boxes");
+        System.out.println("Improvement: " + (numInitialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
+
+        return solution;
     }
 
-    private void runPermutation(int maxIteration) {
+    private PackingSolution runPermutation(int maxIteration) {
         System.out.println("\n=== Starting Permutation-based Local Search ===");
         int initialBoxes = this.badSolution.boxes().size();
         System.out.println("Initial boxes (from random place greedy): " + initialBoxes);
@@ -236,16 +235,15 @@ public class AlgorithmRunner {
         long end = System.nanoTime();
         long runtime = (end - start) / 1_000_000; // Convert to milliseconds
 
-        PackingSolution decodedSolution = permutationSolution.decode();
-        
-        // Store the result in localSearchSolution
-        this.localSearchSolution = decodedSolution;
+        PackingSolution solution = permutationSolution.decode();
 
-        System.out.println("Local search Permutation solution: " + decodedSolution.boxes().size() + " boxes, runtime: " + runtime + " ms");
-        System.out.println("Improvement: " + (initialBoxes - decodedSolution.boxes().size()) + " boxes saved compared to initial solution");
+        System.out.println("Local search Permutation solution: " + solution.boxes().size() + " boxes, runtime: " + runtime + " ms");
+        System.out.println("Improvement: " + (initialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
+
+        return solution;
     }
 
-    private void runOverlap(int maxIteration) {
+    private PackingSolution runOverlap(int maxIteration) {
         OverlapPackingSolution initial = OverlapPackingSolution.getFromPackingSolution(this.badSolution, 100);
         int numInitialBoxes = initial.boxes().size();
         Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
@@ -261,10 +259,12 @@ public class AlgorithmRunner {
                 );
 
         // assign to render
-        this.localSearchSolution = localSearch.solve(initialOverlapSolution);
+        OverlapPackingSolution solution  = localSearch.solve(initialOverlapSolution);
 
-        System.out.println("Overlap solution: " + this.localSearchSolution.boxes().size() + " boxes");
-        System.out.println("Improvement: " + (numInitialBoxes - this.localSearchSolution.boxes().size()) + " boxes saved compared to initial solution");
+        System.out.println("Overlap solution: " + solution.boxes().size() + " boxes");
+        System.out.println("Improvement: " + (numInitialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
+
+        return solution;
     }
 
     public void initBadGreedySolution(AlgorithmResult result) {
