@@ -4,7 +4,6 @@ import algorithm.core.greedy.GreedyAlgorithm;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
@@ -60,6 +59,7 @@ public class AlgorithmRunner {
         public int totalLocalSearchBoxes;
         public int totalRectangles;
         public String initRuntime;
+        public int numBadBoxes;
     }
 
     public ArrayList<Rectangle> generateTestInstances(AlgorithmConfig config) {
@@ -96,8 +96,10 @@ public class AlgorithmRunner {
             }
 
             AlgorithmResult result = new AlgorithmResult();
-            long start = System.nanoTime();
+
             initBadGreedySolution(result);
+
+            long start = System.nanoTime();
             if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
                 PackingStrategy bottomLeft = new BottomLeft();
                 String strategy = config.selectionStrategy != null 
@@ -105,6 +107,7 @@ public class AlgorithmRunner {
                         : GreedyOrderingType.LARGEST_AREA_FIRST.name();
                 this.greedySolution = runGreedy(strategy, bottomLeft);
                 System.out.println("FFDA greedy: " + this.greedySolution.boxes().size() + " boxes");
+                result.initRuntime = "N/A"; // No init for pure greedy
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
                 String neighborType = config.neighborhood != null
@@ -289,7 +292,8 @@ public class AlgorithmRunner {
 
         long initTime = (System.nanoTime() - startInit) / 1_000_000;
         System.out.println("initial bad solution (one rectangle per box): " + this.badSolution.boxes().size() + " boxes");
-        result.initRuntime = String.format("%.2f ms", (double) initTime);
+        result.initRuntime = String.format("%.4f ms", (double) initTime);
+        result.numBadBoxes = this.badSolution.boxes().size();
     }
 
     private boolean hasOverlaps(PackingSolution solution) {
