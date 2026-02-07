@@ -97,7 +97,7 @@ public class AlgorithmRunner {
 
             AlgorithmResult result = new AlgorithmResult();
             long start = System.nanoTime();
-            
+            initBadGreedySolution(result);
             if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
                 PackingStrategy bottomLeft = new BottomLeft();
                 String strategy = config.selectionStrategy != null 
@@ -107,8 +107,6 @@ public class AlgorithmRunner {
                 System.out.println("FFDA greedy: " + this.greedySolution.boxes().size() + " boxes");
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
-                initBadGreedySolution(result);
-
                 String neighborType = config.neighborhood != null
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
@@ -165,7 +163,7 @@ public class AlgorithmRunner {
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
                 new GreedyAlgorithm<>(ordering, greedySelection);
 
-        this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
+        this.greedySolution = greedyAlgorithm.solve(this.badSolution, instances);
         return this.greedySolution;
     }
 
@@ -270,13 +268,21 @@ public class AlgorithmRunner {
     }
 
     public void initBadGreedySolution(AlgorithmResult result) {
-        PackingStrategy randomPacker = new RandomPacking();
-
         long startInit = System.nanoTime();
-        String defaultStrategy = GreedyOrderingType.LARGEST_AREA_FIRST.name();
-        this.badSolution = runGreedy(defaultStrategy, randomPacker); // create bad init solution
+        
+        // Create a simple bad solution by placing each rectangle in a new box
+        // This is fast but very inefficient
+        this.badSolution = new PackingSolution(this.boxLength);
+        
+        for (Rectangle rect : this.instances) {
+            Box newBox = new Box(this.badSolution.boxes().size(), this.boxLength);
+            rect.setPosition(0, 0); // Place at origin
+            newBox.addRectangle(rect, 0, 0);
+            this.badSolution.addBox(newBox);
+        }
+        
         long initTime = (System.nanoTime() - startInit) / 1_000_000;
-        System.out.println("initial bad greedy: " + this.greedySolution.boxes().size() + " boxes");
+        System.out.println("initial bad solution (one rectangle per box): " + this.badSolution.boxes().size() + " boxes");
         result.initRuntime = String.format("%.2f ms", (double) initTime);
     }
 

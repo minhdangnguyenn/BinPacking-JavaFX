@@ -33,6 +33,7 @@ public class Permutation implements Neighborhood<PermutationSolution> {
 
         PermutationSolution temp = initialSolution.copy();
 
+        // NEIGHBOR 1
         // Swap randomly 2 rectangles in the permutation solution to create a new permutation
         Random random = new Random();
         int chosenIndex = random.nextInt(temp.getRectangles().size());
@@ -48,6 +49,7 @@ public class Permutation implements Neighborhood<PermutationSolution> {
 
         neighbors.add(temp);
 
+        // NEIGHBOR 2
         // Create a second neighbor by reversing a random subsequence
         PermutationSolution temp2 = initialSolution.copy();
         int startIndex = random.nextInt(temp2.getRectangles().size());
