@@ -271,7 +271,6 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        // assign to render
         OverlapPackingSolution solution  = localSearch.solve(initialOverlapSolution);
 
         System.out.println("Overlap solution: " + solution.boxes().size() + " boxes");
