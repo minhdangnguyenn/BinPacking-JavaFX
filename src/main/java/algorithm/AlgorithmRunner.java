@@ -96,10 +96,8 @@ public class AlgorithmRunner {
             }
 
             AlgorithmResult result = new AlgorithmResult();
-
-            initBadGreedySolution(result);
-
             long start = System.nanoTime();
+            
             if (AlgorithmType.GREEDY.name().equals(config.algorithm)) {
                 PackingStrategy bottomLeft = new BottomLeft();
                 String strategy = config.selectionStrategy != null 
@@ -108,17 +106,21 @@ public class AlgorithmRunner {
                 this.greedySolution = runGreedy(strategy, bottomLeft);
                 System.out.println("FFDA greedy: " + this.greedySolution.boxes().size() + " boxes");
                 result.initRuntime = "N/A"; // No init for pure greedy
+                result.totalGreedyBoxes = this.greedySolution.boxes().size();
+                result.totalLocalSearchBoxes = 0;
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
+                initBadGreedySolution(result);
+                
                 String neighborType = config.neighborhood != null
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
 
                 this.localSearchSolution = runLocalSearch(neighborType, maxIteration);
-            }
-
-            if (this.greedySolution == null) {
-                this.greedySolution = this.badSolution;
+                
+                // For local search, totalGreedyBoxes shows the bad initial solution count
+                result.totalGreedyBoxes = this.badSolution.boxes().size();
+                result.totalLocalSearchBoxes = this.localSearchSolution.boxes().size();
             }
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
@@ -136,16 +138,18 @@ public class AlgorithmRunner {
             
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
 
-            result.totalGreedyBoxes = this.greedySolution.boxes().size();
-
-            result.totalLocalSearchBoxes =
-                    this.localSearchSolution == null
-                            ? 0
-                            : this.localSearchSolution.boxes().size();
-
-            result.totalRectangles = this.greedySolution.boxes().stream()
-                    .mapToInt(b -> b.getRectangles().size())
-                    .sum();
+            // Calculate total rectangles from the appropriate solution
+            PackingSolution solutionForCount = this.localSearchSolution != null 
+                    ? this.localSearchSolution 
+                    : this.greedySolution;
+            
+            if (solutionForCount != null) {
+                result.totalRectangles = solutionForCount.boxes().stream()
+                        .mapToInt(b -> b.getRectangles().size())
+                        .sum();
+            } else {
+                result.totalRectangles = 0;
+            }
 
             Platform.runLater(() -> onComplete.accept(result));
         }).start();
@@ -282,6 +286,9 @@ public class AlgorithmRunner {
         // Create a simple bad solution by placing each rectangle in a new box
         // This is fast but very inefficient
         this.badSolution = new PackingSolution(this.boxLength);
+        
+        // Remove the initial empty box that PackingSolution creates
+        this.badSolution.boxes().clear();
 
         for (Rectangle rect : this.instances) {
             Box newBox = new Box(this.badSolution.boxes().size(), this.boxLength);
@@ -292,7 +299,7 @@ public class AlgorithmRunner {
 
         long initTime = (System.nanoTime() - startInit) / 1_000_000;
         System.out.println("initial bad solution (one rectangle per box): " + this.badSolution.boxes().size() + " boxes");
-        result.initRuntime = String.format("%.4f ms", (double) initTime);
+        result.initRuntime = String.format("%.2f ms", (double) initTime);
         result.numBadBoxes = this.badSolution.boxes().size();
     }
 
