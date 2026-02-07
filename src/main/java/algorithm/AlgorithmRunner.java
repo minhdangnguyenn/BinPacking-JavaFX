@@ -297,10 +297,18 @@ public class AlgorithmRunner {
             this.badSolution.addBox(newBox);
         }
 
-        long initTime = (System.nanoTime() - startInit) / 1_000_000;
-        System.out.println("initial bad solution (one rectangle per box): " + this.badSolution.boxes().size() + " boxes");
-        result.initRuntime = String.format("%.2f ms", (double) initTime);
+        long initTimeNanos = System.nanoTime() - startInit;
+        double initTimeMs = initTimeNanos / 1_000_000.0;
         result.numBadBoxes = this.badSolution.boxes().size();
+        System.out.println("initial bad solution (one rectangle per box): " + this.badSolution.boxes().size() + " boxes");
+        
+        // Show in microseconds if less than 1ms, otherwise in milliseconds
+        if (initTimeMs < 1.0) {
+            double initTimeMicros = initTimeNanos / 1_000.0;
+            result.initRuntime = String.format("%.2f μs", initTimeMicros);
+        } else {
+            result.initRuntime = String.format("%.2f ms", initTimeMs);
+        }
     }
 
     private boolean hasOverlaps(PackingSolution solution) {
