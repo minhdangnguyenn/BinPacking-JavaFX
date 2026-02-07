@@ -47,6 +47,30 @@ public class Permutation implements Neighborhood<PermutationSolution> {
         temp.getRectangles().set(chosenIndex, rectangle);
 
         neighbors.add(temp);
+
+        // Create a second neighbor by reversing a random subsequence
+        PermutationSolution temp2 = initialSolution.copy();
+        int startIndex = random.nextInt(temp2.getRectangles().size());
+        int endIndex = random.nextInt(temp2.getRectangles().size());
+        
+        if (startIndex > endIndex) {
+            int swap = startIndex;
+            startIndex = endIndex;
+            endIndex = swap;
+        }
+        
+        if (startIndex != endIndex) {
+            List<Rectangle> rectangles = temp2.getRectangles();
+            while (startIndex < endIndex) {
+                Rectangle tempRect = rectangles.get(startIndex);
+                rectangles.set(startIndex, rectangles.get(endIndex));
+                rectangles.set(endIndex, tempRect);
+                startIndex++;
+                endIndex--;
+            }
+            neighbors.add(temp2);
+        }
+
         return neighbors;
     }
 }
