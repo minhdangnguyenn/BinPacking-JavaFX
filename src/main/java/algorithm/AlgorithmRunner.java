@@ -29,13 +29,12 @@ import ui.BoxVisualizer;
 import utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class AlgorithmRunner {
-    private ArrayList<Rectangle> instances;
+    private ArrayList<Rectangle> rectangles;
     private int boxLength;
     private PackingSolution greedySolution;
     private PackingSolution localSearchSolution;
@@ -69,21 +68,21 @@ public class AlgorithmRunner {
 
         this.boxLength = config.boxLength;
 
-        this.instances = new ArrayList<>();
+        this.rectangles = new ArrayList<>();
         for (int i = 0; i < config.rectangleCount; i++) {
             int width = (int) (Math.random() * (config.maxWidth - config.minWidth + 1)) + config.minWidth;
             int height = (int) (Math.random() * (config.maxHeight - config.minHeight + 1)) + config.minHeight;
             
             Rectangle rect = new Rectangle(i, width, height);
-            this.instances.add(rect);
+            this.rectangles.add(rect);
         }
 
-        System.out.println("Generated " + this.instances.size() + " rectangles");
+        System.out.println("Generated " + this.rectangles.size() + " rectangles");
 
         this.greedySolution = null;
         this.localSearchSolution = null;
 
-        return this.instances;
+        return this.rectangles;
     }
 
     public void runAlgorithm(
@@ -92,7 +91,7 @@ public class AlgorithmRunner {
             int maxIteration
     ) {
         new Thread(() -> {
-            if (this.instances == null || this.instances.isEmpty()) {
+            if (this.rectangles == null || this.rectangles.isEmpty()) {
                 System.out.println("You need to generate instances first");
                 return;
             }
@@ -178,7 +177,7 @@ public class AlgorithmRunner {
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
                 new GreedyAlgorithm<>(ordering, greedySelection);
 
-        this.greedySolution = greedyAlgorithm.solve(initialSolution, instances);
+        this.greedySolution = greedyAlgorithm.solve(initialSolution, rectangles);
         return this.greedySolution;
     }
 
@@ -243,7 +242,7 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        PermutationSolution initPermutationSolution = new PermutationSolution(this.instances, this.boxLength);
+        PermutationSolution initPermutationSolution = new PermutationSolution(this.rectangles, this.boxLength);
 
         long start = System.nanoTime();
         PermutationSolution permutationSolution = localSearch.solve(initPermutationSolution);
@@ -259,15 +258,8 @@ public class AlgorithmRunner {
     }
 
     private PackingSolution runOverlap(int maxIteration) {
-        // OverlapPackingSolution initial = OverlapPackingSolution.getFromPackingSolution(this.badSolution, 100);
-        OverlapPackingSolution initial = initOverlapSolution();
-        int numInitialBoxes = initial.boxes().size();
-
-        initial.currentIteration = 0;
-        initial.maxIterations = maxIteration;  // maxIteration từ tham số
-
-        System.out.println("Initial: iteration=" + initial.currentIteration +
-                ", max=" + initial.maxIterations);
+        this.badSolution = initOverlapSolution(this.rectangles);
+        int numInitialBoxes = this.badSolution.boxes().size();
 
         Overlap neighborhood = new Overlap();
         Objective<OverlapPackingSolution> objective = new OverlapObjective();
@@ -279,21 +271,14 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        List<Rectangle> initRects = new ArrayList<>();
-        for (Box b: initial.boxes()) {
-            initRects.addAll(b.getRectangles());
-        }
-
-        int boxSize = initial.boxes().getFirst().getLength();
-        OverlapPackingSolution initSolution = buildRandomInitialSolution(initRects, boxSize, maxIteration);
-
         // initSolution contains 1 box with overlapped triangles
-        OverlapPackingSolution solution  = localSearch.solve(initSolution);
+        OverlapPackingSolution initSol = OverlapPackingSolution.getFromPackingSolution(this.badSolution, 100);
+        OverlapPackingSolution solution  = localSearch.solve(initSol);
 
         System.out.println("Overlap solution: " + solution.boxes().size() + " boxes");
         System.out.println("Improvement: " + (numInitialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
 
-        return solution;
+        return this.badSolution;
     }
 
     public void initBadGreedySolution(AlgorithmResult result) {
@@ -306,7 +291,7 @@ public class AlgorithmRunner {
         // Remove the initial empty box that PackingSolution creates
         this.badSolution.boxes().clear();
 
-        for (Rectangle rect : this.instances) {
+        for (Rectangle rect : this.rectangles) {
             Box newBox = new Box(this.badSolution.boxes().size(), this.boxLength);
             rect.setPosition(0, 0); // Place at origin
             newBox.addRectangle(rect, 0, 0);
@@ -361,70 +346,62 @@ public class AlgorithmRunner {
         return greedyAlgorithm.solve(baseSolution, rectanglesToRepack);
     }
 
-    public OverlapPackingSolution initOverlapSolution() {
+    public OverlapPackingSolution initOverlapSolution(List<Rectangle> rects) {
         long startInit = System.nanoTime();
 
-        // Create a new PackingSolution with the given box length
-        OverlapPackingSolution overlapBadSolution = new OverlapPackingSolution(this.boxLength);
+        // Tạo solution mới
+        OverlapPackingSolution solution = new OverlapPackingSolution(this.boxLength);
+        solution.boxes().clear();
 
-        // Remove the initial empty box that PackingSolution creates
-        overlapBadSolution.boxes().clear();
+        Random rand = new Random();
 
-        // Create one or more boxes for randomness (here, one box)
-        Box badBox = new Box(0, this.boxLength);
+        int sumArea = 0;
+        for (Rectangle rect : rects) {
+            sumArea += rect.getArea();
+        }
+        int boxArea = this.boxLength * this.boxLength;
+        int minNumBox = (int) Math.ceil((double) sumArea / boxArea);
 
-        for (Rectangle rect : this.instances) {
-            // Generate random position inside the box
-            int maxX = this.boxLength - rect.getWidth();
-            int maxY = this.boxLength - rect.getHeight();
-
-            int x = (maxX > 0) ? (int) (Math.random() * maxX) : 0;
-            int y = (maxY > 0) ? (int) (Math.random() * maxY) : 0;
-
-            rect.setPosition(x, y);
-            badBox.addRectangle(rect, x, y);
+        List<Box> boxes = new ArrayList<>();
+        for (int i = 0; i < Math.max(1, minNumBox); i++) {
+            Box box = new Box(i, this.boxLength);
+            boxes.add(box);
         }
 
-        // Add the box to the solution
-        overlapBadSolution.addBox(badBox);
+        for (Rectangle rect : rects) {
+            Rectangle rectCopy = rect.copy();
+
+            int boxId = rand.nextInt(boxes.size());
+            Box selectedBox = boxes.get(boxId);
+
+            int maxX = this.boxLength - rectCopy.getWidth();
+            int maxY = this.boxLength - rectCopy.getHeight();
+
+            int x = (maxX > 0) ? rand.nextInt(maxX + 1) : 0;
+            int y = (maxY > 0) ? rand.nextInt(maxY + 1) : 0;
+
+            selectedBox.addRectangle(rectCopy, x, y);
+        }
+
+        for (Box box : boxes) {
+            if (!box.getRectangles().isEmpty()) {
+                solution.addBox(box);
+            }
+        }
+
+        if (solution.boxes().isEmpty()) {
+            Box emptyBox = new Box(0, this.boxLength);
+            solution.addBox(emptyBox);
+        }
 
         long initTimeNanos = System.nanoTime() - startInit;
         double initTimeMs = initTimeNanos / 1_000_000.0;
-        String initRuntime = String.format("%.2f ms", initTimeMs);
-        System.out.println("initial bad solution (random positions, overlaps allowed): " + overlapBadSolution.boxes().size() + " boxes");
-        System.out.println("initial bad solution (random positions, overlaps allowed): " + initRuntime);
-        return overlapBadSolution;
-    }
 
-    private OverlapPackingSolution buildRandomInitialSolution(List<Rectangle> rectangles, int boxSize, int maxIteration) {
-        List<Box> boxes = new ArrayList<>();
-        int boxCounter = 0;
-        Box currentBox = new Box(boxCounter++, boxSize);
-        boxes.add(currentBox);
-
-        for (Rectangle rect : rectangles) {
-            Rectangle copy = rect.copy(); // QUAN TRỌNG: dùng copy()
-
-            int maxX = currentBox.getLength() - copy.getWidth();
-            int maxY = currentBox.getLength() - copy.getHeight();
-
-            if (maxX < 0 || maxY < 0) {
-                // Rectangle quá lớn, cần box mới
-                currentBox = new Box(boxCounter++, boxSize);
-                boxes.add(currentBox);
-                maxX = currentBox.getLength() - copy.getWidth();
-                maxY = currentBox.getLength() - copy.getHeight();
-            }
-
-            int x = (int) (Math.random() * (maxX + 1));
-            int y = (int) (Math.random() * (maxY + 1));
-
-            currentBox.addRectangle(copy, x, y);
-        }
-
-        OverlapPackingSolution solution = new OverlapPackingSolution(boxes);
-        solution.currentIteration = 0;
-        solution.maxIterations = maxIteration;
+        System.out.println("Initial overlap solution created:");
+        System.out.println("- Total boxes: " + solution.boxes().size());
+        System.out.println("- Total rectangles: " + rects.size());
+        System.out.println("- Box size: " + this.boxLength);
+        System.out.println("- Initialization time: " + String.format("%.2f ms", initTimeMs));
 
         return solution;
     }

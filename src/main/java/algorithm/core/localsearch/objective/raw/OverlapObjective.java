@@ -64,6 +64,6 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
         // Minimize: -boxes (càng ít box càng tốt) + penalty (càng ít overlap càng tốt)
         // Với penalty nặng hơn nhiều so với box count
-        return -1 * numBoxes + totalOverlapPenalty;
+        return -1000 * numBoxes + totalOverlapPenalty;
     }
 }
