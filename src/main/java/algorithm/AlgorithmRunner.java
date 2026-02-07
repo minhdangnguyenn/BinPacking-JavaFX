@@ -129,7 +129,12 @@ public class AlgorithmRunner {
             
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
 
-            result.totalGreedyBoxes = this.greedySolution.boxes().size();
+            if (this.greedySolution == null) {
+                result.totalGreedyBoxes = 0;
+            } else {
+                result.totalGreedyBoxes = this.greedySolution.boxes().size();
+            }
+
             result.totalLocalSearchBoxes =
                     this.localSearchSolution == null
                             ? 0
