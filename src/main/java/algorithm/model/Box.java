@@ -94,7 +94,7 @@ public class Box {
         );
         int overlapArea = xOverlap * yOverlap;
         int largerArea = Math.max(rect1.getArea(), rect2.getArea());
-        return (double) (overlapArea / largerArea) * 100;
+        return (double) (overlapArea / largerArea);
     }
 
 
@@ -252,4 +252,48 @@ public class Box {
         }
     }
 
+    public List<Rectangle> unpackAllRectangles() {
+        List<Rectangle> rects = new ArrayList<>(this.rectangles);
+
+        for (Rectangle rect : rects) {
+            rect.setPosition(-1, -1);
+        }
+
+        this.rectangles.clear();
+        return rects;
+    }
+
+    public Rectangle getMostOverlappingRectangle(double allowedOverlap) {
+        if (rectangles.size() <= 1) {
+            return null;
+        }
+
+        Rectangle mostOverlappingRect = null;
+        double maxOverlapScore = -1.0;
+
+        for (int i = 0; i < rectangles.size(); i++) {
+            Rectangle rect = rectangles.get(i);
+            double rectOverlapScore = 0.0;
+
+            // Calculate total overlap for this rectangle with all others
+            for (int j = 0; j < rectangles.size(); j++) {
+                if (i != j) {
+                    Rectangle other = rectangles.get(j);
+                    double overlapRate = overlapRate(rect, other);
+
+                    // Only count overlaps exceeding allowed threshold
+                    if (overlapRate > allowedOverlap) {
+                        rectOverlapScore += overlapRate;
+                    }
+                }
+            }
+
+            if (rectOverlapScore > maxOverlapScore) {
+                maxOverlapScore = rectOverlapScore;
+                mostOverlappingRect = rect;
+            }
+        }
+
+        return maxOverlapScore > 0 ? mostOverlappingRect : null;
+    }
 }

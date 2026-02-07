@@ -51,9 +51,13 @@ public class Rectangle implements Item {
         return x;
     }
 
+    public void setX(int x) {this.x = x;}
+
     public int getY() {
         return y;
     }
+
+    public void setY(int y) {this.y = y;}
 
     public boolean isRotated() {
         return rotated;

@@ -32,7 +32,7 @@ public class LocalSearchAlgorithm<S extends Solution>{
         int earlyStopIter = 10;
 
         while (i < this.maxIteration) {
-            isImproved = false; // reset at start of next iteration
+            isImproved = false;
             Iterable<S> neighbors = this.neighborhood.getNeighbors(currentSolution);
             for (S neighbor : neighbors) {
                 double currentScore = objective.evaluate(neighbor);
