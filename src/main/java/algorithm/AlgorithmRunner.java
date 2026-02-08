@@ -113,16 +113,16 @@ public class AlgorithmRunner {
                 result.totalLocalSearchBoxes = 0;
             }
             else if (AlgorithmType.LOCALSEARCH.name().equals(config.algorithm)) {
-                initBadGreedySolution();
+                PackingSolution badGreedy = initBadGreedySolution();
 
                 String neighborType = config.neighborhood != null
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
 
-                this.localSearchSolution = runLocalSearch(neighborType, maxIteration);
+                this.localSearchSolution = runLocalSearch(neighborType, badGreedy, maxIteration);
                 
                 // For local search, totalGreedyBoxes shows the bad initial solution count
-                result.totalGreedyBoxes = this.badSolution.boxes().size();
+                result.totalGreedyBoxes = badGreedy.boxes().size();
                 result.totalLocalSearchBoxes = this.localSearchSolution.boxes().size();
             }
 
@@ -184,19 +184,12 @@ public class AlgorithmRunner {
 
     private PackingSolution runLocalSearch(
             String neighborType,
+            PackingSolution badGreedy,
             int maxIteration
     ) {
-        if (this.badSolution == null) {
-            throw new IllegalStateException("No greedy solution found. Check again initial solution !");
-        }
-
-        System.out.println("\n=== Starting Local Search ===");
-        int numInitialBoxes = this.badSolution.boxes().size();
-        System.out.println("Initial boxes (from random place greedy): " + numInitialBoxes);
-
         // Create neighborhood
         if (NeighborhoodType.GEOMETRY.name().equalsIgnoreCase(neighborType)) {
-            return runGeometry(maxIteration);
+            return runGeometry(badGreedy, maxIteration);
         } else if (NeighborhoodType.RULEBASED.name().equalsIgnoreCase(neighborType)) {
             return runPermutation(maxIteration);
         }
@@ -207,13 +200,13 @@ public class AlgorithmRunner {
         }
     }
 
-    public PackingSolution runGeometry(int maxIteration) {
+    public PackingSolution runGeometry(PackingSolution badSolution, int maxIteration) {
         PackingStrategy putting = new BottomLeft();
         GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(putting);
         GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
         GreedyAlgorithm<PackingSolution, Rectangle> greedySolver = new GreedyAlgorithm<>(ordering, extender);
-        PackingSolution initialSolution = new PackingSolution(this.badSolution.boxes().getFirst().getLength());
 
+        PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
         PackingSolution greedySolution = greedySolver.solve(initialSolution, this.rectangles);
 
         Neighborhood<PackingSolution> neighborhood = new Geometry();
@@ -235,10 +228,6 @@ public class AlgorithmRunner {
     }
 
     private PackingSolution runPermutation(int maxIteration) {
-        System.out.println("\n=== Starting Permutation-based Local Search ===");
-        int initialBoxes = this.badSolution.boxes().size();
-        System.out.println("Initial boxes (from random place greedy): " + initialBoxes);
-
         // Create neighborhood and objective
         Neighborhood<PermutationSolution> neighborhood = new Permutation(this.boxLength);
         Objective<PermutationSolution> objective = new PermutationObjective();
@@ -258,9 +247,6 @@ public class AlgorithmRunner {
         long runtime = (end - start) / 1_000_000; // Convert to milliseconds
 
         PackingSolution solution = permutationSolution.decode();
-
-        System.out.println("Local search Permutation solution: " + solution.boxes().size() + " boxes, runtime: " + runtime + " ms");
-        System.out.println("Improvement: " + (initialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
 
         return solution;
     }
@@ -284,21 +270,20 @@ public class AlgorithmRunner {
         return solution;
     }
 
-    public void initBadGreedySolution() {
+    public PackingSolution initBadGreedySolution() {
 
         // Create a simple bad solution by placing each rectangle in a new box
         // This is fast but very inefficient
-        this.badSolution = new PackingSolution(this.boxLength);
-
-        // Remove the initial empty box that PackingSolution creates
-        this.badSolution.boxes().clear();
+        PackingSolution solution = new PackingSolution(this.boxLength);
 
         for (Rectangle rect : this.rectangles) {
-            Box newBox = new Box(this.badSolution.boxes().size(), this.boxLength);
+            Box newBox = new Box(rect.getId(), this.boxLength);
             rect.setPosition(0, 0); // Place at origin
             newBox.addRectangle(rect, 0, 0);
-            this.badSolution.addBox(newBox);
+            solution.addBox(newBox);
         }
+
+        return solution;
     }
 
     public OverlapPackingSolution initOverlapSolution(List<Rectangle> rects) {
@@ -358,39 +343,5 @@ public class AlgorithmRunner {
         System.out.println("- Initialization time: " + String.format("%.2f ms", initTimeMs));
 
         return solution;
-    }
-
-    private boolean hasOverlaps(PackingSolution solution) {
-        for (Box box : solution.boxes()) {
-            List<Rectangle> rectangles = box.getRectangles();
-            for (int i = 0; i < rectangles.size(); i++) {
-                for (int j = i + 1; j < rectangles.size(); j++) {
-                    if (box.isOverlapping(rectangles.get(i), rectangles.get(j))) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private PackingSolution repackAllRectangles(PackingSolution solution) {
-        List<Rectangle> rectanglesToRepack = new ArrayList<>();
-        for (Box box : solution.boxes()) {
-            for (Rectangle rectangle : box.getRectangles()) {
-                rectanglesToRepack.add(rectangle.copy());
-            }
-        }
-
-        rectanglesToRepack.sort((a, b) -> Integer.compare(b.getArea(), a.getArea()));
-        PackingSolution baseSolution = new PackingSolution(this.boxLength);
-
-        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
-        GreedyStrategy<PackingSolution, Rectangle> greedyStrategy =
-                new FirstFitStrategy(new BottomLeft());
-        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm =
-                new GreedyAlgorithm<>(ordering, greedyStrategy);
-
-        return greedyAlgorithm.solve(baseSolution, rectanglesToRepack);
     }
 }
