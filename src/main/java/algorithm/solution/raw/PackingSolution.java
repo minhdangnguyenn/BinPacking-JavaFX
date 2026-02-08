@@ -1,7 +1,7 @@
 package algorithm.solution.raw;
 
-import algorithm.core.localsearch.neighborhood.raw.Overlap;
 import algorithm.model.Box;
+import algorithm.model.Rectangle;
 import algorithm.solution.generic.Solution;
 
 import java.util.ArrayList;
@@ -57,5 +57,15 @@ public class PackingSolution implements Solution {
         }
 
         return solution;
+    }
+
+    public List<Rectangle> getRectangles() {
+        List<Rectangle> rects = new ArrayList<>();
+
+        for (Box box : this.boxes) {
+            rects.addAll(box.getRectangles());
+        }
+
+        return rects;
     }
 }

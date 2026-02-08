@@ -90,7 +90,7 @@ public class BinPackingController {
     @FXML
     public void handleRun() {
         solutionPane.getChildren().clear();
-        AlgorithmRunner.AlgorithmConfig config = parseConfig();
+        AlgorithmRunner.Config config = parseConfig();
 
         this.algorithmRunner.runAlgorithm(
                 config,
@@ -99,9 +99,9 @@ public class BinPackingController {
     }
 
     public void handleGenerateInstances() {
-        AlgorithmRunner.AlgorithmConfig config = parseConfig();
+        AlgorithmRunner.Config config = parseConfig();
 
-        this.rectangles = this.algorithmRunner.generateTestInstances(config);
+        this.algorithmRunner.generateInstances(config);
 
         this.updateUIGenerateInstances(config.rectangleCount);
     }
@@ -116,8 +116,7 @@ public class BinPackingController {
         // Show local search boxes count (if available)
         if (result.totalLocalSearchBoxes > 0) {
             localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
-                    " (Saved: " + (result.numBadBoxes - result.totalLocalSearchBoxes)+")"
-            + "\n Init greedy runtime: " + result.initRuntime);
+                    " (Saved: " + (result.numBadBoxes - result.totalLocalSearchBoxes - 1)+")");
             localSearchBoxesLabel.setVisible(true);
         } else {
             localSearchBoxesLabel.setText("");
@@ -131,8 +130,8 @@ public class BinPackingController {
         generatedInstancesCount.setText("Generated Instances: " + numbInstances);
     }
 
-    private AlgorithmRunner.AlgorithmConfig parseConfig() {
-        AlgorithmRunner.AlgorithmConfig config = new AlgorithmRunner.AlgorithmConfig();
+    private AlgorithmRunner.Config parseConfig() {
+        AlgorithmRunner.Config config = new AlgorithmRunner.Config();
 
         config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
         config.minWidth = InputValidator.parseField(minWField, 1);

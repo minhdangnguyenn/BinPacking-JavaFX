@@ -94,9 +94,9 @@ public class Box {
                 rect1.getY() + rect1.getHeight(),
                 rect2.getY() + rect2.getHeight()) - Math.max(rect1.getY(), rect2.getY()
         );
-        double overlapArea = (double) xOverlap * yOverlap;
+        int overlapArea = xOverlap * yOverlap;
         int largerArea = Math.max(rect1.getArea(), rect2.getArea());
-        return overlapArea / largerArea;
+        return (double) (overlapArea / largerArea) * 100;
     }
 
 

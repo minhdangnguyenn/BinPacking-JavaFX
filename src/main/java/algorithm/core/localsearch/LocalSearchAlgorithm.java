@@ -12,6 +12,7 @@ public class LocalSearchAlgorithm<S extends Solution>{
     private Neighborhood<S> neighborhood;
     private final int maxIteration;
     private Objective<S> objective;
+    private final Termination termination = new Termination();
 
     public LocalSearchAlgorithm(
             Neighborhood<S> neighborhood,
@@ -23,37 +24,26 @@ public class LocalSearchAlgorithm<S extends Solution>{
         this.objective = objective;
     }
 
-    public S solve(S initialSolution) {
-        int i = 0;
-        double minScore = objective.evaluate(initialSolution);
-        S currentSolution = initialSolution;
-        boolean isImproved = false;
-        int unimproveIter = 0;
-        int earlyStopIter = 10;
+    public S solve(S initial) {
+        S current = initial;
+        double currentScore = objective.evaluate(current);
 
-        while (i < this.maxIteration) {
-            isImproved = false;
-            Iterable<S> neighbors = this.neighborhood.getNeighbors(currentSolution);
-            for (S neighbor : neighbors) {
-                double currentScore = objective.evaluate(neighbor);
-                if (currentScore < minScore) {
-                    currentSolution = neighbor;
-                    minScore = currentScore;
-                    isImproved = true;
+        int iteration = 0;
+        while (!termination.shouldStop(iteration, maxIteration, current, currentScore)) {
+            S bestNeighbor = current;
+            double bestScore = currentScore;
+            for (S neighbor : neighborhood.getNeighbors(current)) {
+                double neighborScore = objective.evaluate(neighbor);
+                if (neighborScore > bestScore) {
+                    bestScore = neighborScore;
+                    bestNeighbor = neighbor;
                 }
             }
 
-            if (isImproved) {
-                unimproveIter = 0;
-            } else {
-                unimproveIter += 1;
-            }
-
-            if (unimproveIter > earlyStopIter) break;
-
-            i++;
+            current = bestNeighbor;
+            currentScore = bestScore;
+            iteration++;
         }
-
-        return currentSolution;
+        return current;
     }
 }
