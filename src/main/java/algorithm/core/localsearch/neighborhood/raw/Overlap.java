@@ -5,6 +5,7 @@ import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
+import algorithm.core.greedy.packing.raw.TryPackResult;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
@@ -14,6 +15,7 @@ import algorithm.solution.raw.OverlapPackingSolution;
 import algorithm.solution.raw.PackingSolution;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Overlap implements Neighborhood<OverlapPackingSolution> {
@@ -28,31 +30,87 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         this.greedySolver = new GreedyAlgorithm<>(ordering, extender);
     }
 
-    private void moveRectangleToNewBox(
-            OverlapPackingSolution solution,
-            Box sourceBox
-    ) {
-        for (int i = 0; i< sourceBox.getRectangles().size(); i++) {
-            for (int j = i+1; j<sourceBox.getRectangles().size(); j++ ) {
-                Rectangle rect1 = sourceBox.getRectangles().get(i);
-                Rectangle rect2 = sourceBox.getRectangles().get(j);
-                if (sourceBox.isOverlapping(rect1, rect2)) {
-                    // Remove from old box
-                    sourceBox.removeRectangle(rect2);
+    private void PushApart(Rectangle rect1, Rectangle rect2, int boxSize) {
 
-                    // Create new box
-                    int newBoxId = solution.boxes().size();
-                    Box newBox = new Box(newBoxId, sourceBox.getLength());
+        int xOverlap = Math.min(rect1.getX() + rect1.getWidth(), rect2.getX() + rect2.getWidth())
+                - Math.max(rect1.getX(), rect2.getX());
+        int yOverlap = Math.min(rect1.getY() + rect1.getHeight(), rect2.getY() + rect2.getHeight())
+                - Math.max(rect1.getY(), rect2.getY());
 
-                    // Place rectangle (safe position)
-                    newBox.addRectangle(rect2, 0, 0);
+        // no overlap -> nothing to do
+        if (xOverlap <= 0 && yOverlap <= 0) {
+            return;
+        }
 
-                    solution.boxes().add(newBox);
-                }
+        // clamp helper
+        java.util.function.IntUnaryOperator clampX1 = v -> Math.max(0, Math.min(v, boxSize - rect1.getWidth()));
+        java.util.function.IntUnaryOperator clampY1 = v -> Math.max(0, Math.min(v, boxSize - rect1.getHeight()));
+        java.util.function.IntUnaryOperator clampX2 = v -> Math.max(0, Math.min(v, boxSize - rect2.getWidth()));
+        java.util.function.IntUnaryOperator clampY2 = v -> Math.max(0, Math.min(v, boxSize - rect2.getHeight()));
+
+        if (xOverlap >= yOverlap) {
+            // push along X
+            int rect1Distance = Math.min(rect1.getX(), boxSize - rect1.getX() - rect1.getWidth());
+            int rect2Distance = Math.min(rect2.getX(), boxSize - rect2.getX() - rect2.getWidth());
+
+            int rect1CenterX = rect1.getX() + rect1.getWidth() / 2;
+            int rect2CenterX = rect2.getX() + rect2.getWidth() / 2;
+
+            int direction1 = (rect1CenterX < rect2CenterX) ? -1 : 1;
+            int direction2 = -direction1;
+
+            if (rect1Distance > rect2Distance) {
+                int toPush = Math.min(rect1Distance, xOverlap);
+                int newX = clampX1.applyAsInt(rect1.getX() + direction1 * toPush);
+                rect1.setPosition(newX, rect1.getY());
+            } else {
+                int toPush = Math.min(rect2Distance, xOverlap);
+                int newX = clampX2.applyAsInt(rect2.getX() + direction2 * toPush);
+                rect2.setPosition(newX, rect2.getY());
+            }
+        } else {
+            // push along Y
+            int rect1Distance = Math.min(rect1.getY(), boxSize - rect1.getY() - rect1.getHeight());
+            int rect2Distance = Math.min(rect2.getY(), boxSize - rect2.getY() - rect2.getHeight());
+
+            int rect1CenterY = rect1.getY() + rect1.getHeight() / 2;
+            int rect2CenterY = rect2.getY() + rect2.getHeight() / 2;
+
+            int direction1 = (rect1CenterY < rect2CenterY) ? -1 : 1;
+            int direction2 = -direction1;
+
+            if (rect1Distance > rect2Distance) {
+                int toPush = Math.min(rect1Distance, yOverlap);
+                int newY = clampY1.applyAsInt(rect1.getY() + direction1 * toPush);
+                rect1.setPosition(rect1.getX(), newY);
+            } else {
+                int toPush = Math.min(rect2Distance, yOverlap);
+                int newY = clampY2.applyAsInt(rect2.getY() + direction2 * toPush);
+                rect2.setPosition(rect2.getX(), newY);
             }
         }
     }
 
+    private void ResolveOverlapsInBox(Box box, int maxIterations) {
+        List<Rectangle> rectangles = box.getRectangles();
+        boolean overlapsExist;
+
+        do {
+            overlapsExist = false;
+
+            for (int i = 0; i < rectangles.size(); i++) {
+                for (int j = i + 1; j < rectangles.size(); j++) {
+                    Rectangle rect1 = rectangles.get(i);
+                    Rectangle rect2 = rectangles.get(j);
+
+                    if (box.isOverlapping(rect1, rect2)) {
+                        overlapsExist = true;
+                        PushApart(rect1, rect2, box.getLength());
+                    }
+                }
+            }
+        } while (overlapsExist && --maxIterations > 0);
+    }
 
     private boolean ContainsOverlap(Box box) {
         List<Rectangle> rectangles = box.getRectangles();
@@ -70,245 +128,217 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         return false;
     }
 
-    private double calculateOverlapArea(Rectangle a, Rectangle b) {
-        // S_intersection/max(S_a, S_b)
-        double xLeft = Math.max(a.getX(), b.getX());
-        double xRight = Math.min(a.getX() + a.getWidth(), b.getX() + b.getWidth());
-        double yBottom = Math.max(a.getY(), b.getY());
-        double yTop = Math.min(a.getY() + a.getHeight(), b.getY() + b.getHeight());
-
-        double width = xRight - xLeft;
-        double height = yTop - yBottom;
-
-        if (width > 0 && height > 0) {
-            return width * height;
+    private void ApplyGravity(Box box) {
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        for (Rectangle rectangle : box.getRectangles()) {
+            if (rectangle.getX() < minX) {
+                minX = rectangle.getX();
+            }
+            if (rectangle.getY() < minY) {
+                minY = rectangle.getY();
+            }
         }
-        return 0.0;
+
+        // Translate the whole system to bottom-left corner
+        for (Rectangle rectangle : box.getRectangles()) {
+            rectangle.setPosition(rectangle.getX() - minX, rectangle.getY() - minY);
+        }
     }
 
     @Override
     public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
-        solution.currentIteration++;
+        currentIteration += 1;
+
         List<OverlapPackingSolution> neighbors = new ArrayList<>();
 
-        System.out.println("\n=== OVERLAP ITERATION " + solution.currentIteration + "/" + solution.maxIterations + " ===");
-        System.out.println("Current solution: " + solution.boxes().size() + " boxes, " + countTotalOverlapsSolution(solution) + " overlaps");
+        OverlapPackingSolution temp = solution.copy();
+        temp.currentIteration = this.currentIteration;
 
-        // Neighbor 1: Unpack ALL rectangles and repack with greedy
-        OverlapPackingSolution fullGreedyNeighbor = this.createFullGreedyNeighbor(solution);
-        neighbors.add(fullGreedyNeighbor);
 
-        // Neighbor 2: Unpack only boxes with overlaps and repack
-        OverlapPackingSolution smartNeighbor = this.createSmartGreedyNeighbor(solution);
-        neighbors.add(smartNeighbor);
+        if (currentIteration == temp.maxIterations) {
+            System.out.println("Final Iteration: Applying Improved Bottom-Left repositioning.");
+            // Final iteration:
+            // Bottom Left Placement for boxes with Utilization < 100%
+            List<Rectangle> rectanglesToRepack = new ArrayList<>();
 
-        System.out.println("Generated " + neighbors.size() + " neighbor(s)\n");
-        return neighbors;
-    }
+            for (Box box : temp.boxes()) {
+                if (box.getUtilization() < 100.0 && ContainsOverlap(box)) {
 
-    /**
-     * SMART NEIGHBOR: Only unpacks boxes that have overlaps, keeps good boxes unchanged
-     * This is more efficient than unpacking everything
-     */
-    private OverlapPackingSolution createSmartGreedyNeighbor(OverlapPackingSolution solution) {
-        System.out.println(">>> Creating SMART neighbor (unpack only overlap boxes)...");
-        
-        int boxLength = solution.boxes().getFirst().getLength();
-        PackingSolution tmp = solution.copy();
-        // Step 1: Identify boxes with and without overlaps
-        List<Box> goodBoxes = new ArrayList<>();  // No overlaps - keep these
-        List<Rectangle> rectanglesToRepack = new ArrayList<>();  // From bad boxes
-        
-        for (Box box : tmp.boxes()) {
-            int overlaps = countTotalOverlapsBox(box);
-            
-            if (overlaps == 0) {
-                // This box is perfect - keep it as is
-                goodBoxes.add(box.copy());
-            } else {
-                // This box has overlaps - unpack all its rectangles
-                for (Rectangle rect : box.getRectangles()) {
-                    Rectangle copy = rect.copy();
-                    copy.setPosition(0, 0);
-                    rectanglesToRepack.add(copy);
+                    // Try to remove overlap first
+                    ResolveOverlapsInBox(box, 100);
+
+                    if (!ContainsOverlap(box)) continue;
+
+                    List<Rectangle> rectanglesToReposition = box.getRectangles()
+                            .stream()
+                            .map(Rectangle::copy)
+                            .sorted(Comparator.comparingInt(Rectangle::getArea).reversed())
+                            .toList();
+
+                    box.getRectangles().clear();
+
+                    PackingStrategy puttingStrategy = new BottomLeft();
+                    for (Rectangle rectangle : rectanglesToReposition) {
+                        TryPackResult result = puttingStrategy.tryPack(rectangle, box);
+                        if (result != null) {
+                            box.addRectangle(result.rotated() ? rectangle.rotate() : rectangle, result.x(), result.y());
+                        } else {
+                            // If any rectangle cannot be placed, add to repack list
+                            rectanglesToRepack.add(rectangle);
+                        }
+                    }
+                } else if (ContainsOverlap(box)) {
+                    // If still contains overlaps, add all rectangles to repack list
+                    for (Rectangle rectangle : box.getRectangles()) {
+                        rectanglesToRepack.add(rectangle.copy());
+                    }
+                    box.getRectangles().clear();
                 }
             }
-        }
-        
-        System.out.println("  Keeping " + goodBoxes.size() + " good boxes (no overlaps)");
-        System.out.println("  Repacking " + rectanglesToRepack.size() + " rectangles from bad boxes");
-        
-        // Step 2: Create base solution with good boxes
-        PackingSolution baseSolution;
-        if (goodBoxes.isEmpty()) {
-            // No good boxes - start fresh
-            baseSolution = new PackingSolution(boxLength);
-        } else {
-            // Start with good boxes
-            baseSolution = new PackingSolution(goodBoxes);
-        }
-        
-        // Step 3: Repack the rectangles from bad boxes using greedy
-        PackingSolution repackedSolution = this.greedySolver.solve(baseSolution, rectanglesToRepack);
-        
-        // Step 4: Convert to OverlapPackingSolution
-        OverlapPackingSolution result = new OverlapPackingSolution(repackedSolution.boxes());
-        result.currentIteration = solution.currentIteration;
-        result.maxIterations = solution.maxIterations;
-        
-        // Step 5: Reindex boxes
-        for (int i = 0; i < result.boxes().size(); i++) {
-            result.boxes().get(i).setId(i);
-        }
-        
-        // Step 6: Verify
-        int totalRects = 0;
-        for (Box box : result.boxes()) {
-            totalRects += box.getRectangles().size();
-        }
-        
-        int overlaps = countTotalOverlapsSolution(result);
-        System.out.println("  Result: " + result.boxes().size() + " boxes, " + totalRects + " rectangles, " + overlaps + " overlaps");
-        
-        return result;
-    }
 
-    private OverlapPackingSolution createFullGreedyNeighbor(OverlapPackingSolution solution) {
-        System.out.println(">>> Creating FULL-GREEDY neighbor (unpack ALL and repack)...");
+            // finalizing using greedy
+            if (!rectanglesToRepack.isEmpty()) {
+                PackingSolution baseSolution = temp.copy();
+                baseSolution.boxes().removeIf(box -> box.getRectangles().isEmpty());
+                PackingSolution improvedSolution = greedySolver.solve(baseSolution, rectanglesToRepack);
 
-        OverlapPackingSolution tmp = solution.copy();
-        int boxLength = tmp.boxes().getFirst().getLength();
-        
-        // Step 2: Create empty solution with one empty box
-        PackingSolution emptySolution = new PackingSolution(boxLength);
-        
-        // Step 3: Use greedy to repack ALL rectangles
-        System.out.println("  Repacking with greedy algorithm...");
-        List<Rectangle> allRectangles = new ArrayList<>();
-        for (Box box : tmp.boxes()) {
-            for (Rectangle rect : box.getRectangles()) {
-                Rectangle copy = rect.copy();
-                copy.setPosition(0, 0); // Reset position for repacking
-                allRectangles.add(copy);
+                // Convert back to OverlapPackingSolution
+                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
+                overlapImprovedSolution.currentIteration = temp.currentIteration;
+                overlapImprovedSolution.maxIterations = temp.maxIterations;
+
+                return List.of(overlapImprovedSolution);
             }
         }
 
-        PackingSolution repackedSolution = this.greedySolver.solve(emptySolution, allRectangles);
-        
-        // Step 4: Convert to OverlapPackingSolution
-        OverlapPackingSolution result = new OverlapPackingSolution(repackedSolution.boxes());
-        result.currentIteration = solution.currentIteration;
-        result.maxIterations = solution.maxIterations;
-        
-        int totalRects = 0;
-        for (Box box : result.boxes()) {
-            totalRects += box.getRectangles().size();
+        // first iteration
+        if (currentIteration == 1) {
+            for (Box box : temp.boxes()) {
+                ApplyGravity(box);
+            }
         }
-        
-        int overlaps = countTotalOverlapsSolution(result);
-        System.out.println("  Result: " + result.boxes().size() + " boxes, " + totalRects + " rectangles, " + overlaps + " overlaps");
-        
-        if (totalRects != allRectangles.size()) {
-            System.out.println("  ⚠ WARNING: Rectangle count mismatch! Expected " + allRectangles.size() + " but got " + totalRects);
+
+        // Neighbor 1: Resolve overlaps in all boxes
+        OverlapPackingSolution neighbor_1 = temp.copy();
+        if (!neighbor_1.boxes().isEmpty()) {
+            for (Box box : neighbor_1.boxes()) {
+                ResolveOverlapsInBox(box, 50);
+            }
+            neighbors.add(neighbor_1);
         }
-        
-        return result;
-    }
-    
-    private int countTotalOverlapsSolution(OverlapPackingSolution solution) {
-        int count = 0;
-        for (Box box : solution.boxes()) {
-            List<Rectangle> rects = box.getRectangles();
-            for (int i = 0; i < rects.size(); i++) {
-                for (int j = i + 1; j < rects.size(); j++) {
-                    if (calculateOverlapArea(rects.get(i), rects.get(j)) > 0) {
-                        count++;
+
+
+        // Neighbor 2: Repack rectangles from most overlapping box
+        OverlapPackingSolution neighbor_2 = temp.copy();
+        if (!neighbor_2.boxes().isEmpty()) {
+            Box mostOverlappingBox = neighbor_2.highestOverlapBox();
+            if (mostOverlappingBox != null) {
+                List<Rectangle> rectanglesToRepack = mostOverlappingBox.getRectangles()
+                        .stream()
+                        .map(Rectangle::copy)
+                        .toList();
+                neighbor_2.boxes().remove(mostOverlappingBox);
+
+                PackingSolution baseSolution = neighbor_2.copy();
+                if (baseSolution.boxes().isEmpty()) {
+                    baseSolution.addBox(new Box(0, mostOverlappingBox.getLength()));
+                }
+                PackingSolution improvedSolution = greedySolver.solve(baseSolution, rectanglesToRepack);
+
+                // Convert back to OverlapPackingSolution
+                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
+                overlapImprovedSolution.currentIteration = neighbor_2.currentIteration;
+                overlapImprovedSolution.maxIterations = neighbor_2.maxIterations;
+
+                neighbors.add(overlapImprovedSolution);
+            }
+        }
+
+
+        // Neighbor 3: Repack the least used box
+        OverlapPackingSolution neighbor_3 = temp.copy();
+        if (!neighbor_3.boxes().isEmpty()) {
+            // Find box with the least used area
+            Box leastUsedBox = neighbor_3.leastUsedBox();
+            if (leastUsedBox != null) {
+                List<Rectangle> rectanglesToRepack = leastUsedBox.getRectangles()
+                        .stream()
+                        .map(Rectangle::copy)
+                        .toList();
+                neighbor_3.boxes().remove(leastUsedBox);
+
+                PackingSolution baseSolution = neighbor_3.copy();
+                if (baseSolution.boxes().isEmpty()) {
+                    baseSolution.addBox(new Box(0, leastUsedBox.getLength()));
+                }
+                PackingSolution improvedSolution = greedySolver.solve(baseSolution, rectanglesToRepack);
+
+                // Convert back to OverlapPackingSolution
+                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
+                overlapImprovedSolution.currentIteration = neighbor_3.currentIteration;
+                overlapImprovedSolution.maxIterations = neighbor_3.maxIterations;
+                neighbors.add(overlapImprovedSolution);
+            }
+        }
+
+        OverlapPackingSolution neighbor_4 = temp.copy();
+        if (!neighbor_4.boxes().isEmpty()) {
+
+            // Find the first box which Utilization < 100% and contains overlaps
+            Box boxToReposition = null;
+            for (Box box : neighbor_4.boxes()) {
+                if (box.getUtilization() < 100.0 && ContainsOverlap(box)) {
+                    boxToReposition = box;
+                    break;
+                }
+            }
+            if (boxToReposition != null) {
+                List<Rectangle> rectanglesToReposition = boxToReposition.getRectangles()
+                        .stream()
+                        .map(Rectangle::copy)
+                        .sorted(Comparator.comparingInt(Rectangle::getArea).reversed())
+                        .toList();
+
+                boxToReposition.getRectangles().clear();
+
+                PackingStrategy puttingStrategy = new BottomLeft();
+                for (Rectangle rectangle : rectanglesToReposition) {
+                    TryPackResult result = puttingStrategy.tryPack(rectangle, boxToReposition);
+                    if (result != null) {
+                        boxToReposition.addRectangle(result.rotated() ? rectangle.rotate() : rectangle, result.x(), result.y());
+                    } else {
+                        // If any rectangle cannot be placed, create new box
+                        Box newBox = new Box(neighbor_4.boxes().size(), boxToReposition.getLength());
+                        newBox.addRectangle(rectangle, 0, 0);
+                        neighbor_4.boxes().add(newBox);
                     }
                 }
             }
-        }
-        return count;
-    }
 
-    private int countTotalOverlapsBox (Box box) {
-        int count = 0;
-        List<Rectangle> rects = box.getRectangles();
-        for (int i = 0; i < rects.size(); i++) {
-            for (int j = i + 1; j < rects.size(); j++) {
-                if (calculateOverlapArea(rects.get(i), rects.get(j)) > 0) {
-                    count++;
+        }
+
+        // Neighbor 5: Bring the largest area rectangle from most overlapping box to new box
+        OverlapPackingSolution neighbor_5 = temp.copy();
+        if (!neighbor_5.boxes().isEmpty()) {
+            Box mostOverlappingBox = neighbor_5.highestOverlapBox();
+            if (mostOverlappingBox != null && !mostOverlappingBox.getRectangles().isEmpty()) {
+                Rectangle largestRectangle = mostOverlappingBox.getRectangles()
+                        .stream()
+                        .max(Comparator.comparingInt(Rectangle::getArea))
+                        .orElse(null);
+
+                if (largestRectangle != null) {
+                    mostOverlappingBox.getRectangles().remove(largestRectangle);
+                    Box newBox = new Box(neighbor_5.boxes().size(), mostOverlappingBox.getLength());
+                    newBox.addRectangle(largestRectangle, 0, 0);
+                    neighbor_5.boxes().add(newBox);
                 }
             }
         }
-        return count;
-    }
 
-    private void applyGravity(Box box) {
-        for (Rectangle r : box.getRectangles()) {
-            int y = r.getY();
+        neighbors.add(neighbor_5);
 
-            while (true) {
-                int newY = clampY(r, y - 1, box.getLength());
-                if (newY == y) break;
-                if (!canMoveClamped(r, r.getX(), newY, box, Double.MAX_VALUE)) break;
-                y = newY;
-            }
-
-            r.setPosition(r.getX(), y);
-        }
-    }
-
-    private boolean canMoveClamped(
-            Rectangle rect,
-            int targetX,
-            int targetY,
-            Box box,
-            double maxAllowedOverlap
-    ) {
-        int boxLength = box.getLength();
-
-        int newX = clampX(rect, targetX, boxLength);
-        int newY = clampY(rect, targetY, boxLength);
-
-        // if nothing changes → useless move
-        if (newX == rect.getX() && newY == rect.getY()) {
-            return false;
-        }
-
-        double newOverlap = overlapAtPosition(rect, newX, newY, box);
-        return newOverlap <= maxAllowedOverlap;
-    }
-
-    private double overlapAtPosition(
-            Rectangle moving,
-            int newX,
-            int newY,
-            Box box
-    ) {
-        double overlap = 0.0;
-
-        int oldX = moving.getX();
-        int oldY = moving.getY();
-
-        // temporarily move
-        moving.setPosition(newX, newY);
-
-        for (Rectangle other : box.getRectangles()) {
-            if (other == moving) continue;
-            overlap += calculateOverlapArea(moving, other);
-        }
-
-        // restore
-        moving.setPosition(oldX, oldY);
-
-        return overlap;
-    }
-
-    private int clampX(Rectangle r, int x, int boxLength) {
-        return Math.max(0, Math.min(x, boxLength - r.getWidth()));
-    }
-
-    private int clampY(Rectangle r, int y, int boxLength) {
-        return Math.max(0, Math.min(y, boxLength - r.getHeight()));
+        return neighbors;
     }
 }

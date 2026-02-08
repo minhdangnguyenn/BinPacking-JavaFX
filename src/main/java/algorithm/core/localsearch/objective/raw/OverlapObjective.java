@@ -12,52 +12,51 @@ import static utils.Utils.calculateAllowedOverlap;
 
 public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
-    public double penalty(Box box, int currentIteration, int maxIteration) {
+    private double OverlapThreshold(int iteration, int maxIterations) {
+        double progress = (double) iteration / maxIterations;
+        return 100 * Math.pow((1 - progress), 2);
+    }
 
-        double progress = (double) currentIteration / maxIteration;
-
-        double sumOverlap = 0.0;
-        double maxOverlap = 0.0;
-        int overlapCount = 0;
-
-        List<Rectangle> rects = box.getRectangles();
-        for (int i = 0; i < rects.size(); i++) {
-            for (int j = i + 1; j < rects.size(); j++) {
-                double overlap = box.overlapRate(rects.get(i), rects.get(j)); // 0–1 or 0–100
-                if (overlap > 0.0) {
-                    sumOverlap += overlap;
-                    maxOverlap = Math.max(maxOverlap, overlap);
-                    overlapCount++;
-                }
-            }
+    private int penalty(double threshold) {
+        if (threshold > 70) {
+            return 10;
         }
-
-        double alpha = 1.0;
-        double beta  = 10.0 * progress * progress;
-        double gamma = 0.1 * progress;
-
-        return alpha * sumOverlap
-                + beta  * maxOverlap
-                + gamma * overlapCount;
+        else if (threshold > 50) {
+            return 100;
+        }
+        else if (threshold > 20) {
+            return 1000;
+        } else if (threshold > 5) {
+            return 5000;
+        } else return 10000;
     }
 
     @Override
     public double evaluate(OverlapPackingSolution solution) {
 
+        if (solution.currentIteration == solution.maxIterations) {
+            return Double.POSITIVE_INFINITY;
+        }
         int numBoxes = solution.boxes().size();
 
-        double totalPenalty = 0.0;
+        double total_overlap_penalty = 0;
+        double threshold = OverlapThreshold(solution.currentIteration, solution.maxIterations);
+        double factor = penalty(threshold);
+
         for (Box box : solution.boxes()) {
-            totalPenalty += penalty(
-                    box,
-                    solution.currentIteration,
-                    solution.maxIterations
-            );
+            for (int i = 0; i < box.getRectangles().size() - 1; i++) {
+                for (int j = i+1; j < box.getRectangles().size(); j++) {
+                    double overlap = box.overlapRate(box.getRectangles().get(i), box.getRectangles().get(j));
+
+                    if (overlap > threshold) {
+                        double violation = overlap - threshold;
+                        total_overlap_penalty += factor * Math.pow(violation, 2);
+                    }
+
+                }
+            }
         }
 
-        // MAIN OBJECTIVE:
-        // fewer boxes is always better
-        // overlap becomes expensive over time
-        return 10 * numBoxes + totalPenalty;
+        return (double) - 1000 * numBoxes - total_overlap_penalty;
     }
 }

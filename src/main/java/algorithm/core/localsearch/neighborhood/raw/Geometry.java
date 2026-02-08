@@ -16,10 +16,10 @@ import algorithm.solution.raw.PackingSolution;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeometryBased implements Neighborhood<PackingSolution> {
+public class Geometry implements Neighborhood<PackingSolution> {
     private final GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
 
-    public GeometryBased() {
+    public Geometry() {
         PackingStrategy packingStrategy = new BottomLeft();
         GreedyOrdering<Rectangle> greedyOrdering = new AreaDescOrder();
         GreedyStrategy<PackingSolution, Rectangle> greedyStrategy = new FirstFitStrategy(packingStrategy);
@@ -28,14 +28,12 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
 
     @Override
     public Iterable<PackingSolution> getNeighbors(PackingSolution solution) {
-        List<PackingSolution> neighborSolutions = new ArrayList<>();
+        List<PackingSolution> neighbors = new ArrayList<>();
 
         // create a new solution (copy from current solution) but don't copy the last box
         PackingSolution cloneSolution = solution.copy();
 
         PackingSolution clone = solution.copy();
-
-        List<Rectangle> unpackedRectangles = new ArrayList<>();
 
         // sort utilization asc
         clone.boxes().sort(Comparator.comparingInt(Box::getUsedArea));
@@ -43,25 +41,19 @@ public class GeometryBased implements Neighborhood<PackingSolution> {
         // get the 20% of numb boxes
         int numUnpackBox = solution.boxes().size() / 5;
         PackingSolution tempSolution = cloneSolution.copy();
-        for (int i = 0; i < numUnpackBox; i++) {
-            Box unpackBox = tempSolution.boxes().get(i);
-
-            for (Rectangle rectangle : unpackBox.getRectangles()) {
-                unpackedRectangles.add(rectangle.copy());
-            }
-
-            tempSolution.boxes().remove(unpackBox);
+        for  (int i = 0; i < numUnpackBox; i++) {
+            PackingSolution temp = clone.copy();
+            Box box = temp.boxes().get(i);
+            List<Rectangle> copiedRectangles = box.getRectangles()
+                    .stream()
+                    .map(Rectangle::copy)
+                    .toList();
+            temp.boxes().remove(box);
+            PackingSolution baseSolution = temp.copy();
+            PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, copiedRectangles);
+            neighbors.add(improvedSolution);
         }
 
-        //reorder by area desc
-        unpackedRectangles.sort(Comparator.comparingInt(Rectangle::getArea).reversed());
-
-        PackingSolution baseSolution = tempSolution.copy();
-
-        PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, unpackedRectangles);
-
-        neighborSolutions.add(improvedSolution);
-
-        return neighborSolutions;
+        return neighbors;
     }
 }
