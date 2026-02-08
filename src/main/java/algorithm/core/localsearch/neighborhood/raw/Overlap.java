@@ -114,57 +114,63 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
     @Override
     public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
         solution.currentIteration++;
-        int boxLength = solution.boxes().getFirst().getLength();
         List<OverlapPackingSolution> neighbors = new ArrayList<>();
 
-        OverlapPackingSolution halfGreedyNeighbor = this.createHalfGreedyNeighbor(solution);
+        System.out.println("\n=== OVERLAP ITERATION " + solution.currentIteration + "/" + solution.maxIterations + " ===");
+        System.out.println("Current solution: " + solution.boxes().size() + " boxes, " + countTotalOverlaps(solution) + " overlaps");
 
-        neighbors.add(halfGreedyNeighbor);
+        // Neighbor: Unpack ALL rectangles and repack with greedy
+        OverlapPackingSolution greedyNeighbor = this.createFullGreedyNeighbor(solution);
+        neighbors.add(greedyNeighbor);
+
+        System.out.println("Generated " + neighbors.size() + " neighbor(s)\n");
         return neighbors;
     }
 
-    private OverlapPackingSolution createHalfGreedyNeighbor(OverlapPackingSolution solution) {
-        // Create neighbor by unpacking half the boxes and repacking
-        OverlapPackingSolution neighbor = solution.copy();
-
+    private OverlapPackingSolution createFullGreedyNeighbor(OverlapPackingSolution solution) {
+        System.out.println(">>> Creating FULL-GREEDY neighbor (unpack ALL and repack)...");
+        
+        int boxLength = solution.boxes().getFirst().getLength();
+        
+        // Step 1: Collect ALL rectangles from ALL boxes
+        List<Rectangle> allRectangles = new ArrayList<>();
         for (Box box : solution.boxes()) {
-            if (!ContainsOverlap(box)) continue;
-            moveRectangleToNewBox(neighbor, box);
-        }
-        int totalBoxes = neighbor.boxes().size();
-        int startIndex = totalBoxes / 2;
-
-        System.out.println("Unpacking boxes from index " + startIndex + " to " + (totalBoxes - 1));
-
-        List<Rectangle> unpackedRectangles = new ArrayList<>();
-        List<Box> boxesToRemove = new ArrayList<>();
-
-        for (int i = startIndex; i < totalBoxes; i++) {
-            Box box = neighbor.boxes().get(i);
             for (Rectangle rect : box.getRectangles()) {
                 Rectangle copy = rect.copy();
                 copy.setPosition(0, 0); // Reset position for repacking
-                unpackedRectangles.add(copy);
+                allRectangles.add(copy);
             }
-            boxesToRemove.add(box);
         }
+        
+        System.out.println("  Unpacked " + allRectangles.size() + " rectangles from " + solution.boxes().size() + " boxes");
+        
+        // Step 2: Create empty solution with one empty box
+        PackingSolution emptySolution = new PackingSolution(boxLength);
+        
+        // Step 3: Use greedy to repack ALL rectangles
+        System.out.println("  Repacking with greedy algorithm...");
+        PackingSolution repackedSolution = this.greedySolver.solve(emptySolution, allRectangles);
+        
+        // Step 4: Convert to OverlapPackingSolution
+        OverlapPackingSolution result = new OverlapPackingSolution(repackedSolution.boxes());
+        result.currentIteration = solution.currentIteration;
+        result.maxIterations = solution.maxIterations;
 
-        neighbor.boxes().removeAll(boxesToRemove);
-        PackingSolution baseSolution = new PackingSolution(neighbor.boxes());
-        PackingSolution repackedSolution = this.greedySolver.solve(baseSolution, unpackedRectangles);
-        OverlapPackingSolution neighbor1 = new OverlapPackingSolution(repackedSolution.boxes());
-        neighbor1.currentIteration = solution.currentIteration;
-        neighbor1.maxIterations = solution.maxIterations;
-
-        neighbor1.boxes().removeIf(box -> box.getRectangles().isEmpty());
-        for (int i = 0; i < neighbor1.boxes().size(); i++) {
-            neighbor1.boxes().get(i).setId(i);
+        
+        // Step 6: Verify
+        int totalRects = 0;
+        for (Box box : result.boxes()) {
+            totalRects += box.getRectangles().size();
         }
-
-        int overlaps = countTotalOverlaps(neighbor1);
-        System.out.println("Overlaps in neighbor1: " + overlaps);
-
-        return neighbor1;
+        
+        int overlaps = countTotalOverlaps(result);
+        System.out.println("  Result: " + result.boxes().size() + " boxes, " + totalRects + " rectangles, " + overlaps + " overlaps");
+        
+        if (totalRects != allRectangles.size()) {
+            System.out.println("  ⚠ WARNING: Rectangle count mismatch! Expected " + allRectangles.size() + " but got " + totalRects);
+        }
+        
+        return result;
     }
     
     private int countTotalOverlaps(OverlapPackingSolution solution) {
