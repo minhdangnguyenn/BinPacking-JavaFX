@@ -35,23 +35,28 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
     }
 
     private void moveRectangleToNewBox(
-            OverlapPackingSolution solution, Box sourceBox, Rectangle victim) {
+            OverlapPackingSolution solution,
+            Box sourceBox
+    ) {
+        for (int i = 0; i< sourceBox.getRectangles().size(); i++) {
+            for (int j = i+1; j<sourceBox.getRectangles().size(); j++ ) {
+                Rectangle rect1 = sourceBox.getRectangles().get(i);
+                Rectangle rect2 = sourceBox.getRectangles().get(j);
+                if (sourceBox.isOverlapping(rect1, rect2)) {
+                    // Remove from old box
+                    sourceBox.removeRectangle(rect2);
 
-        // Find copied objects
-        Rectangle r = solution.findRectangleById(victim.getId());
-        Box oldBox = solution.findBoxContaining(r);
+                    // Create new box
+                    int newBoxId = solution.boxes().size();
+                    Box newBox = new Box(newBoxId, sourceBox.getLength());
 
-        // Remove from old box
-        oldBox.removeRectangle(r);
+                    // Place rectangle (safe position)
+                    newBox.addRectangle(rect2, 0, 0);
 
-        // Create new box
-        int newBoxId = solution.boxes().size();
-        Box newBox = new Box(newBoxId, oldBox.getLength());
-
-        // Place rectangle (safe position)
-        newBox.addRectangle(r, 0, 0);
-
-        solution.boxes().add(newBox);
+                    solution.boxes().add(newBox);
+                }
+            }
+        }
     }
 
 
@@ -114,16 +119,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         OverlapPackingSolution neighbor = solution.copy();
         for (Box box : solution.boxes()) {
             if (!ContainsOverlap(box)) continue;
-
-            for (int i = 0; i< box.getRectangles().size(); i++) {
-                for (int j = i+1; j<box.getRectangles().size(); j++ ) {
-                    Rectangle rect1 = box.getRectangles().get(i);
-                    Rectangle rect2 = box.getRectangles().get(j);
-                    if (box.isOverlapping(rect1, rect2)) {
-                        moveRectangleToNewBox(neighbor, box, box.getRectangles().get(j));
-                    }
-                }
-            }
+            moveRectangleToNewBox(neighbor, box);
         }
 
         neighbors.add(neighbor);
