@@ -241,14 +241,9 @@ public class AlgorithmRunner {
 
         PermutationSolution initPermutationSolution = new PermutationSolution(this.rectangles, this.boxLength);
 
-        long start = System.nanoTime();
         PermutationSolution permutationSolution = localSearch.solve(initPermutationSolution);
-        long end = System.nanoTime();
-        long runtime = (end - start) / 1_000_000; // Convert to milliseconds
 
-        PackingSolution solution = permutationSolution.decode();
-
-        return solution;
+        return permutationSolution.decode();
     }
 
     private PackingSolution runOverlap(int maxIteration) {
