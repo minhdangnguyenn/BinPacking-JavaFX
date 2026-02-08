@@ -278,7 +278,7 @@ public class AlgorithmRunner {
         System.out.println("Overlap solution: " + solution.boxes().size() + " boxes");
         System.out.println("Improvement: " + (numInitialBoxes - solution.boxes().size()) + " boxes saved compared to initial solution");
 
-        return this.badSolution;
+        return solution;
     }
 
     public void initBadGreedySolution(AlgorithmResult result) {
