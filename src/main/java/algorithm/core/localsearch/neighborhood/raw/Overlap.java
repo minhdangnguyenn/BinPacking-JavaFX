@@ -117,6 +117,13 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         int boxLength = solution.boxes().getFirst().getLength();
         List<OverlapPackingSolution> neighbors = new ArrayList<>();
 
+        OverlapPackingSolution halfGreedyNeighbor = this.createHalfGreedyNeighbor(solution);
+
+        neighbors.add(halfGreedyNeighbor);
+        return neighbors;
+    }
+
+    private OverlapPackingSolution createHalfGreedyNeighbor(OverlapPackingSolution solution) {
         // Create neighbor by unpacking half the boxes and repacking
         OverlapPackingSolution neighbor = solution.copy();
 
@@ -126,12 +133,12 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         }
         int totalBoxes = neighbor.boxes().size();
         int startIndex = totalBoxes / 2;
-        
+
         System.out.println("Unpacking boxes from index " + startIndex + " to " + (totalBoxes - 1));
 
         List<Rectangle> unpackedRectangles = new ArrayList<>();
         List<Box> boxesToRemove = new ArrayList<>();
-        
+
         for (int i = startIndex; i < totalBoxes; i++) {
             Box box = neighbor.boxes().get(i);
             for (Rectangle rect : box.getRectangles()) {
@@ -156,9 +163,8 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
 
         int overlaps = countTotalOverlaps(neighbor1);
         System.out.println("Overlaps in neighbor1: " + overlaps);
-        
-        neighbors.add(neighbor1);
-        return neighbors;
+
+        return neighbor1;
     }
     
     private int countTotalOverlaps(OverlapPackingSolution solution) {
