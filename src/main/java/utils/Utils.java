@@ -33,4 +33,14 @@ public class Utils {
             );
         }
     }
+
+    public static double calculateAllowedOverlap(int currentIteration, int maxIterations) {
+        if (maxIterations <= 0) return 0;
+
+        // P drops linearly from 1.0 to 0.0
+        double P = 1.0 - ((double) currentIteration / maxIterations);
+
+        // Ensure it stays within [0.0, 1.0]
+        return Math.max(0.0, Math.min(1.0, P));
+    }
 }

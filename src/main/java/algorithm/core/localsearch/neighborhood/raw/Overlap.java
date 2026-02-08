@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static utils.Utils.calculateAllowedOverlap;
+
 public class Overlap implements Neighborhood<OverlapPackingSolution> {
 
     private final GreedyAlgorithm<PackingSolution, Rectangle> greedySolver;
@@ -192,73 +194,61 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         return violators;
     }
 
-    private double calculateAllowedOverlap(int currentIteration, int maxIterations) {
-        if (maxIterations <= 0) return 0;
-
-        // P drops linearly from 1.0 to 0.0
-        double P = 1.0 - ((double) currentIteration / maxIterations);
-
-        // Ensure it stays within [0.0, 1.0]
-        return Math.max(0.0, Math.min(1.0, P));
-    }
+//    private double calculateAllowedOverlap(int currentIteration, int maxIterations) {
+//        if (maxIterations <= 0) return 0;
+//
+//        // P drops linearly from 1.0 to 0.0
+//        double P = 1.0 - ((double) currentIteration / maxIterations);
+//
+//        // Ensure it stays within [0.0, 1.0]
+//        return Math.max(0.0, Math.min(1.0, P));
+//    }
 
     @Override
     public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
         solution.currentIteration += 1;
 
-        System.out.println("\n=== OVERLAP ITERATION " + solution.currentIteration + "/" + solution.maxIterations + " ===");
+        System.out.println("\n=== OVERLAP ITERATION " + solution.currentIteration +
+                "/" + solution.maxIterations + " ===");
+
+        // Tính P và progress
+        double P = calculateAllowedOverlap(solution.currentIteration, solution.maxIterations);
+        double progressRatio = (double) solution.currentIteration / solution.maxIterations;
+
+        System.out.println("Allowed overlap P: " + String.format("%.4f", P));
+        System.out.println("Progress: " + String.format("%.2f", progressRatio));
 
         List<OverlapPackingSolution> neighbors = new ArrayList<>();
 
-        // 1. Calculate current allowed overlap percentage (P)
-        double P = calculateAllowedOverlap(solution.currentIteration, solution.maxIterations);
-        System.out.println("Allowed overlap P: " + String.format("%.4f", P));
-        
-        // Count current overlaps
-        int currentOverlaps = countTotalOverlaps(solution);
-        System.out.println("Current solution: " + solution.boxes().size() + " boxes, " + currentOverlaps + " overlaps");
+        // NEIGHBOR 1: Resolve overlaps
+        OverlapPackingSolution neighbor1 = solution.copy();
+        neighbor1.currentIteration = solution.currentIteration;  // COPY ITERATION!
+        neighbor1.maxIterations = solution.maxIterations;
 
-        // 2. Identify "Problematic" Rectangles
-        List<Rectangle> violators = findViolatingRectangles(solution, P);
-        System.out.println("Violators found: " + violators.size());
-
-        // If no violators, the current solution is 'feasible' for this stage
-        if (violators.isEmpty()) {
-            violators = solution.getAllRectangles();
-        }
-
-        // 3. Generate Neighbors based on the current Phase
-        for (Rectangle r : selectSubset(violators, 5)) {
-//            neighbors.add(createShiftNeighbor(solution, r, P));
-//            neighbors.add(createSnapNeighbor(solution, r, P));
-
-            if (P > 0.5) {
-                // neighbors.add(createSwapNeighbor(solution, r));
+        if (!neighbor1.boxes().isEmpty()) {
+            for (Box box : neighbor1.boxes()) {
+                // Dùng progressRatio (0-1) thay vì integer progress
+                ResolveOverlapsInBox(box, 50, (int) progressRatio);
             }
-        }
-        int progress = solution.currentIteration / solution.maxIterations;
-        for (Box box : solution.boxes()) {
-            ResolveOverlapsInBox(box, 100, progress);
-        }
-        neighbors.add(createSplitNeighbor(solution, P));
-
-        // remove all overlaps in last 20% iteration
-        double progressPercent = (double) solution.currentIteration / solution.maxIterations;
-        if (progressPercent >= 0.8) {
-            System.out.println(">>> FINAL PHASE: Adding greedy resolution neighbor");
-            OverlapPackingSolution greedyNeighbor = createGreedyResolutionNeighbor(solution);
-            int greedyOverlaps = countTotalOverlaps(greedyNeighbor);
-            System.out.println(">>> Greedy neighbor: " + greedyNeighbor.boxes().size() + " boxes, " + greedyOverlaps + " overlaps");
-            neighbors.add(greedyNeighbor);
+            neighbors.add(neighbor1);
         }
 
-//        for (OverlapPackingSolution neighbor : neighbors) {
-//            for (Box box : neighbor.boxes()) {
-//                ResolveOverlapsInBox(box, 100, progress);
-//            }
-//        }
+        // NEIGHBOR 2: Greedy repack
+        OverlapPackingSolution neighbor2 = solution.copy();
+        neighbor2.currentIteration = solution.currentIteration;  // COPY ITERATION!
+        neighbor2.maxIterations = solution.maxIterations;
 
-        System.out.println("Generated " + neighbors.size() + " neighbors\n");
+        List<Rectangle> rects = new ArrayList<>();
+        for (Box box : neighbor2.boxes()) {
+            rects.addAll(box.getRectangles());
+        }
+
+        PackingSolution packingSolution = greedySolver.solve(neighbor2, rects);
+        OverlapPackingSolution newneighbor2 = OverlapPackingSolution.getFromPackingSolution(packingSolution, 100);
+        newneighbor2.currentIteration = solution.currentIteration;  // COPY ITERATION!
+        newneighbor2.maxIterations = solution.maxIterations;
+
+        neighbors.add(newneighbor2);
 
         return neighbors;
     }

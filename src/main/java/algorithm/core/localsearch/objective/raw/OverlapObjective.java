@@ -7,37 +7,25 @@ import algorithm.solution.raw.OverlapPackingSolution;
 
 import java.util.List;
 
+import static utils.Utils.calculateAllowedOverlap;
+
 
 public class OverlapObjective implements Objective<OverlapPackingSolution> {
-
-    // Trả về threshold dưới dạng % (0-100)
-    private double OverlapThreshold(int iteration, int maxIterations) {
-        if (maxIterations <= 0) return 0;
-        double progress = (double) iteration / maxIterations;
-        // Bắt đầu 80%, kết thúc 5%
-        return 80.0 * Math.pow(0.1, progress);  // 80% → 8% (không phải 5%, nhưng ổn)
-    }
-
-    // Penalty tăng khi threshold giảm
-    private double penaltyFactor(double thresholdPercent) {
-        // threshold: 80% → 8%
-        if (thresholdPercent > 60) return 1;
-        else if (thresholdPercent > 40) return 5;
-        else if (thresholdPercent > 20) return 20;
-        else if (thresholdPercent > 10) return 50;
-        else if (thresholdPercent > 5) return 100;
-        else return 200;
-    }
 
     public double evaluate(OverlapPackingSolution solution) {
         int numBoxes = solution.boxes().size();
 
-        // Threshold dưới dạng %
-        double thresholdPercent = OverlapThreshold(
-                solution.currentIteration, solution.maxIterations);
-        double penalty = penaltyFactor(thresholdPercent);
+        System.out.println("[DEBUG] Evaluating solution with iteration: " +
+                solution.currentIteration + "/" + solution.maxIterations);
 
-        // Tính overlap vượt quá threshold
+        double thresholdRatio = calculateAllowedOverlap(
+                solution.currentIteration, solution.maxIterations);
+        double thresholdPercent = thresholdRatio * 100.0;
+
+        System.out.printf("[DEBUG] thresholdRatio=%.4f, thresholdPercent=%.1f%%%n",
+                thresholdRatio, thresholdPercent);
+
+        // Calculate excess overlap (overlap above threshold)
         double totalExcessOverlap = 0;
         for (Box box : solution.boxes()) {
             List<Rectangle> rects = box.getRectangles();
@@ -51,17 +39,36 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
             }
         }
 
-        // Box weight cố định
-        double boxWeight = 50.0;
+        // Determine stage based on progress
+        double progress = (double) solution.currentIteration / solution.maxIterations;
 
-        // Score
-        double score = boxWeight * numBoxes + penalty * totalExcessOverlap;
+        double boxWeight, overlapWeight;
 
-        // Debug
-        System.out.printf("Iter %d: boxes=%d, threshold=%.1f%%, " +
-                        "excess=%.1f, penalty=%.0f, score=%.1f%n",
-                solution.currentIteration, numBoxes, thresholdPercent,
-                totalExcessOverlap, penalty, score);
+        if (progress < 0.3) {
+            // Early stage: focus on reducing boxes
+            boxWeight = 100.0;
+            overlapWeight = 10.0;
+        }
+        else if (progress < 0.8) {
+            // Middle stage: balance
+            boxWeight = 50.0;
+            overlapWeight = 50.0;
+        }
+        else {
+            // Final stage: eliminate overlaps
+            boxWeight = 20.0;
+            overlapWeight = 200.0;
+        }
+
+        // Calculate final score
+        double score = boxWeight * numBoxes + overlapWeight * totalExcessOverlap;
+
+        // Debug output (remove in production)
+        System.out.printf("[Obj] Iter %3d: threshold=%5.1f%%, boxes=%2d, " +
+                        "excess=%-6.1f, score=%-8.1f (box:%-6.1f, overlap:%-6.1f)%n",
+                solution.currentIteration, thresholdPercent, numBoxes,
+                totalExcessOverlap, score,
+                boxWeight * numBoxes, overlapWeight * totalExcessOverlap);
 
         return score;
     }
