@@ -271,7 +271,6 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        // initSolution contains 1 box with overlapped triangles
         OverlapPackingSolution initSol = OverlapPackingSolution.getFromPackingSolution(this.badSolution, 100);
         OverlapPackingSolution solution  = localSearch.solve(initSol);
 
