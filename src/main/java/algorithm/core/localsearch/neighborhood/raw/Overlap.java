@@ -129,35 +129,31 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
 
     private OverlapPackingSolution createFullGreedyNeighbor(OverlapPackingSolution solution) {
         System.out.println(">>> Creating FULL-GREEDY neighbor (unpack ALL and repack)...");
-        
-        int boxLength = solution.boxes().getFirst().getLength();
-        
-        // Step 1: Collect ALL rectangles from ALL boxes
-        List<Rectangle> allRectangles = new ArrayList<>();
-        for (Box box : solution.boxes()) {
-            for (Rectangle rect : box.getRectangles()) {
-                Rectangle copy = rect.copy();
-                copy.setPosition(0, 0); // Reset position for repacking
-                allRectangles.add(copy);
-            }
-        }
-        
-        System.out.println("  Unpacked " + allRectangles.size() + " rectangles from " + solution.boxes().size() + " boxes");
+
+        OverlapPackingSolution tmp = solution.copy();
+        int boxLength = tmp.boxes().getFirst().getLength();
         
         // Step 2: Create empty solution with one empty box
         PackingSolution emptySolution = new PackingSolution(boxLength);
         
         // Step 3: Use greedy to repack ALL rectangles
         System.out.println("  Repacking with greedy algorithm...");
+        List<Rectangle> allRectangles = new ArrayList<>();
+        for (Box box : tmp.boxes()) {
+            for (Rectangle rect : box.getRectangles()) {
+                Rectangle copy = rect.copy();
+                copy.setPosition(0, 0); // Reset position for repacking
+                allRectangles.add(copy);
+            }
+        }
+
         PackingSolution repackedSolution = this.greedySolver.solve(emptySolution, allRectangles);
         
         // Step 4: Convert to OverlapPackingSolution
         OverlapPackingSolution result = new OverlapPackingSolution(repackedSolution.boxes());
         result.currentIteration = solution.currentIteration;
         result.maxIterations = solution.maxIterations;
-
         
-        // Step 6: Verify
         int totalRects = 0;
         for (Box box : result.boxes()) {
             totalRects += box.getRectangles().size();

@@ -177,8 +177,7 @@ public class AlgorithmRunner {
         GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
                 new GreedyAlgorithm<>(ordering, greedySelection);
 
-        this.greedySolution = greedyAlgorithm.solve(initialSolution, rectangles);
-        return this.greedySolution;
+        return greedyAlgorithm.solve(initialSolution, rectangles);
     }
 
     private PackingSolution runLocalSearch(
@@ -258,8 +257,8 @@ public class AlgorithmRunner {
     }
 
     private PackingSolution runOverlap(int maxIteration) {
-        this.badSolution = initOverlapSolution(this.rectangles);
-        int numInitialBoxes = this.badSolution.boxes().size();
+        OverlapPackingSolution badOverlap  = initOverlapSolution(this.rectangles);
+        int numInitialBoxes = badOverlap.boxes().size();
 
         Overlap neighborhood = new Overlap();
         Objective<OverlapPackingSolution> objective = new OverlapObjective();
@@ -271,7 +270,7 @@ public class AlgorithmRunner {
                         maxIteration
                 );
 
-        OverlapPackingSolution initSol = OverlapPackingSolution.getFromPackingSolution(this.badSolution, 100);
+        OverlapPackingSolution initSol = OverlapPackingSolution.getFromPackingSolution(badOverlap, 100);
         OverlapPackingSolution solution  = localSearch.solve(initSol);
 
         System.out.println("Overlap solution: " + solution.boxes().size() + " boxes");
@@ -311,44 +310,9 @@ public class AlgorithmRunner {
         }
     }
 
-    private boolean hasOverlaps(PackingSolution solution) {
-        for (Box box : solution.boxes()) {
-            List<Rectangle> rectangles = box.getRectangles();
-            for (int i = 0; i < rectangles.size(); i++) {
-                for (int j = i + 1; j < rectangles.size(); j++) {
-                    if (box.isOverlapping(rectangles.get(i), rectangles.get(j))) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private PackingSolution repackAllRectangles(PackingSolution solution) {
-        List<Rectangle> rectanglesToRepack = new ArrayList<>();
-        for (Box box : solution.boxes()) {
-            for (Rectangle rectangle : box.getRectangles()) {
-                rectanglesToRepack.add(rectangle.copy());
-            }
-        }
-
-        rectanglesToRepack.sort((a, b) -> Integer.compare(b.getArea(), a.getArea()));
-        PackingSolution baseSolution = new PackingSolution(this.boxLength);
-
-        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
-        GreedyStrategy<PackingSolution, Rectangle> greedyStrategy =
-                new FirstFitStrategy(new BottomLeft());
-        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm =
-                new GreedyAlgorithm<>(ordering, greedyStrategy);
-
-        return greedyAlgorithm.solve(baseSolution, rectanglesToRepack);
-    }
-
     public OverlapPackingSolution initOverlapSolution(List<Rectangle> rects) {
         long startInit = System.nanoTime();
 
-        // Tạo solution mới
         OverlapPackingSolution solution = new OverlapPackingSolution(this.boxLength);
         solution.boxes().clear();
 
@@ -403,5 +367,39 @@ public class AlgorithmRunner {
         System.out.println("- Initialization time: " + String.format("%.2f ms", initTimeMs));
 
         return solution;
+    }
+
+    private boolean hasOverlaps(PackingSolution solution) {
+        for (Box box : solution.boxes()) {
+            List<Rectangle> rectangles = box.getRectangles();
+            for (int i = 0; i < rectangles.size(); i++) {
+                for (int j = i + 1; j < rectangles.size(); j++) {
+                    if (box.isOverlapping(rectangles.get(i), rectangles.get(j))) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private PackingSolution repackAllRectangles(PackingSolution solution) {
+        List<Rectangle> rectanglesToRepack = new ArrayList<>();
+        for (Box box : solution.boxes()) {
+            for (Rectangle rectangle : box.getRectangles()) {
+                rectanglesToRepack.add(rectangle.copy());
+            }
+        }
+
+        rectanglesToRepack.sort((a, b) -> Integer.compare(b.getArea(), a.getArea()));
+        PackingSolution baseSolution = new PackingSolution(this.boxLength);
+
+        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
+        GreedyStrategy<PackingSolution, Rectangle> greedyStrategy =
+                new FirstFitStrategy(new BottomLeft());
+        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm =
+                new GreedyAlgorithm<>(ordering, greedyStrategy);
+
+        return greedyAlgorithm.solve(baseSolution, rectanglesToRepack);
     }
 }
