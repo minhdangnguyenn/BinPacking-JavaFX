@@ -1,6 +1,5 @@
 package algorithm.solution.raw;
 
-import algorithm.core.localsearch.neighborhood.raw.Overlap;
 import algorithm.model.Box;
 import algorithm.model.Rectangle;
 import algorithm.solution.generic.Solution;

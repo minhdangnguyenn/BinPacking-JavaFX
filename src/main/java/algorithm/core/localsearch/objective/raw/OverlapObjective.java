@@ -2,12 +2,7 @@ package algorithm.core.localsearch.objective.raw;
 
 import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.model.Box;
-import algorithm.model.Rectangle;
 import algorithm.solution.raw.OverlapPackingSolution;
-
-import java.util.List;
-
-import static utils.Utils.calculateAllowedOverlap;
 
 
 public class OverlapObjective implements Objective<OverlapPackingSolution> {
