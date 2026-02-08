@@ -21,6 +21,17 @@ public class OverlapPackingSolution extends PackingSolution {
         super(boxSize);
     }
 
+    public static OverlapPackingSolution init(List<Box> boxes, int maxIterations) {
+        OverlapPackingSolution solution = new OverlapPackingSolution(boxes.getFirst().getLength());
+        solution.currentIteration = 0;
+        solution.maxIterations = maxIterations;
+
+        solution.boxes().addAll(boxes);
+        solution.boxes().removeIf(box -> box.getRectangles().isEmpty());
+
+        return solution;
+    }
+
     public Box highestOverlapBox() {
         Box highestOverlapBox = null;
         double highestOverlapRate = -1.0;
@@ -33,6 +44,20 @@ public class OverlapPackingSolution extends PackingSolution {
             }
         }
         return highestOverlapBox;
+    }
+
+    public Box leastUsedBox() {
+        Box leastUsedBox = null;
+        double lowestUtilization = Double.MAX_VALUE;
+
+        for (Box box : boxes()) {
+            double utilization = box.getUtilization();
+            if (utilization < lowestUtilization) {
+                lowestUtilization = utilization;
+                leastUsedBox = box;
+            }
+        }
+        return leastUsedBox;
     }
 
     @Override
