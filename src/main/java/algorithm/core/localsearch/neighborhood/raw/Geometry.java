@@ -30,24 +30,28 @@ public class Geometry implements Neighborhood<PackingSolution> {
     public Iterable<PackingSolution> getNeighbors(PackingSolution solution) {
         List<PackingSolution> neighbors = new ArrayList<>();
 
-        // create a new solution (copy from current solution) but don't copy the last box
         PackingSolution cloneSolution = solution.copy();
 
-        PackingSolution clone = solution.copy();
+        cloneSolution.boxes().sort(Comparator.comparingInt(Box::getUsedArea));
 
-        // sort utilization asc
-        clone.boxes().sort(Comparator.comparingInt(Box::getUsedArea));
+        int minUnpack;
+        int boxesSize = cloneSolution.boxes().size();
 
-        // get the 20% of numb boxes
-        int numUnpackBox = solution.boxes().size() / 5;
-        PackingSolution tempSolution = cloneSolution.copy();
+        if (boxesSize < 15 ) {
+            minUnpack = 1;
+        } else {
+            minUnpack = 15;
+        }
+        int numUnpackBox = Math.min(minUnpack, boxesSize);
+
         for  (int i = 0; i < numUnpackBox; i++) {
-            PackingSolution temp = clone.copy();
+            PackingSolution temp = cloneSolution.copy();
             Box box = temp.boxes().get(i);
             List<Rectangle> copiedRectangles = box.getRectangles()
                     .stream()
                     .map(Rectangle::copy)
                     .toList();
+
             temp.boxes().remove(box);
             PackingSolution baseSolution = temp.copy();
             PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, copiedRectangles);

@@ -3,7 +3,7 @@ package algorithm.core.localsearch;
 import algorithm.solution.generic.Solution;
 import algorithm.solution.raw.OverlapPackingSolution;
 
-public class Termination {
+public class EarlyStop {
 
     private double currentScore = 0.0;
     private int noImprovementCount = 0;
@@ -15,7 +15,8 @@ public class Termination {
         }
 
         if (solution instanceof OverlapPackingSolution) {
-            // For overlap packing we only rely on iteration limit to stop
+            // Disable for overlap packing
+            // rely only on iteration limit to stop
             return false;
         }
 

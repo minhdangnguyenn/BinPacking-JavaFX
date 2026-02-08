@@ -9,10 +9,10 @@ import algorithm.solution.generic.Solution;
  * @param <S> (initial solution in non-generic)
  */
 public class LocalSearchAlgorithm<S extends Solution>{
-    private Neighborhood<S> neighborhood;
+    private final Neighborhood<S> neighborhood;
     private final int maxIteration;
-    private Objective<S> objective;
-    private final Termination termination = new Termination();
+    private final Objective<S> objective;
+    private final EarlyStop earlyStop = new EarlyStop();
 
     public LocalSearchAlgorithm(
             Neighborhood<S> neighborhood,
@@ -29,7 +29,7 @@ public class LocalSearchAlgorithm<S extends Solution>{
         double currentScore = objective.evaluate(current);
 
         int iteration = 0;
-        while (!termination.shouldStop(iteration, maxIteration, current, currentScore)) {
+        while (!earlyStop.shouldStop(iteration, maxIteration, current, currentScore)) {
             S bestNeighbor = current;
             double bestScore = currentScore;
             for (S neighbor : neighborhood.getNeighbors(current)) {
