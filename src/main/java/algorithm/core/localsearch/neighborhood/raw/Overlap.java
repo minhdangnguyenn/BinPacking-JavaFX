@@ -3,6 +3,7 @@ package algorithm.core.localsearch.neighborhood.raw;
 import algorithm.core.greedy.GreedyAlgorithm;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
+import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.packing.raw.TryPackResult;
@@ -28,7 +29,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
     private int currentIteration = 0;
 
     public Overlap() {
-        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
+        GreedyOrdering<Rectangle> ordering = new SideDescOrder();
         PackingStrategy puttingStrategy = new BottomLeft();
         GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(puttingStrategy);
         this.greedySolver = new GreedyAlgorithm<>(ordering, extender);
@@ -113,7 +114,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
     @Override
     public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
         solution.currentIteration++;
-
+        int boxLength = solution.boxes().getFirst().getLength();
         List<OverlapPackingSolution> neighbors = new ArrayList<>();
 
         OverlapPackingSolution neighbor = solution.copy();
@@ -122,7 +123,22 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
             moveRectangleToNewBox(neighbor, box);
         }
 
-        neighbors.add(neighbor);
+        List<Rectangle> totalUnpackRectangles = new ArrayList<>();
+        for (int i = neighbor.boxes().size()/2; i<neighbor.boxes().size(); i++) {
+            List<Rectangle> rects = neighbor.boxes().get(i).unpackAllRectangles();
+            totalUnpackRectangles.addAll(rects);
+        }
+
+        PackingSolution base = neighbor.toPackingSolution();
+        PackingSolution solvedPacking = this.greedySolver.solve(base, totalUnpackRectangles);
+
+        OverlapPackingSolution neighbor1 = solvedPacking.toOverlapSolution();
+        neighbor1.boxes().removeIf(box -> box.getRectangles().isEmpty());
+        for (int i = 0; i<neighbor1.boxes().size(); i++) {
+            neighbor1.boxes().get(i).setId(i);
+        }
+
+        neighbors.add(neighbor1);
         return neighbors;
     }
     
@@ -141,24 +157,6 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         return count;
     }
 
-    private Rectangle[] selectSubset(List<Rectangle> violators, int count) {
-        if (violators == null || violators.isEmpty()) {
-            return new Rectangle[0];
-        }
-
-        // if number violators < number we take, -> take all violators
-        int actualCount = Math.min(count, violators.size());
-
-        // 3. shuffle the list to guarantee the random
-        Collections.shuffle(violators);
-
-        Rectangle[] subset = new Rectangle[actualCount];
-        for (int i = 0; i < actualCount; i++) {
-            subset[i] = violators.get(i);
-        }
-
-        return subset;
-    }
 
     private OverlapPackingSolution createSnapNeighbor(OverlapPackingSolution solution, Rectangle r, double P) {
         OverlapPackingSolution next = solution.copy();

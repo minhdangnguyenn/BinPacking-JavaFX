@@ -99,4 +99,16 @@ public class OverlapPackingSolution extends PackingSolution {
                 .findFirst()
                 .orElse(null);
     }
+
+    public PackingSolution toPackingSolution() {
+        PackingSolution solution = new PackingSolution(this.boxes().getFirst().getLength());
+        OverlapPackingSolution tmp = this.copy();
+
+        for (Box box : tmp.boxes()) {
+            Box newBox = box.copy();
+            solution.boxes().add(newBox);
+        }
+
+        return solution;
+    }
 }

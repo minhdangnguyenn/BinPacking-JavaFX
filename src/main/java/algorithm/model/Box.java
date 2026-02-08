@@ -29,6 +29,8 @@ public class Box {
         return id;
     }
 
+    public void setId(int id) {this.id = id;}
+
     public boolean isOverlapping(Rectangle rect1, Rectangle rect2) {
         return (
                 rect1.getX() < rect2.getX() + rect2.getWidth() &&
@@ -117,10 +119,8 @@ public class Box {
     }
 
     public void removeRectangle(Rectangle rect) {
-        rect.setPosition(-1, -1); // -1 -1 means remove
-        if (this.rectangles.remove(rect)) {
-            System.out.println("Rectangle ID " + rect.getId() + " has been removed successfully");
-        } else {
+        rect.setPosition(-1, -1); // -1 -1 means removed
+        if (!this.rectangles.remove(rect)) {
             System.out.println("Rectangle ID " + rect.getId() + " cannot be removed");
         }
     }

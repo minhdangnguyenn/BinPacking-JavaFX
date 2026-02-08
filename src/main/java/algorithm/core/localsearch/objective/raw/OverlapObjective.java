@@ -33,7 +33,7 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
             }
         }
 
-        double score = totalOverlapRate;
+        double score = totalOverlapRate + numBoxes* 10;
 
         // Debug output (remove in production)
         System.out.printf("[Obj] Iter %3d: threshold=%5.1f%%, boxes=%2d, " + "score=%-8.1f",
