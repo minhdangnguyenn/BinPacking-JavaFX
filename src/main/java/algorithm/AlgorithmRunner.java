@@ -115,7 +115,12 @@ public class AlgorithmRunner {
 
                 this.localSearchSolution = runLocalSearch(neighborType, badGreedy, maxIteration);
 
-                result.totalGreedyBoxes = this.greedySolution.boxes().size();
+                if (this.greedySolution != null) {
+                     result.totalGreedyBoxes = this.greedySolution.boxes().size();
+                } else {
+                    result.totalGreedyBoxes = 0;
+                }
+
                 result.numBadBoxes = badGreedy.boxes().size();
                 result.totalLocalSearchBoxes = this.localSearchSolution.boxes().size();
             }
