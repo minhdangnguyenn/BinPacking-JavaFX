@@ -3,6 +3,8 @@ package algorithm.solution.raw;
 import algorithm.model.Box;
 import algorithm.model.Rectangle;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -19,29 +21,13 @@ public class OverlapPackingSolution extends PackingSolution {
         super(boxSize);
     }
 
-    public static OverlapPackingSolution init(Box box, int maxIterations) {
-        OverlapPackingSolution solution = new OverlapPackingSolution(box.getLength());
+    public static OverlapPackingSolution init(List<Box> boxes, int maxIterations) {
+        OverlapPackingSolution solution = new OverlapPackingSolution(boxes.getFirst().getLength());
         solution.currentIteration = 0;
         solution.maxIterations = maxIterations;
 
-        Random random = new Random();
-        int numBoxes = random.nextInt(box.getRectangles().size() - box.getRectangles().size() / 4) + (box.getRectangles().size() / 4);
-
-        for (int i = 0; i < numBoxes; i++) {
-            solution.addBox(new Box(i, box.getLength()));
-        }
-
-        for (Rectangle rectangle : box.getRectangles()) {
-            int boxIndex = random.nextInt(numBoxes);
-
-            int X = random.nextInt(box.getLength() - rectangle.getWidth() + 1);
-            int Y = random.nextInt(box.getLength() - rectangle.getHeight() + 1);
-
-            solution.boxes().get(boxIndex).addRectangle(rectangle, X, Y);
-        }
-
-        // Clear empty boxes
-        solution.boxes().removeIf(removeBox -> removeBox.getRectangles().isEmpty());
+        solution.boxes().addAll(boxes);
+        solution.boxes().removeIf(box -> box.getRectangles().isEmpty());
 
         return solution;
     }
@@ -88,15 +74,65 @@ public class OverlapPackingSolution extends PackingSolution {
             int maxIterations
     ) {
         // Deep copy boxes
-        List<Box> copiedBoxes = base.boxes().stream()
+        List<Box> copiedBoxes = new java.util.ArrayList<>(base.boxes().stream()
                 .map(Box::copy)
-                .toList();
+                .toList());
+
+        copiedBoxes.sort(
+                Comparator.comparing(
+                        (Box box) -> box.getRectangles().getFirst().getArea()
+                ).reversed()
+        );
 
         OverlapPackingSolution solution =
                 new OverlapPackingSolution(copiedBoxes);
 
         solution.currentIteration = 0;
         solution.maxIterations = maxIterations;
+
+        return solution;
+    }
+
+    public List<Rectangle> getAllRectangles() {
+        List<Rectangle> allRectangles = new ArrayList<>();
+
+        for (Box box: this.boxes()) {
+            allRectangles.addAll(box.getRectangles());
+        }
+
+        return allRectangles;
+    }
+
+    public int getBoxLength() {
+        return this.boxes().getFirst().getLength();
+    }
+
+    public Rectangle findRectangleById(int id) {
+        for (Box box: this.boxes()) {
+            for (Rectangle rect : box.getRectangles()) {
+                if (rect.getId() == id) {
+                    return rect;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Rectangle with ID " + id + " not found");
+    }
+
+    public Box findBoxContaining(Rectangle target) {
+        return this.boxes().stream()
+                .filter(box -> box.getRectangles().contains(target))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public PackingSolution toPackingSolution() {
+        PackingSolution solution = new PackingSolution(this.boxes().getFirst().getLength());
+        OverlapPackingSolution tmp = this.copy();
+
+        for (Box box : tmp.boxes()) {
+            Box newBox = box.copy();
+            solution.boxes().add(newBox);
+        }
 
         return solution;
     }

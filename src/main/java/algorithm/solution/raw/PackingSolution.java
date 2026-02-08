@@ -1,5 +1,6 @@
 package algorithm.solution.raw;
 
+import algorithm.core.localsearch.neighborhood.raw.Overlap;
 import algorithm.model.Box;
 import algorithm.solution.generic.Solution;
 
@@ -44,5 +45,17 @@ public class PackingSolution implements Solution {
         PackingSolution copy = new PackingSolution(newBoxes);
         copy.setAllowedOverlapPercent(this.allowedOverlapPercent);
         return copy;
+    }
+
+    public OverlapPackingSolution toOverlapSolution() {
+        OverlapPackingSolution solution = new OverlapPackingSolution(this.boxes().getFirst().getLength());
+        PackingSolution tmp = this.copy();
+
+        for (Box box : tmp.boxes()) {
+            Box newBox = box.copy();
+            solution.boxes().add(newBox);
+        }
+
+        return solution;
     }
 }
