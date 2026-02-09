@@ -8,13 +8,13 @@ import algorithm.solution.generic.Solution;
  * This is a generic class as exercise requirements
  * @param <S> (initial solution in non-generic)
  */
-public class LocalSearchAlgorithm<S extends Solution>{
+public class LocalSearch<S extends Solution>{
     private final Neighborhood<S> neighborhood;
     private final int maxIteration;
     private final Objective<S> objective;
     private final EarlyStop earlyStop = new EarlyStop();
 
-    public LocalSearchAlgorithm(
+    public LocalSearch(
             Neighborhood<S> neighborhood,
             Objective<S> objective,
             int maxInteration

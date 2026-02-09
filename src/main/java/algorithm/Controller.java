@@ -1,6 +1,6 @@
 package algorithm;
 
-import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
@@ -9,7 +9,7 @@ import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
-import algorithm.core.localsearch.LocalSearchAlgorithm;
+import algorithm.core.localsearch.LocalSearch;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.Geometry;
 import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class AlgorithmRunner {
+public class Controller {
     private ArrayList<Rectangle> rectangles;
     private int configBoxLength;
     private PackingSolution greedySolution;
@@ -175,15 +175,15 @@ public class AlgorithmRunner {
         GreedyStrategy<PackingSolution, Rectangle> greedySelection =
                 new FirstFitStrategy(packingStrategy);
 
-        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
-                new GreedyAlgorithm<>(ordering, greedySelection);
+        Greedy<PackingSolution, Rectangle> greedy =
+                new Greedy<>(ordering, greedySelection);
 
         List<Rectangle> rects = new ArrayList<>();
         for (Rectangle rect : rectangles) {
             rects.add(rect.copy());
         }
 
-        return greedyAlgorithm.solve(initialSolution, rects);
+        return greedy.solve(initialSolution, rects);
     }
 
     private PackingSolution runLocalSearch(
@@ -194,7 +194,7 @@ public class AlgorithmRunner {
         // Create neighborhood
         if (NeighborhoodType.GEOMETRY.name().equalsIgnoreCase(neighborType)) {
             return runGeometry(badGreedy, maxIteration);
-        } else if (NeighborhoodType.RULEBASED.name().equalsIgnoreCase(neighborType)) {
+        } else if (NeighborhoodType.PERMUTATION.name().equalsIgnoreCase(neighborType)) {
             return runPermutation(maxIteration);
         }
         else if (NeighborhoodType.OVERLAP.name().equalsIgnoreCase(neighborType)) {
@@ -208,7 +208,7 @@ public class AlgorithmRunner {
         PackingStrategy putting = new BottomLeft();
         GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(putting);
         GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
-        GreedyAlgorithm<PackingSolution, Rectangle> greedySolver = new GreedyAlgorithm<>(ordering, extender);
+        Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, extender);
 
         PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
         PackingSolution greedySolution = greedySolver.solve(initialSolution, this.rectangles);
@@ -216,8 +216,8 @@ public class AlgorithmRunner {
         Neighborhood<PackingSolution> neighborhood = new Geometry();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
 
-        LocalSearchAlgorithm<PackingSolution> localSearch =
-                new LocalSearchAlgorithm<>(
+        LocalSearch<PackingSolution> localSearch =
+                new LocalSearch<>(
                         neighborhood,
                         objective,
                         maxIteration
@@ -235,8 +235,8 @@ public class AlgorithmRunner {
         Neighborhood<PermutationSolution> neighborhood = new Permutation(this.configBoxLength);
         Objective<PermutationSolution> objective = new PermutationObjective();
 
-        LocalSearchAlgorithm<PermutationSolution> localSearch =
-                new LocalSearchAlgorithm<>(
+        LocalSearch<PermutationSolution> localSearch =
+                new LocalSearch<>(
                         neighborhood,
                         objective,
                         maxIteration
@@ -258,7 +258,7 @@ public class AlgorithmRunner {
 
         Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
         Objective<OverlapPackingSolution> objective = new OverlapObjective();
-        LocalSearchAlgorithm<OverlapPackingSolution> localSearchSolver = new LocalSearchAlgorithm<>(neighborhood, objective, maxIteration);
+        LocalSearch<OverlapPackingSolution> localSearchSolver = new LocalSearch<>(neighborhood, objective, maxIteration);
 
         return localSearchSolver.solve(initial);
     }

@@ -1,6 +1,6 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
-import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
@@ -20,14 +20,14 @@ import java.util.List;
 
 public class Overlap implements Neighborhood<OverlapPackingSolution> {
 
-    private final GreedyAlgorithm<PackingSolution, Rectangle> greedySolver;
+    private final Greedy<PackingSolution, Rectangle> greedySolver;
     private int currentIteration = 0;
 
     public Overlap() {
         GreedyOrdering<Rectangle> ordering = new SideDescOrder();
         PackingStrategy puttingStrategy = new BottomLeft();
         GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(puttingStrategy);
-        this.greedySolver = new GreedyAlgorithm<>(ordering, extender);
+        this.greedySolver = new Greedy<>(ordering, extender);
     }
 
     private void PushApart(Rectangle rect1, Rectangle rect2, int boxSize) {
