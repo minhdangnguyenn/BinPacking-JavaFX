@@ -207,7 +207,7 @@ public class Controller {
         }
     }
 
-    public PackingSolution runGeometry(PackingSolution badSolution, int maxIteration) {
+    private PackingSolution runGeometry(PackingSolution badSolution, int maxIteration) {
         PackingStrategy randomPacking = new RandomPacking();
         GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(randomPacking);
         GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
@@ -216,8 +216,13 @@ public class Controller {
         double start = System.nanoTime();
         // init solution for geometry is rectangles placed randomly in different boxes
         // but they don't overlap or overflow
+        List<Rectangle> copyRects = new ArrayList<>();
+        for (Rectangle rect : this.rectangles) {
+            copyRects.add(rect.copy());
+        }
+        Controller.randomShuffle(copyRects);
         PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
-        PackingSolution greedySolution = greedySolver.solve(initialSolution, this.rectangles);
+        PackingSolution greedySolution = greedySolver.solve(initialSolution, copyRects);
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
         System.out.println("init solution with " + initialSolution.boxes().size() + " boxes");
 
