@@ -9,7 +9,7 @@ import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
-import algorithm.core.localsearch.LocalSearchAlgorithm;
+import algorithm.core.localsearch.LocalSearch;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.Geometry;
 import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
@@ -216,8 +216,8 @@ public class AlgorithmRunner {
         Neighborhood<PackingSolution> neighborhood = new Geometry();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
 
-        LocalSearchAlgorithm<PackingSolution> localSearch =
-                new LocalSearchAlgorithm<>(
+        LocalSearch<PackingSolution> localSearch =
+                new LocalSearch<>(
                         neighborhood,
                         objective,
                         maxIteration
@@ -235,8 +235,8 @@ public class AlgorithmRunner {
         Neighborhood<PermutationSolution> neighborhood = new Permutation(this.configBoxLength);
         Objective<PermutationSolution> objective = new PermutationObjective();
 
-        LocalSearchAlgorithm<PermutationSolution> localSearch =
-                new LocalSearchAlgorithm<>(
+        LocalSearch<PermutationSolution> localSearch =
+                new LocalSearch<>(
                         neighborhood,
                         objective,
                         maxIteration
@@ -258,7 +258,7 @@ public class AlgorithmRunner {
 
         Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
         Objective<OverlapPackingSolution> objective = new OverlapObjective();
-        LocalSearchAlgorithm<OverlapPackingSolution> localSearchSolver = new LocalSearchAlgorithm<>(neighborhood, objective, maxIteration);
+        LocalSearch<OverlapPackingSolution> localSearchSolver = new LocalSearch<>(neighborhood, objective, maxIteration);
 
         return localSearchSolver.solve(initial);
     }
