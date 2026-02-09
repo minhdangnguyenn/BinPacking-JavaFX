@@ -7,6 +7,7 @@ import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
+import algorithm.core.greedy.packing.raw.RandomPacking;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearch;
@@ -205,13 +206,18 @@ public class Controller {
     }
 
     public PackingSolution runGeometry(PackingSolution badSolution, int maxIteration) {
-        PackingStrategy putting = new BottomLeft();
-        GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(putting);
+        PackingStrategy randomPacking = new RandomPacking();
+        GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(randomPacking);
         GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
         Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, extender);
 
+        double start = System.nanoTime();
+        // init solution for geometry is rectangles placed randomly in different boxes
+        // but they don't overlap or overflow
         PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
         PackingSolution greedySolution = greedySolver.solve(initialSolution, this.rectangles);
+        System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
+        System.out.println("init solution with " + initialSolution.boxes().size() + " boxes");
 
         Neighborhood<PackingSolution> neighborhood = new Geometry();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
@@ -223,12 +229,7 @@ public class Controller {
                         maxIteration
                 );
 
-        PackingSolution solution = localSearch.solve(greedySolution);
-
-        System.out.println("Local search solution: " + solution.boxes().size() + " boxes");
-        System.out.println("Improvement: " + (greedySolution.boxes().size() - solution.boxes().size()) + " boxes saved compared to initial solution");
-
-        return solution;
+        return localSearch.solve(greedySolution);
     }
 
     private PackingSolution runPermutation(int maxIteration) {
@@ -241,8 +242,10 @@ public class Controller {
                         objective,
                         maxIteration
                 );
-
+        double start = System.nanoTime();
         PermutationSolution initPermutationSolution = new PermutationSolution(this.rectangles, this.configBoxLength);
+        System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
+
         PermutationSolution permutationSolution = localSearch.solve(initPermutationSolution);
         return permutationSolution.decode();
     }
@@ -252,9 +255,12 @@ public class Controller {
         for (Rectangle rect : this.rectangles) {
             copyRects.add(rect.copy());
         }
-        // OverlapPackingSolution badOverlap  = initOverlapSolution(this.rectangles);
+
+        double start = System.nanoTime();
         OverlapPackingSolution badOverlap = this.initOverlapSolution(copyRects);
         OverlapPackingSolution initial = OverlapPackingSolution.init(badOverlap.boxes(), maxIteration);
+        System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0 + " ms");
+        System.out.println("bad solution init boxes: " + initial.boxes().size() + " boxes");
 
         Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
         Objective<OverlapPackingSolution> objective = new OverlapObjective();
