@@ -9,7 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import algorithm.model.Rectangle;
-import algorithm.AlgorithmRunner;
+import algorithm.Controller;
 import ui.BoxVisualizer;
 import ui.InputValidator;
 import utils.Utils;
@@ -39,7 +39,7 @@ public class BinPackingController {
     @FXML private Pane solutionPane;
 
     private BoxVisualizer visualizer;
-    private final AlgorithmRunner algorithmRunner = new AlgorithmRunner();
+    private final Controller controller = new Controller();
     private final static int MAXITERATION = 100; // max iteration for local search
 
     @FXML
@@ -90,23 +90,23 @@ public class BinPackingController {
     @FXML
     public void handleRun() {
         solutionPane.getChildren().clear();
-        AlgorithmRunner.Config config = parseConfig();
+        Controller.Config config = parseConfig();
 
-        this.algorithmRunner.runAlgorithm(
+        this.controller.runAlgorithm(
                 config,
                 result->updateUIWithResults(result, showRectangleID.isSelected()),
                 MAXITERATION);
     }
 
     public void handleGenerateInstances() {
-        AlgorithmRunner.Config config = parseConfig();
+        Controller.Config config = parseConfig();
 
-        this.algorithmRunner.generateInstances(config);
+        this.controller.generateInstances(config);
 
         this.updateUIGenerateInstances(config.rectangleCount);
     }
 
-    private void updateUIWithResults(AlgorithmRunner.AlgorithmResult result, boolean showRectangleID) {
+    private void updateUIWithResults(Controller.AlgorithmResult result, boolean showRectangleID) {
         visualizer.drawBoxes(result.boxes, showRectangleID);
         runtimeLabel.setText("Runtime: " + result.runtime);
         
@@ -130,8 +130,8 @@ public class BinPackingController {
         generatedInstancesCount.setText("Generated Instances: " + numbInstances);
     }
 
-    private AlgorithmRunner.Config parseConfig() {
-        AlgorithmRunner.Config config = new AlgorithmRunner.Config();
+    private Controller.Config parseConfig() {
+        Controller.Config config = new Controller.Config();
 
         config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
         config.minWidth = InputValidator.parseField(minWField, 1);

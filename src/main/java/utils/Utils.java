@@ -1,9 +1,9 @@
 package utils;
 
-import algorithm.AlgorithmRunner;
+import algorithm.Controller;
 
 public class Utils {
-    public static void validConfig(AlgorithmRunner.Config config) {
+    public static void validConfig(Controller.Config config) {
         if (config.rectangleCount <= 0 || config.minWidth <= 0
                 || config.maxWidth <= 0 || config.minHeight <= 0
                 || config.maxHeight <= 0 || config.boxLength <= 0

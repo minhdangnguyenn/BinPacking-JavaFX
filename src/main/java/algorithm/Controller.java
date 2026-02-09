@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class AlgorithmRunner {
+public class Controller {
     private ArrayList<Rectangle> rectangles;
     private int configBoxLength;
     private PackingSolution greedySolution;
