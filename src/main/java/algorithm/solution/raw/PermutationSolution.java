@@ -1,6 +1,6 @@
 package algorithm.solution.raw;
 
-import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.generic.GreedyOrdering;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
@@ -21,15 +21,15 @@ import java.util.List;
  */
 public class PermutationSolution implements Solution {
     List<Rectangle> rectangles;
-    static GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
+    static Greedy<PackingSolution, Rectangle> greedy;
     private final int boxLength;
 
     public PermutationSolution(List<Rectangle> initRectangles, int boxLength) {
-        if (greedyAlgorithm == null) {
+        if (greedy == null) {
             GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
             PackingStrategy putting = new BottomLeft();
             GreedyStrategy<PackingSolution, Rectangle> packer = new FirstFitStrategy(putting);
-            greedyAlgorithm = new GreedyAlgorithm<>(ordering, packer);
+            greedy = new Greedy<>(ordering, packer);
         }
         this.rectangles = initRectangles;
         this.boxLength = boxLength;
@@ -52,6 +52,6 @@ public class PermutationSolution implements Solution {
         // take the permutation solution (contains a permutation of rectangles)
         // convert it into PackingSolution (with boxes and coordinates)
         PackingSolution packingSolution = new PackingSolution(this.boxLength);
-        return greedyAlgorithm.solve(packingSolution, this.getRectangles());
+        return greedy.solve(packingSolution, this.getRectangles());
     }
 }

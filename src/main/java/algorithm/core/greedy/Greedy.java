@@ -12,12 +12,12 @@ import java.util.List;
  * @param <S> (solution -- in non generic case)
  * @param <I> (rectangle -- in non generic case)
  */
-public class GreedyAlgorithm<S extends Solution, I extends Item>{
+public class Greedy<S extends Solution, I extends Item>{
     private final GreedyOrdering<I> ordering;
     private final GreedyStrategy<S, I> extender;
 
 
-    public GreedyAlgorithm(
+    public Greedy(
             GreedyOrdering<I> ordering,
             GreedyStrategy<S, I> extender
     ) {

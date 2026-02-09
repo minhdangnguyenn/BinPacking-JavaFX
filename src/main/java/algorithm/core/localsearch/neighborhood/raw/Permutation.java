@@ -1,6 +1,6 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
-import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.Greedy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.PackingSolution;
@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class Permutation implements Neighborhood<PermutationSolution> {
 
-    static GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
+    static Greedy<PackingSolution, Rectangle> greedy;
 
     private final int boxLength;
 

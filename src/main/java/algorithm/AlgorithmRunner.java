@@ -1,6 +1,6 @@
 package algorithm;
 
-import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
@@ -175,15 +175,15 @@ public class AlgorithmRunner {
         GreedyStrategy<PackingSolution, Rectangle> greedySelection =
                 new FirstFitStrategy(packingStrategy);
 
-        GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm = 
-                new GreedyAlgorithm<>(ordering, greedySelection);
+        Greedy<PackingSolution, Rectangle> greedy =
+                new Greedy<>(ordering, greedySelection);
 
         List<Rectangle> rects = new ArrayList<>();
         for (Rectangle rect : rectangles) {
             rects.add(rect.copy());
         }
 
-        return greedyAlgorithm.solve(initialSolution, rects);
+        return greedy.solve(initialSolution, rects);
     }
 
     private PackingSolution runLocalSearch(
@@ -208,7 +208,7 @@ public class AlgorithmRunner {
         PackingStrategy putting = new BottomLeft();
         GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(putting);
         GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
-        GreedyAlgorithm<PackingSolution, Rectangle> greedySolver = new GreedyAlgorithm<>(ordering, extender);
+        Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, extender);
 
         PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
         PackingSolution greedySolution = greedySolver.solve(initialSolution, this.rectangles);

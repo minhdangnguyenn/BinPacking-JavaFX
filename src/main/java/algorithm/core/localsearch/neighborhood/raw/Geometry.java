@@ -1,6 +1,6 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
-import algorithm.core.greedy.GreedyAlgorithm;
+import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import java.util.Comparator;
 import algorithm.core.greedy.strategy.generic.GreedyStrategy;
@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Geometry implements Neighborhood<PackingSolution> {
-    private final GreedyAlgorithm<PackingSolution, Rectangle> greedyAlgorithm;
+    private final Greedy<PackingSolution, Rectangle> greedy;
 
     public Geometry() {
         PackingStrategy packingStrategy = new BottomLeft();
         GreedyOrdering<Rectangle> greedyOrdering = new AreaDescOrder();
         GreedyStrategy<PackingSolution, Rectangle> greedyStrategy = new FirstFitStrategy(packingStrategy);
-        this.greedyAlgorithm = new GreedyAlgorithm<>(greedyOrdering, greedyStrategy);
+        this.greedy = new Greedy<>(greedyOrdering, greedyStrategy);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class Geometry implements Neighborhood<PackingSolution> {
 
             temp.boxes().remove(box);
             PackingSolution baseSolution = temp.copy();
-            PackingSolution improvedSolution = greedyAlgorithm.solve(baseSolution, copiedRectangles);
+            PackingSolution improvedSolution = greedy.solve(baseSolution, copiedRectangles);
             neighbors.add(improvedSolution);
         }
 
