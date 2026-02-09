@@ -157,7 +157,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
 
 
         if (currentIteration == temp.maxIterations) {
-            System.out.println("Final Iteration: Applying Improved Bottom-Left repositioning.");
+            System.out.println("Final Iteration, use greedy to resolve all overlap leftover");
             // Final iteration:
             // Bottom Left Placement for boxes with Utilization < 100%
             List<Rectangle> rectanglesToRepack = new ArrayList<>();
