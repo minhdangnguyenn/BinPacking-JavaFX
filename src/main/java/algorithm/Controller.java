@@ -181,12 +181,12 @@ public class Controller {
         Greedy<PackingSolution, Rectangle> greedy =
                 new Greedy<>(ordering, greedySelection);
 
-        List<Rectangle> rects = new ArrayList<>();
+        List<Rectangle> copyRects = new ArrayList<>();
         for (Rectangle rect : rectangles) {
-            rects.add(rect.copy());
+            copyRects.add(rect.copy());
         }
 
-        return greedy.solve(initialSolution, rects);
+        return greedy.solve(initialSolution, copyRects);
     }
 
     private PackingSolution runLocalSearch(
