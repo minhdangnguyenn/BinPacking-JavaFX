@@ -35,14 +35,14 @@ public class Geometry implements Neighborhood<PackingSolution> {
         cloneSolution.boxes().sort(Comparator.comparingInt(Box::getUsedArea));
 
         int minUnpack;
-        int boxesSize = cloneSolution.boxes().size();
+        int numBox = cloneSolution.boxes().size() / 2;
 
-        if (boxesSize < 15 ) {
-            minUnpack = 1;
+        if (numBox < 15 ) {
+            minUnpack = 10;
         } else {
             minUnpack = 15;
         }
-        int numUnpackBox = Math.min(minUnpack, boxesSize);
+        int numUnpackBox = Math.min(minUnpack, numBox);
 
         for  (int i = 0; i < numUnpackBox; i++) {
             PackingSolution temp = cloneSolution.copy();
@@ -54,7 +54,7 @@ public class Geometry implements Neighborhood<PackingSolution> {
 
             temp.boxes().remove(box);
             PackingSolution baseSolution = temp.copy();
-            PackingSolution improvedSolution = greedy.solve(baseSolution, copiedRectangles);
+            PackingSolution improvedSolution = this.greedy.solve(baseSolution, copiedRectangles);
             neighbors.add(improvedSolution);
         }
 

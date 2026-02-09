@@ -21,6 +21,10 @@ public class PackingSolution implements Solution {
         this.boxes.add(new Box(this.boxes.size(), boxLength));
     }
 
+    public int getBoxLength() {
+        return this.boxes.getFirst().getLength();
+    }
+
     public List<Box> boxes() {
         return boxes;
     }
