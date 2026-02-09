@@ -20,6 +20,7 @@ import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
 import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.core.localsearch.objective.raw.PermutationObjective;
+import algorithm.model.Item;
 import algorithm.solution.raw.OverlapPackingSolution;
 import algorithm.solution.raw.PackingSolution;
 import algorithm.solution.raw.PermutationSolution;
@@ -30,6 +31,7 @@ import ui.BoxVisualizer;
 import utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -243,7 +245,12 @@ public class Controller {
                         maxIteration
                 );
         double start = System.nanoTime();
-        PermutationSolution initPermutationSolution = new PermutationSolution(this.rectangles, this.configBoxLength);
+        List<Rectangle> rectangles = new ArrayList<>();
+        for (Rectangle rectangle : this.rectangles) {
+            rectangles.add(rectangle.copy());
+        }
+        randomShuffle(rectangles);
+        PermutationSolution initPermutationSolution = new PermutationSolution(rectangles, this.configBoxLength);
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
 
         PermutationSolution permutationSolution = localSearch.solve(initPermutationSolution);
@@ -253,9 +260,10 @@ public class Controller {
     private PackingSolution runOverlap(int maxIteration) {
         List<Rectangle> copyRects = new ArrayList<>();
         for (Rectangle rect : this.rectangles) {
-            copyRects.add(rect.copy());
+            Rectangle copyRect = rect.copy();
+            copyRects.add(copyRect);
         }
-
+        randomShuffle(copyRects);
         double start = System.nanoTime();
         OverlapPackingSolution badOverlap = this.initOverlapSolution(copyRects);
         OverlapPackingSolution initial = OverlapPackingSolution.init(badOverlap.boxes(), maxIteration);
@@ -343,5 +351,12 @@ public class Controller {
         System.out.println("- Initialization time: " + String.format("%.2f ms", initTimeMs));
 
         return solution;
+    }
+
+    public static <I> void randomShuffle(List<I> items) {
+        if (items == null) {
+            throw new IllegalArgumentException("List cannot be null");
+        }
+        Collections.shuffle(items);
     }
 }
