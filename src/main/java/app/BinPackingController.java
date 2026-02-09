@@ -60,7 +60,7 @@ public class BinPackingController {
         // Show local search boxes count (if available)
         if (result.totalLocalSearchBoxes > 0) {
             configBarController.localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
-                    " (Saved: " + (result.numBadBoxes - result.totalLocalSearchBoxes)+")"
+                    " (Saved: " + (result.numBadBoxes - result.totalLocalSearchBoxes-1)+")"
             + "\n Init greedy runtime: " + result.initRuntime);
             configBarController.localSearchBoxesLabel.setVisible(true);
         } else {

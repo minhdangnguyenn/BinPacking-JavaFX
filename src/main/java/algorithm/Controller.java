@@ -194,7 +194,7 @@ public class Controller {
         // Create neighborhood
         if (NeighborhoodType.GEOMETRY.name().equalsIgnoreCase(neighborType)) {
             return runGeometry(badGreedy, maxIteration);
-        } else if (NeighborhoodType.RULEBASED.name().equalsIgnoreCase(neighborType)) {
+        } else if (NeighborhoodType.PERMUTATION.name().equalsIgnoreCase(neighborType)) {
             return runPermutation(maxIteration);
         }
         else if (NeighborhoodType.OVERLAP.name().equalsIgnoreCase(neighborType)) {
