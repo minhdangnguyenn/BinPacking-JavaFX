@@ -20,7 +20,6 @@ import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
 import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.core.localsearch.objective.raw.PermutationObjective;
-import algorithm.model.Item;
 import algorithm.solution.raw.OverlapPackingSolution;
 import algorithm.solution.raw.PackingSolution;
 import algorithm.solution.raw.PermutationSolution;
@@ -66,6 +65,12 @@ public class Controller {
         public int numBadBoxes;
     }
 
+    /**
+     * Generates n random rectangles
+     * Save rectangles into this.rectangles
+     * Reset greedySolution and localSearchSolution
+     * @param config user input as config
+     */
     public void generateInstances(Config config) {
         Utils.validConfig(config);
 
@@ -214,17 +219,10 @@ public class Controller {
         Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, extender);
 
         double start = System.nanoTime();
-        // init solution for geometry is rectangles placed randomly in different boxes
-        // but they don't overlap or overflow
-        List<Rectangle> copyRects = new ArrayList<>();
-        for (Rectangle rect : this.rectangles) {
-            copyRects.add(rect.copy());
-        }
-        Controller.randomShuffle(copyRects);
         PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
-        PackingSolution greedySolution = greedySolver.solve(initialSolution, copyRects);
+        PackingSolution greedySolution = greedySolver.solve(initialSolution, this.getShuffleCopyRectangles());
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
-        System.out.println("init solution with " + initialSolution.boxes().size() + " boxes");
+        System.out.println("bad solution init boxes: " + initialSolution.boxes().size() + " boxes");
 
         Neighborhood<PackingSolution> neighborhood = new Geometry();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
@@ -250,12 +248,7 @@ public class Controller {
                         maxIteration
                 );
         double start = System.nanoTime();
-        List<Rectangle> rectangles = new ArrayList<>();
-        for (Rectangle rectangle : this.rectangles) {
-            rectangles.add(rectangle.copy());
-        }
-        randomShuffle(rectangles);
-        PermutationSolution initPermutationSolution = new PermutationSolution(rectangles, this.configBoxLength);
+        PermutationSolution initPermutationSolution = new PermutationSolution(this.getShuffleCopyRectangles(), this.configBoxLength);
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
 
         PermutationSolution permutationSolution = localSearch.solve(initPermutationSolution);
@@ -263,14 +256,8 @@ public class Controller {
     }
 
     private PackingSolution runOverlap(int maxIteration) {
-        List<Rectangle> copyRects = new ArrayList<>();
-        for (Rectangle rect : this.rectangles) {
-            Rectangle copyRect = rect.copy();
-            copyRects.add(copyRect);
-        }
-        randomShuffle(copyRects);
         double start = System.nanoTime();
-        OverlapPackingSolution badOverlap = this.initOverlapSolution(copyRects);
+        OverlapPackingSolution badOverlap = this.initOverlapSolution(this.getShuffleCopyRectangles());
         OverlapPackingSolution initial = OverlapPackingSolution.init(badOverlap.boxes(), maxIteration);
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0 + " ms");
         System.out.println("bad solution init boxes: " + initial.boxes().size() + " boxes");
@@ -321,18 +308,18 @@ public class Controller {
         }
 
         for (Rectangle rect : rects) {
-            Rectangle rectCopy = rect.copy();
+            // Rectangle rectCopy = rect.copy();
 
             int boxId = rand.nextInt(boxes.size());
             Box selectedBox = boxes.get(boxId);
 
-            int maxX = this.configBoxLength - rectCopy.getWidth();
-            int maxY = this.configBoxLength - rectCopy.getHeight();
+            int maxX = this.configBoxLength - rect.getWidth();
+            int maxY = this.configBoxLength - rect.getHeight();
 
             int x = (maxX > 0) ? rand.nextInt(maxX + 1) : 0;
             int y = (maxY > 0) ? rand.nextInt(maxY + 1) : 0;
 
-            selectedBox.addRectangle(rectCopy, x, y);
+            selectedBox.addRectangle(rect, x, y);
         }
 
         for (Box box : boxes) {
@@ -363,5 +350,15 @@ public class Controller {
             throw new IllegalArgumentException("List cannot be null");
         }
         Collections.shuffle(items);
+    }
+
+    public List <Rectangle> getShuffleCopyRectangles() {
+        List<Rectangle> copyRects = new ArrayList<>();
+        for (Rectangle rect : this.rectangles) {
+            copyRects.add(rect.copy());
+        }
+        randomShuffle(copyRects);
+
+        return copyRects;
     }
 }

@@ -39,7 +39,8 @@ public class BinPackingController {
         this.controller.runAlgorithm(
                 config,
                 result -> updateUIWithResults(result, configBarController.showRectangleID.isSelected()),
-                MAXITERATION);
+                MAXITERATION
+        );
     }
 
     public void handleGenerateInstances() {
