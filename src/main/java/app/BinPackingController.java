@@ -1,15 +1,10 @@
 package app;
 
-
-import algorithm.AlgorithmType;
-import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
-import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
-import javafx.collections.FXCollections;
+import algorithm.Controller;
+import algorithm.Controller;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import algorithm.model.Rectangle;
-import algorithm.Controller;
 import ui.BoxVisualizer;
 import ui.InputValidator;
 import utils.Utils;
@@ -18,73 +13,22 @@ import java.util.ArrayList;
 
 public class BinPackingController {
 
-    public Label greedyBoxesLabel;
-    public Label rectanglesLabel;
-    public Button runButton;
-    public Label runtimeLabel;
-    public ArrayList<Rectangle> rectangles = new ArrayList<>();
-    public Button generateInstancesButton;
-    public Label generatedInstancesCount;
-    public Label localSearchBoxesLabel;
-    public CheckBox showRectangleID;
-    @FXML private ComboBox<String> algorithmCombo;
-    @FXML private ComboBox<String> neighborhoodCombo;
-    @FXML private ComboBox<String> selectionCombo;
-    @FXML private TextField rectanglesNumberField;
-    @FXML private TextField minWField;
-    @FXML private TextField maxWField;
-    @FXML private TextField minHField;
-    @FXML private TextField maxHField;
-    @FXML private TextField boxLField;
     @FXML private Pane solutionPane;
+    @FXML private ConfigBarController configBarController;
 
+    public ArrayList<Rectangle> rectangles = new ArrayList<>();
     private BoxVisualizer visualizer;
     private final Controller controller = new Controller();
-    private final static int MAXITERATION = 100; // max iteration for local search
+    private final static int MAXITERATION = 100;
 
     @FXML
     public void initialize() {
         visualizer = new BoxVisualizer(solutionPane);
-
-        InputValidator.applyNumericFilter(
-                rectanglesNumberField, minWField, maxWField,
-                minHField, maxHField, boxLField
-        );
-
-        initializeComboBoxes();
-        algorithmCombo.valueProperty().addListener((obs, oldVal, newVal) -> updateAlgorithmUI());
-        updateAlgorithmUI();
-    }
-
-    private void initializeComboBoxes() {
-        algorithmCombo.setItems(
-                FXCollections.observableArrayList(
-                    AlgorithmType.GREEDY.name(),
-                    AlgorithmType.LOCALSEARCH.name()
-                )
-        );
-        algorithmCombo.getSelectionModel().selectFirst();
-
-        selectionCombo.setItems(FXCollections.observableArrayList(
-                GreedyOrderingType.LARGEST_AREA_FIRST.name(),
-                GreedyOrderingType.LARGEST_SIDE_FIRST.name()
-        ));
-
-        selectionCombo.getSelectionModel().selectFirst();
-
-        neighborhoodCombo.setItems(FXCollections.observableArrayList(
-                NeighborhoodType.GEOMETRY.name(),
-                NeighborhoodType.RULEBASED.name(),
-                NeighborhoodType.OVERLAP.name()
-        ));
-
-        neighborhoodCombo.getSelectionModel().selectFirst();
-    }
-
-    private void updateAlgorithmUI() {
-        boolean isLocal = AlgorithmType.LOCALSEARCH.name().equals(algorithmCombo.getValue());
-        selectionCombo.setDisable(isLocal);
-        neighborhoodCombo.setDisable(!isLocal);
+        
+        // Connect the config bar controller to this main controller
+        if (configBarController != null) {
+            configBarController.setMainController(this);
+        }
     }
 
     @FXML
@@ -94,7 +38,7 @@ public class BinPackingController {
 
         this.controller.runAlgorithm(
                 config,
-                result->updateUIWithResults(result, showRectangleID.isSelected()),
+                result -> updateUIWithResults(result, configBarController.showRectangleID.isSelected()),
                 MAXITERATION);
     }
 
@@ -108,43 +52,43 @@ public class BinPackingController {
 
     private void updateUIWithResults(Controller.AlgorithmResult result, boolean showRectangleID) {
         visualizer.drawBoxes(result.boxes, showRectangleID);
-        runtimeLabel.setText("Runtime: " + result.runtime);
+        configBarController.runtimeLabel.setText("Runtime: " + result.runtime);
         
         // Show greedy boxes count
-        greedyBoxesLabel.setText("Greedy Boxes: " + result.totalGreedyBoxes);
+        configBarController.greedyBoxesLabel.setText("Greedy Boxes: " + result.totalGreedyBoxes);
         
         // Show local search boxes count (if available)
         if (result.totalLocalSearchBoxes > 0) {
-            localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
-                    " (Saved: " + (result.numBadBoxes - result.totalLocalSearchBoxes - 1)+")");
-            localSearchBoxesLabel.setVisible(true);
+            configBarController.localSearchBoxesLabel.setText("Local Search Boxes: " + result.totalLocalSearchBoxes + 
+                    " (Saved: " + (result.numBadBoxes - result.totalLocalSearchBoxes)+")"
+            + "\n Init greedy runtime: " + result.initRuntime);
+            configBarController.localSearchBoxesLabel.setVisible(true);
         } else {
-            localSearchBoxesLabel.setText("");
-            localSearchBoxesLabel.setVisible(false);
+            configBarController.localSearchBoxesLabel.setText("");
+            configBarController.localSearchBoxesLabel.setVisible(false);
         }
         
-        rectanglesLabel.setText("Rectangles: " + result.totalRectangles);
+        configBarController.rectanglesLabel.setText("Rectangles: " + result.totalRectangles);
     }
 
     private void updateUIGenerateInstances(int numbInstances) {
-        generatedInstancesCount.setText("Generated Instances: " + numbInstances);
+        configBarController.generatedInstancesCount.setText("Generated Instances: " + numbInstances);
     }
 
     private Controller.Config parseConfig() {
         Controller.Config config = new Controller.Config();
 
-        config.rectangleCount = InputValidator.parseField(rectanglesNumberField, 1000);
-        config.minWidth = InputValidator.parseField(minWField, 1);
-        config.maxWidth = InputValidator.parseField(maxWField, 50);
-        config.minHeight = InputValidator.parseField(minHField, 1);
-        config.maxHeight = InputValidator.parseField(maxHField, 50);
-        config.boxLength = InputValidator.parseField(boxLField, 100);
-        config.algorithm = algorithmCombo.getValue();
-        config.neighborhood = neighborhoodCombo.getValue();
-        config.selectionStrategy = selectionCombo.getValue();
+        config.rectangleCount = InputValidator.parseField(configBarController.rectanglesNumberField, 1000);
+        config.minWidth = InputValidator.parseField(configBarController.minWField, 1);
+        config.maxWidth = InputValidator.parseField(configBarController.maxWField, 50);
+        config.minHeight = InputValidator.parseField(configBarController.minHField, 1);
+        config.maxHeight = InputValidator.parseField(configBarController.maxHField, 50);
+        config.boxLength = InputValidator.parseField(configBarController.boxLField, 100);
+        config.algorithm = configBarController.algorithmCombo.getValue();
+        config.neighborhood = configBarController.neighborhoodCombo.getValue();
+        config.selectionStrategy = configBarController.selectionCombo.getValue();
         Utils.validConfig(config);
 
         return config;
     }
 }
-

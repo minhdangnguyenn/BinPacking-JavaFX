@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <VBox
         alignment="CENTER"
@@ -22,70 +21,7 @@
     >
 
         <left>
-            <VBox alignment="TOP_CENTER" prefHeight="780.0" prefWidth="350.0" spacing="8">
-                <Label text="Rectangles number" />
-                <TextField fx:id="rectanglesNumberField" promptText="1000" />
-
-                <Label text="Min Width" />
-                <TextField fx:id="minWField" promptText="1" />
-
-                <Label text="Max Width" />
-                <TextField fx:id="maxWField" promptText="50" />
-
-                <Label text="Min Height" />
-                <TextField fx:id="minHField" promptText="1" />
-
-                <Label text="Max Height" />
-                <TextField fx:id="maxHField" promptText="50" />
-
-                <Label text="Box Length" />
-                <TextField fx:id="boxLField" promptText="100">
-                    <font>
-                        <Font size="12.0" />
-                    </font>
-                </TextField>
-            <Label
-                    fx:id="generatedInstancesCount"
-                    alignment="CENTER"
-                    contentDisplay="CENTER"
-                    prefHeight="26.0"
-                    prefWidth="214.0"
-                    text="Generated Instances: 0"
-                    textAlignment="CENTER"
-            />
-            <Button
-                    fx:id="generateInstancesButton"
-                    onAction="#handleGenerateInstances"
-                    text="Generate Instances"
-            />
-
-                <!-- Algorithm selection -->
-                <Label text="Algorithm" />
-                <ComboBox fx:id="algorithmCombo" promptText="Choose algorithm" />
-
-                <!-- Neighborhood type (enabled only for local search) -->
-                <Label text="Neighborhood type" />
-                <ComboBox fx:id="neighborhoodCombo" disable="true" promptText="Choose neighborhood" />
-
-                <!-- Selection strategy (enabled only for local search) -->
-                <Label text="Selection strategy" />
-                <ComboBox fx:id="selectionCombo" disable="true" promptText="Choose strategy" />
-                <CheckBox fx:id="showRectangleID" mnemonicParsing="false" text="Show rectangle ID" />
-
-                <!-- RUN BUTTON -->
-                <Button fx:id="runButton" onAction="#handleRun" text="Run Algorithm" />
-
-                <!-- Runtime Label -->
-                <Label fx:id="runtimeLabel" style="-fx-font-weight: bold;" text="Runtime: " />
-
-                <!-- Number of boxes -->
-                <Label fx:id="greedyBoxesLabel" style="-fx-font-weight: bold;" text="Greedy Boxes: " />
-                <Label fx:id="localSearchBoxesLabel" style="-fx-font-weight: bold;" text="Local Search Boxes: " />
-
-
-                <!-- Number of rectangles used -->
-                <Label fx:id="rectanglesLabel" style="-fx-font-weight: bold;" text="Rectangles: " />
-            </VBox>
+            <fx:include source="configbar.fxml" fx:id="configBar" />
         </left>
 
 
