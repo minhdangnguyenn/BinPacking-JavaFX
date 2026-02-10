@@ -51,9 +51,8 @@ public class OverlapTest {
 
         // Solve easy instances and check solutions
         for (Instance instance : easyInstances) {
-            List<Box> testBoxes = new ArrayList<>();
 
-            testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
+            List<Box> testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
 
             OverlapPackingSolution initial = OverlapPackingSolution.init(testBoxes, 1000);
             initial.maxIterations = 100;
@@ -119,9 +118,7 @@ public class OverlapTest {
 
         // Solve easy instances and check solutions
         for (Instance instance : mediumInstances) {
-            List<Box> testBoxes = new ArrayList<>();
-
-            testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
+            List<Box> testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
 
             OverlapPackingSolution initial = OverlapPackingSolution.init(testBoxes, 1000);
             initial.maxIterations = 100;
