@@ -90,6 +90,6 @@ public class FirstFitBottomLeftSideDescTest {
             });
         }
 
-        Utils.WriteData(csvData, path);
+        Utils.WriteResult(csvData, path);
     }
 }
