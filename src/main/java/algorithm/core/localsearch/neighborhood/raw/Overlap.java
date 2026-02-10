@@ -91,7 +91,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         }
     }
 
-    private void ResolveOverlapsInBox(Box box, int maxIterations) {
+    private void resolveOverlapsInBox(Box box, int maxIterations) {
         List<Rectangle> rectangles = box.getRectangles();
         boolean overlapsExist;
 
@@ -137,7 +137,6 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         OverlapPackingSolution temp = solution.copy();
         temp.currentIteration = this.currentIteration;
 
-
         if (currentIteration == temp.maxIterations) {
             System.out.println("Final Iteration, use greedy to resolve all overlap leftover");
             // Final iteration:
@@ -148,7 +147,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
                 if (box.getUtilization() < 100.0 && containsOverlap(box)) {
 
                     // Try to remove overlap first
-                    ResolveOverlapsInBox(box, 100);
+                    resolveOverlapsInBox(box, 100);
 
                     if (!containsOverlap(box)) continue;
 
@@ -198,7 +197,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         OverlapPackingSolution neighbor1 = temp.copy();
         if (!neighbor1.boxes().isEmpty()) {
             for (Box box : neighbor1.boxes()) {
-                ResolveOverlapsInBox(box, 50);
+                resolveOverlapsInBox(box, 50);
             }
             neighbors.add(neighbor1);
         }
