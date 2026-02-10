@@ -42,7 +42,7 @@ public class OverlapPackingSolution extends PackingSolution {
         return highestOverlapBox;
     }
 
-    public Box leastUsedBox() {
+    public Box getLeastUsedBox() {
         Box leastUsedBox = null;
         double lowestUtilization = Double.MAX_VALUE;
 
@@ -54,6 +54,20 @@ public class OverlapPackingSolution extends PackingSolution {
             }
         }
         return leastUsedBox;
+    }
+
+    public Box getMostUsedBox() {
+        Box highestUsedBox = null;
+        double highestUtilization = Double.MIN_VALUE;
+
+        for (Box box : boxes()) {
+            double utilization = box.getUtilization();
+            if (utilization > highestUtilization) {
+                highestUtilization = utilization;
+                highestUsedBox = box;
+            }
+        }
+        return highestUsedBox;
     }
 
     @Override

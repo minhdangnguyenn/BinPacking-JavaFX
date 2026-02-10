@@ -128,24 +128,6 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         return false;
     }
 
-    private void moveRectanglesDown(Box box) {
-        int minX = Integer.MAX_VALUE;
-        int minY = Integer.MAX_VALUE;
-        for (Rectangle rectangle : box.getRectangles()) {
-            if (rectangle.getX() < minX) {
-                minX = rectangle.getX();
-            }
-            if (rectangle.getY() < minY) {
-                minY = rectangle.getY();
-            }
-        }
-
-        // Translate the whole system to bottom-left corner
-        for (Rectangle rectangle : box.getRectangles()) {
-            rectangle.setPosition(rectangle.getX() - minX, rectangle.getY() - minY);
-        }
-    }
-
     @Override
     public Iterable<OverlapPackingSolution> getNeighbors(OverlapPackingSolution solution) {
         currentIteration += 1;
@@ -251,7 +233,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         OverlapPackingSolution neighbor3 = temp.copy();
         if (!neighbor3.boxes().isEmpty()) {
             // Find box with the least used area
-            Box leastUsedBox = neighbor3.leastUsedBox();
+            Box leastUsedBox = neighbor3.getLeastUsedBox();
             if (leastUsedBox != null) {
                 List<Rectangle> rectanglesToRepack = leastUsedBox.getRectangles()
                         .stream()
@@ -273,41 +255,31 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
             }
         }
 
-//        OverlapPackingSolution neighbor_4 = temp.copy();
-//        if (!neighbor_4.boxes().isEmpty()) {
-//
-//            // Find the first box which Utilization < 100% and contains overlaps
-//            Box boxToReposition = null;
-//            for (Box box : neighbor_4.boxes()) {
-//                if (box.getUtilization() < 100.0 && ContainsOverlap(box)) {
-//                    boxToReposition = box;
-//                    break;
-//                }
-//            }
-//            if (boxToReposition != null) {
-//                List<Rectangle> rectanglesToReposition = boxToReposition.getRectangles()
-//                        .stream()
-//                        .map(Rectangle::copy)
-//                        .sorted(Comparator.comparingInt(Rectangle::getArea).reversed())
-//                        .toList();
-//
-//                boxToReposition.getRectangles().clear();
-//
-//                PackingStrategy puttingStrategy = new BottomLeft();
-//                for (Rectangle rectangle : rectanglesToReposition) {
-//                    TryPackResult result = puttingStrategy.tryPack(rectangle, boxToReposition);
-//                    if (result != null) {
-//                        boxToReposition.addRectangle(result.rotated() ? rectangle.rotate() : rectangle, result.x(), result.y());
-//                    } else {
-//                        // If any rectangle cannot be placed, create new box
-//                        Box newBox = new Box(neighbor_4.boxes().size(), boxToReposition.getLength());
-//                        newBox.addRectangle(rectangle, 0, 0);
-//                        neighbor_4.boxes().add(newBox);
-//                    }
-//                }
-//            }
-//
-//        }
+        // Neighbor 4: Repack the most used box
+        OverlapPackingSolution neighbor4 = temp.copy();
+        if (!neighbor4.boxes().isEmpty()) {
+            // Find box with the most used area
+            Box mostUsedBox = neighbor4.getMostUsedBox();
+            if (mostUsedBox != null) {
+                List<Rectangle> rectanglesToRepack = mostUsedBox.getRectangles()
+                        .stream()
+                        .map(Rectangle::copy)
+                        .toList();
+                neighbor4.boxes().remove(mostUsedBox);
+
+                PackingSolution baseSolution = neighbor4.copy();
+                if (baseSolution.boxes().isEmpty()) {
+                    baseSolution.addBox(new Box(0, mostUsedBox.getLength()));
+                }
+                PackingSolution improvedSolution = greedy.solve(baseSolution, rectanglesToRepack);
+
+                // Convert back to OverlapPackingSolution
+                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
+                overlapImprovedSolution.currentIteration = neighbor4.currentIteration;
+                overlapImprovedSolution.maxIterations = neighbor4.maxIterations;
+                neighbors.add(overlapImprovedSolution);
+            }
+        }
 
         // Neighbor 5: Bring the largest area rectangle from most overlapping box to new box
         OverlapPackingSolution neighbor5 = temp.copy();
