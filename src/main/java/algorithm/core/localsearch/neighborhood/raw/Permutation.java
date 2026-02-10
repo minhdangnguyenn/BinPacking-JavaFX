@@ -14,11 +14,9 @@ public class Permutation implements Neighborhood<PermutationSolution> {
 
     static Greedy<PackingSolution, Rectangle> greedy;
 
-    private final int boxLength;
+    // private final int boxLength;
 
-    public Permutation(int boxLength) {
-        this.boxLength = boxLength;
-    }
+    public Permutation() {}
 
 
     /**
