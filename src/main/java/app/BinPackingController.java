@@ -5,6 +5,7 @@ import algorithm.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import algorithm.model.Rectangle;
+import javafx.scene.layout.VBox;
 import ui.BoxVisualizer;
 import ui.InputValidator;
 import utils.Utils;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 
 public class BinPackingController {
 
+    public VBox configBar;
     @FXML private Pane solutionPane;
     @FXML private ConfigBarController configBarController;
 
