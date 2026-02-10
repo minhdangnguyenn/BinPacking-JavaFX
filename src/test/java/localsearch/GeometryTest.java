@@ -42,6 +42,7 @@ public class GeometryTest {
     void setUp() {
         easyInstances = env.easyInstances(5);
         mediumInstances = env.getMediumInstances(10);
+        hardInstances = env.getHardInstances(20);
 
         // Initialize the Greedy Solver with Shelf Putting Strategy
         PackingStrategy bottomLeft = new BottomLeft();

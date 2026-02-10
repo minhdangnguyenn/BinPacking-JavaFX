@@ -34,6 +34,7 @@ public class PermutationTest {
     static void setUp() {
         easyInstances = env.easyInstances(5);
         mediumInstances = env.getMediumInstances(10);
+        hardInstances = env.getHardInstances(20);
         // Initialize the Local Search Solver
         Neighborhood<PermutationSolution> neighborhood = new Permutation();
         Objective<PermutationSolution> objective = new PermutationObjective();
