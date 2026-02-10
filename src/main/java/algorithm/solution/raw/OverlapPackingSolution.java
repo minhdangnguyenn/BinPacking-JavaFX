@@ -1,12 +1,8 @@
 package algorithm.solution.raw;
 
 import algorithm.model.Box;
-import algorithm.model.Rectangle;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 public class OverlapPackingSolution extends PackingSolution {
 
@@ -32,7 +28,7 @@ public class OverlapPackingSolution extends PackingSolution {
         return solution;
     }
 
-    public Box highestOverlapBox() {
+    public Box getHighestOverlapBox() {
         Box highestOverlapBox = null;
         double highestOverlapRate = -1.0;
 
@@ -46,7 +42,7 @@ public class OverlapPackingSolution extends PackingSolution {
         return highestOverlapBox;
     }
 
-    public Box leastUsedBox() {
+    public Box getLeastUsedBox() {
         Box leastUsedBox = null;
         double lowestUtilization = Double.MAX_VALUE;
 
@@ -58,6 +54,20 @@ public class OverlapPackingSolution extends PackingSolution {
             }
         }
         return leastUsedBox;
+    }
+
+    public Box getMostUsedBox() {
+        Box highestUsedBox = null;
+        double highestUtilization = Double.MIN_VALUE;
+
+        for (Box box : boxes()) {
+            double utilization = box.getUtilization();
+            if (utilization > highestUtilization) {
+                highestUtilization = utilization;
+                highestUsedBox = box;
+            }
+        }
+        return highestUsedBox;
     }
 
     @Override

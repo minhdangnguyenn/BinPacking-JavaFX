@@ -14,9 +14,9 @@ public class EarlyStop {
             return true;
         }
 
+        // Disable for overlap packing
+        // rely only on iteration limit to stop
         if (solution instanceof OverlapPackingSolution) {
-            // Disable for overlap packing
-            // rely only on iteration limit to stop
             return false;
         }
 

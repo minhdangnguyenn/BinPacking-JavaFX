@@ -53,6 +53,7 @@ public class Controller {
         public String algorithm;
         public String neighborhood;
         public String selectionStrategy;
+        public int maxIteration;
     }
 
     public static class AlgorithmResult {

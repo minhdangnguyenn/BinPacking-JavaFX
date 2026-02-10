@@ -7,7 +7,7 @@ import algorithm.solution.raw.OverlapPackingSolution;
 
 public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
-    private double OverlapThreshold(int iteration, int maxIterations) {
+    private double overlapLimit(int iteration, int maxIterations) {
         double progress = (double) iteration / maxIterations;
         return 100 * Math.pow((1 - progress), 2);
     }
@@ -34,8 +34,8 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
         }
         int numBoxes = solution.boxes().size();
 
-        double total_overlap_penalty = 0;
-        double threshold = OverlapThreshold(solution.currentIteration, solution.maxIterations);
+        double totalPenalty = 0;
+        double threshold = overlapLimit(solution.currentIteration, solution.maxIterations);
         double factor = penalty(threshold);
 
         for (Box box : solution.boxes()) {
@@ -45,13 +45,13 @@ public class OverlapObjective implements Objective<OverlapPackingSolution> {
 
                     if (overlap > threshold) {
                         double violation = overlap - threshold;
-                        total_overlap_penalty += factor * Math.pow(violation, 2);
+                        totalPenalty += factor * Math.pow(violation, 2);
                     }
 
                 }
             }
         }
 
-        return (double) - 1000 * numBoxes - total_overlap_penalty;
+        return (double) - 1000 * numBoxes - totalPenalty;
     }
 }
