@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Utils {
 
-    public static void WriteResult(List<String[]> data, Path path) {
+    public static void writeResult(List<String[]> data, Path path) {
         try {
             CsvWriter.write(path, data);
         } catch (Exception e) {

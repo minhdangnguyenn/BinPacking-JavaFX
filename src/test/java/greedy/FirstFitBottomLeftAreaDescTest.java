@@ -92,7 +92,7 @@ class FirstFitBottomLeftAreaDescTest {
             });
         }
 
-        Utils.WriteResult(csvData, path);
+        Utils.writeResult(csvData, path);
     }
 
     @Test
@@ -144,6 +144,6 @@ class FirstFitBottomLeftAreaDescTest {
             });
         }
 
-        Utils.WriteResult(csvData, path);
+        Utils.writeResult(csvData, path);
     }
 }
