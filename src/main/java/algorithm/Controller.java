@@ -239,7 +239,7 @@ public class Controller {
     }
 
     private PackingSolution runPermutation(int maxIteration) {
-        Neighborhood<PermutationSolution> neighborhood = new Permutation(this.configBoxLength);
+        Neighborhood<PermutationSolution> neighborhood = new Permutation();
         Objective<PermutationSolution> objective = new PermutationObjective();
 
         LocalSearch<PermutationSolution> localSearch =
