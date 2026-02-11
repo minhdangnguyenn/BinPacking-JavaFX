@@ -34,7 +34,7 @@ class FirstFitBottomLeftAreaDescTest {
         TestEnvironment env = new TestEnvironment();
         easyInstances = env.easyInstances(5);
         mediumInstances = env.getMediumInstances(10);
-        hardInstances = env.getMediumInstances(20);
+        hardInstances = env.getHardInstances(20);
         PackingStrategy bottomLeft = new BottomLeft();
 
         GreedyStrategy<PackingSolution, Rectangle> greedySelection =

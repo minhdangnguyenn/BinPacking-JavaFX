@@ -130,7 +130,7 @@ public class FirstFitBottomLeftSideDescTest {
         }
 
         Path path = Paths.get(
-                "target", "csv", "greedy", "FFBL_AreaDESC_MedResults.csv"
+                "target", "csv", "greedy", "FFBL_SideDESC_MedResults.csv"
         );
 
         List<String[]> csvData = new ArrayList<>();
