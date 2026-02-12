@@ -92,7 +92,7 @@ public class TestEnvironment {
         List<Instance> instances = new ArrayList<>();
 
         Controller.Config config = new Controller.Config();
-        config.rectangleCount = 3000;
+        config.rectangleCount = 10_000;
         config.minWidth = 50;
         config.maxWidth = 100;
         config.minHeight = 1;
