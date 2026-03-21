@@ -1,7 +1,6 @@
 package app;
 
 import algorithm.Controller;
-import algorithm.Controller;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import algorithm.model.Rectangle;
