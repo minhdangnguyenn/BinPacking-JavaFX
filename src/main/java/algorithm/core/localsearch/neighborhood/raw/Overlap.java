@@ -206,26 +206,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         OverlapPackingSolution neighbor2 = temp.copy();
         if (!neighbor2.boxes().isEmpty()) {
             Box mostOverlappingBox = neighbor2.getHighestOverlapBox();
-            if (mostOverlappingBox != null) {
-                List<Rectangle> rectanglesToRepack = mostOverlappingBox.getRectangles()
-                        .stream()
-                        .map(Rectangle::copy)
-                        .toList();
-                neighbor2.boxes().remove(mostOverlappingBox);
-
-                PackingSolution baseSolution = neighbor2.copy();
-                if (baseSolution.boxes().isEmpty()) {
-                    baseSolution.addBox(new Box(0, mostOverlappingBox.getLength()));
-                }
-                PackingSolution improvedSolution = greedy.solve(baseSolution, rectanglesToRepack);
-
-                // Convert back to OverlapPackingSolution
-                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
-                overlapImprovedSolution.currentIteration = neighbor2.currentIteration;
-                overlapImprovedSolution.maxIterations = neighbor2.maxIterations;
-
-                neighbors.add(overlapImprovedSolution);
-            }
+            getNeighbor(neighbors, neighbor2, mostOverlappingBox);
         }
 
         // Neighbor 3: Repack the least used box
@@ -233,25 +214,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         if (!neighbor3.boxes().isEmpty()) {
             // Find box with the least used area
             Box leastUsedBox = neighbor3.getLeastUsedBox();
-            if (leastUsedBox != null) {
-                List<Rectangle> rectanglesToRepack = leastUsedBox.getRectangles()
-                        .stream()
-                        .map(Rectangle::copy)
-                        .toList();
-                neighbor3.boxes().remove(leastUsedBox);
-
-                PackingSolution baseSolution = neighbor3.copy();
-                if (baseSolution.boxes().isEmpty()) {
-                    baseSolution.addBox(new Box(0, leastUsedBox.getLength()));
-                }
-                PackingSolution improvedSolution = greedy.solve(baseSolution, rectanglesToRepack);
-
-                // Convert back to OverlapPackingSolution
-                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
-                overlapImprovedSolution.currentIteration = neighbor3.currentIteration;
-                overlapImprovedSolution.maxIterations = neighbor3.maxIterations;
-                neighbors.add(overlapImprovedSolution);
-            }
+            getNeighbor(neighbors, neighbor3, leastUsedBox);
         }
 
         // Neighbor 4: Repack the most used box
@@ -259,25 +222,7 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         if (!neighbor4.boxes().isEmpty()) {
             // Find box with the most used area
             Box mostUsedBox = neighbor4.getMostUsedBox();
-            if (mostUsedBox != null) {
-                List<Rectangle> rectanglesToRepack = mostUsedBox.getRectangles()
-                        .stream()
-                        .map(Rectangle::copy)
-                        .toList();
-                neighbor4.boxes().remove(mostUsedBox);
-
-                PackingSolution baseSolution = neighbor4.copy();
-                if (baseSolution.boxes().isEmpty()) {
-                    baseSolution.addBox(new Box(0, mostUsedBox.getLength()));
-                }
-                PackingSolution improvedSolution = greedy.solve(baseSolution, rectanglesToRepack);
-
-                // Convert back to OverlapPackingSolution
-                OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
-                overlapImprovedSolution.currentIteration = neighbor4.currentIteration;
-                overlapImprovedSolution.maxIterations = neighbor4.maxIterations;
-                neighbors.add(overlapImprovedSolution);
-            }
+            getNeighbor(neighbors, neighbor4, mostUsedBox);
         }
 
         // Neighbor 5: Bring the largest area rectangle from most overlapping box to new box
@@ -302,5 +247,28 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
         neighbors.add(neighbor5);
 
         return neighbors;
+    }
+
+    private void getNeighbor(List<OverlapPackingSolution> neighbors, OverlapPackingSolution neighbor2, Box mostOverlappingBox) {
+        if (mostOverlappingBox != null) {
+            List<Rectangle> rectanglesToRepack = mostOverlappingBox.getRectangles()
+                    .stream()
+                    .map(Rectangle::copy)
+                    .toList();
+            neighbor2.boxes().remove(mostOverlappingBox);
+
+            PackingSolution baseSolution = neighbor2.copy();
+            if (baseSolution.boxes().isEmpty()) {
+                baseSolution.addBox(new Box(0, mostOverlappingBox.getLength()));
+            }
+            PackingSolution improvedSolution = greedy.solve(baseSolution, rectanglesToRepack);
+
+            // Convert back to OverlapPackingSolution
+            OverlapPackingSolution overlapImprovedSolution = new OverlapPackingSolution(improvedSolution.boxes());
+            overlapImprovedSolution.currentIteration = neighbor2.currentIteration;
+            overlapImprovedSolution.maxIterations = neighbor2.maxIterations;
+
+            neighbors.add(overlapImprovedSolution);
+        }
     }
 }
