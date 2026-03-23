@@ -146,15 +146,6 @@ public class Box {
         return ((double) this.getUsedArea() / this.area) * 100;
     }
 
-    public boolean isOverlapping(Rectangle rectangle, double maxOverlapPercent) {
-        for (Rectangle rect : rectangles) {
-            if (overlapRate(rect, rectangle) > maxOverlapPercent) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean containsOverlap() {
         List<Rectangle> rectangles = this.getRectangles();
 
@@ -170,29 +161,8 @@ public class Box {
         }
         return false;
     }
-
-    public void resolveOverlap(int maxIterations) {
-        List<Rectangle> rectangles = this.getRectangles();
-        boolean overlapsExist;
-
-        do {
-            overlapsExist = false;
-
-            for (int i = 0; i < rectangles.size(); i++) {
-                for (int j = i + 1; j < rectangles.size(); j++) {
-                    Rectangle rect1 = rectangles.get(i);
-                    Rectangle rect2 = rectangles.get(j);
-
-                    if (this.isOverlapping(rect1, rect2)) {
-                        overlapsExist = true;
-                        PushApart(rect1, rect2, this.getLength());
-                    }
-                }
-            }
-        } while (overlapsExist && --maxIterations > 0);
-    }
-
-    private void PushApart(Rectangle rect1, Rectangle rect2, int boxSize) {
+    
+    public void pushApart(Rectangle rect1, Rectangle rect2, int boxLength) {
         int xOverlap = Math.min(rect1.getX() + rect1.getWidth(), rect2.getX() + rect2.getWidth())
                 - Math.max(rect1.getX(), rect2.getX());
         int yOverlap = Math.min(rect1.getY() + rect1.getHeight(), rect2.getY() + rect2.getHeight())
@@ -204,15 +174,15 @@ public class Box {
         }
 
         // clamp helper
-        java.util.function.IntUnaryOperator clampX1 = v -> Math.max(0, Math.min(v, boxSize - rect1.getWidth()));
-        java.util.function.IntUnaryOperator clampY1 = v -> Math.max(0, Math.min(v, boxSize - rect1.getHeight()));
-        java.util.function.IntUnaryOperator clampX2 = v -> Math.max(0, Math.min(v, boxSize - rect2.getWidth()));
-        java.util.function.IntUnaryOperator clampY2 = v -> Math.max(0, Math.min(v, boxSize - rect2.getHeight()));
+        java.util.function.IntUnaryOperator clampX1 = v -> Math.max(0, Math.min(v, boxLength - rect1.getWidth()));
+        java.util.function.IntUnaryOperator clampY1 = v -> Math.max(0, Math.min(v, boxLength - rect1.getHeight()));
+        java.util.function.IntUnaryOperator clampX2 = v -> Math.max(0, Math.min(v, boxLength - rect2.getWidth()));
+        java.util.function.IntUnaryOperator clampY2 = v -> Math.max(0, Math.min(v, boxLength - rect2.getHeight()));
 
         if (xOverlap >= yOverlap) {
             // push along X
-            int rect1Distance = Math.min(rect1.getX(), boxSize - rect1.getX() - rect1.getWidth());
-            int rect2Distance = Math.min(rect2.getX(), boxSize - rect2.getX() - rect2.getWidth());
+            int rect1Distance = Math.min(rect1.getX(), boxLength - rect1.getX() - rect1.getWidth());
+            int rect2Distance = Math.min(rect2.getX(), boxLength - rect2.getX() - rect2.getWidth());
 
             int rect1CenterX = rect1.getX() + rect1.getWidth() / 2;
             int rect2CenterX = rect2.getX() + rect2.getWidth() / 2;
@@ -231,8 +201,8 @@ public class Box {
             }
         } else {
             // push along Y
-            int rect1Distance = Math.min(rect1.getY(), boxSize - rect1.getY() - rect1.getHeight());
-            int rect2Distance = Math.min(rect2.getY(), boxSize - rect2.getY() - rect2.getHeight());
+            int rect1Distance = Math.min(rect1.getY(), boxLength - rect1.getY() - rect1.getHeight());
+            int rect2Distance = Math.min(rect2.getY(), boxLength - rect2.getY() - rect2.getHeight());
 
             int rect1CenterY = rect1.getY() + rect1.getHeight() / 2;
             int rect2CenterY = rect2.getY() + rect2.getHeight() / 2;
