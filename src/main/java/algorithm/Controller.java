@@ -215,9 +215,9 @@ public class Controller {
 
     private PackingSolution runGeometry(PackingSolution badSolution, int maxIteration) {
         PackingStrategy randomPacking = new RandomPacking();
-        SelectStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(randomPacking);
+        SelectStrategy<PackingSolution, Rectangle> selector = new FirstFitStrategy(randomPacking);
         OrderStrategy<Rectangle> ordering = new AreaDescOrder();
-        Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, extender);
+        Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, selector);
 
         double start = System.nanoTime();
         PackingSolution initialSolution = new PackingSolution(badSolution.boxes().getFirst().getLength());
@@ -225,17 +225,17 @@ public class Controller {
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0  + " ms");
         System.out.println("bad solution init boxes: " + initialSolution.boxes().size() + " boxes");
 
-        Neighborhood<PackingSolution> neighborhood = new Geometry();
+        Neighborhood<PackingSolution> geometry = new Geometry();
         Objective<PackingSolution> objective = new MinimizeUsedArea();
 
-        LocalSearch<PackingSolution> localSearch =
+        LocalSearch<PackingSolution> ls =
                 new LocalSearch<>(
-                        neighborhood,
+                        geometry,
                         objective,
                         maxIteration
                 );
 
-        return localSearch.solve(greedySolution);
+        return ls.solve(greedySolution);
     }
 
     private PackingSolution runPermutation(int maxIteration) {
@@ -271,15 +271,14 @@ public class Controller {
     }
 
     public PackingSolution initBadGreedySolution() {
-        // Create a simple bad solution by placing each rectangle in a new box
-        // This is fast but very inefficient
+        // Simple Solution: each rectangle in a box
         PackingSolution solution = new PackingSolution(this.configBoxLength);
 
         for (Rectangle rect : this.rectangles) {
             Rectangle copy = rect.copy();
 
             Box newBox = new Box(copy.getId(), this.configBoxLength);
-            copy.setPosition(0, 0); // Place at origin
+            copy.setPosition(0, 0);
             newBox.addRectangle(copy, 0, 0);
             solution.addBox(newBox);
         }
@@ -346,19 +345,15 @@ public class Controller {
         return solution;
     }
 
-    public static <I> void randomShuffle(List<I> items) {
-        if (items == null) {
-            throw new IllegalArgumentException("List cannot be null");
-        }
-        Collections.shuffle(items);
-    }
-
     public List <Rectangle> getShuffleCopyRectangles() {
         List<Rectangle> copyRects = new ArrayList<>();
         for (Rectangle rect : this.rectangles) {
             copyRects.add(rect.copy());
         }
-        randomShuffle(copyRects);
+        if (copyRects.isEmpty()) {
+            throw new IllegalArgumentException("List cannot be empty");
+        }
+        Collections.shuffle(copyRects);
 
         return copyRects;
     }
