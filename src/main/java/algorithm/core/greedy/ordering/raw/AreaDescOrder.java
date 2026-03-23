@@ -1,13 +1,13 @@
 package algorithm.core.greedy.ordering.raw;
 
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.model.Rectangle;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AreaDescOrder implements GreedyOrdering<Rectangle> {
+public class AreaDescOrder implements OrderStrategy<Rectangle> {
 
     @Override
     public List<Rectangle> order(List<Rectangle> elements) {

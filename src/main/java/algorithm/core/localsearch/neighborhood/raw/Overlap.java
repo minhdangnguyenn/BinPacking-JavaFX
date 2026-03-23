@@ -1,12 +1,12 @@
 package algorithm.core.localsearch.neighborhood.raw;
 
 import algorithm.core.greedy.Greedy;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.packing.raw.TryPackResult;
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.model.Box;
@@ -24,9 +24,9 @@ public class Overlap implements Neighborhood<OverlapPackingSolution> {
     private int currentIteration = 0;
 
     public Overlap() {
-        GreedyOrdering<Rectangle> ordering = new SideDescOrder();
+        OrderStrategy<Rectangle> ordering = new SideDescOrder();
         PackingStrategy puttingStrategy = new BottomLeft();
-        GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(puttingStrategy);
+        SelectStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(puttingStrategy);
         this.greedy = new Greedy<>(ordering, extender);
     }
 

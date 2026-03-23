@@ -1,11 +1,11 @@
 package greedy;
 
 import algorithm.core.greedy.Greedy;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.PackingSolution;
@@ -37,10 +37,10 @@ class FirstFitBottomLeftAreaDescTest {
         hardInstances = env.getHardInstances(20);
         PackingStrategy bottomLeft = new BottomLeft();
 
-        GreedyStrategy<PackingSolution, Rectangle> greedySelection =
+        SelectStrategy<PackingSolution, Rectangle> greedySelection =
                 new FirstFitStrategy(bottomLeft);
 
-        GreedyOrdering<Rectangle> areaDescOrder = new AreaDescOrder();
+        OrderStrategy<Rectangle> areaDescOrder = new AreaDescOrder();
 
         greedy = new Greedy<>(areaDescOrder, greedySelection);
     }

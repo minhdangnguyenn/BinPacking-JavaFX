@@ -1,6 +1,6 @@
 package algorithm.core.greedy.strategy.raw;
 
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.TryPackResult;
 import algorithm.solution.raw.PackingSolution;
@@ -8,7 +8,7 @@ import algorithm.model.Rectangle;
 import algorithm.model.Box;
 
 
-public class FirstFitStrategy implements GreedyStrategy<PackingSolution, Rectangle> {
+public class FirstFitStrategy implements SelectStrategy<PackingSolution, Rectangle> {
     private final PackingStrategy packingStrategy;
 
     public FirstFitStrategy(PackingStrategy packingStrategy) {

@@ -1,11 +1,11 @@
 package localsearch;
 
 import algorithm.core.greedy.Greedy;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearch;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
@@ -46,8 +46,8 @@ public class GeometryTest {
 
         // Initialize the Greedy Solver with Shelf Putting Strategy
         PackingStrategy bottomLeft = new BottomLeft();
-        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
-        GreedyStrategy<PackingSolution, Rectangle> extender =
+        OrderStrategy<Rectangle> ordering = new AreaDescOrder();
+        SelectStrategy<PackingSolution, Rectangle> extender =
                 new FirstFitStrategy(bottomLeft);
 
         greedySolver = new Greedy<>(ordering, extender);

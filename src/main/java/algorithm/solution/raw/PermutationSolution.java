@@ -1,11 +1,11 @@
 package algorithm.solution.raw;
 
 import algorithm.core.greedy.Greedy;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.model.Rectangle;
 import algorithm.solution.generic.Solution;
@@ -26,9 +26,9 @@ public class PermutationSolution implements Solution {
 
     public PermutationSolution(List<Rectangle> initRectangles, int boxLength) {
         if (greedy == null) {
-            GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
+            OrderStrategy<Rectangle> ordering = new AreaDescOrder();
             PackingStrategy putting = new BottomLeft();
-            GreedyStrategy<PackingSolution, Rectangle> packer = new FirstFitStrategy(putting);
+            SelectStrategy<PackingSolution, Rectangle> packer = new FirstFitStrategy(putting);
             greedy = new Greedy<>(ordering, packer);
         }
         this.rectangles = initRectangles;

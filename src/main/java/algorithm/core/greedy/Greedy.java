@@ -1,7 +1,7 @@
 package algorithm.core.greedy;
 
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.model.Item;
 import algorithm.solution.generic.Solution;
 
@@ -13,23 +13,23 @@ import java.util.List;
  * @param <I> (rectangle -- in non generic case)
  */
 public class Greedy<S extends Solution, I extends Item>{
-    private final GreedyOrdering<I> ordering;
-    private final GreedyStrategy<S, I> extender;
+    private final OrderStrategy<I> ordering;
+    private final SelectStrategy<S, I> selector;
 
 
     public Greedy(
-            GreedyOrdering<I> ordering,
-            GreedyStrategy<S, I> extender
+            OrderStrategy<I> ordering,
+            SelectStrategy<S, I> selector
     ) {
         this.ordering = ordering;
-        this.extender = extender;
+        this.selector = selector;
     }
 
     public S solve(S solution, List<I> items) {
         List<I> orderedItems = ordering.order(items);
 
         for (I item : orderedItems) {
-            solution = extender.select(solution, item);
+            solution = selector.select(solution, item);
         }
 
         return solution;

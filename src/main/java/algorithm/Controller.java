@@ -4,11 +4,11 @@ import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.raw.GreedyOrderingType;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.ordering.generic.GreedyOrdering;
+import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
 import algorithm.core.greedy.packing.raw.RandomPacking;
-import algorithm.core.greedy.strategy.generic.GreedyStrategy;
+import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearch;
 import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
@@ -39,7 +39,7 @@ public class Controller {
     private ArrayList<Rectangle> rectangles;
     private int configBoxLength;
     private PackingSolution greedySolution;
-    private PackingSolution localSearchSolution;
+    private PackingSolution lsSolution;
 
     private long runtimeMs;
 
@@ -86,7 +86,7 @@ public class Controller {
         }
 
         this.greedySolution = null;
-        this.localSearchSolution = null;
+        this.lsSolution = null;
     }
 
     public void runAlgorithm(
@@ -122,7 +122,7 @@ public class Controller {
                         ? config.neighborhood
                         : NeighborhoodType.GEOMETRY.name();
 
-                this.localSearchSolution = runLocalSearch(neighborType, badGreedy, maxIteration);
+                this.lsSolution = runLocalSearch(neighborType, badGreedy, maxIteration);
 
                 if (this.greedySolution != null) {
                      result.totalGreedyBoxes = this.greedySolution.boxes().size();
@@ -131,15 +131,15 @@ public class Controller {
                 }
 
                 result.numBadBoxes = badGreedy.boxes().size();
-                result.totalLocalSearchBoxes = this.localSearchSolution.boxes().size();
+                result.totalLocalSearchBoxes = this.lsSolution.boxes().size();
             }
 
             this.runtimeMs = (System.nanoTime() - start) / 1_000_000;
             
             // Show local search solution if available, otherwise show greedy
-            if (this.localSearchSolution != null) {
+            if (this.lsSolution != null) {
                 result.boxes = BoxVisualizer.selectBoxesToDisplay(
-                        this.localSearchSolution.boxes()
+                        this.lsSolution.boxes()
                 );
             } else {
                 result.boxes = BoxVisualizer.selectBoxesToDisplay(
@@ -150,8 +150,8 @@ public class Controller {
             result.runtime = String.format("%.2f ms", (double) this.runtimeMs);
 
             // Calculate total rectangles from the appropriate solution
-            PackingSolution solutionForCount = this.localSearchSolution != null 
-                    ? this.localSearchSolution 
+            PackingSolution solutionForCount = this.lsSolution != null
+                    ? this.lsSolution
                     : this.greedySolution;
             
             if (solutionForCount != null) {
@@ -170,7 +170,7 @@ public class Controller {
             String orderStrategy,
             PackingStrategy packingStrategy
     ) {
-        GreedyOrdering<Rectangle> ordering;
+        OrderStrategy<Rectangle> ordering;
 
         if (GreedyOrderingType.LARGEST_AREA_FIRST.name().equalsIgnoreCase(orderStrategy)) {
             ordering = new AreaDescOrder();
@@ -181,7 +181,7 @@ public class Controller {
         }
 
         PackingSolution initialSolution = new PackingSolution(this.configBoxLength);
-        GreedyStrategy<PackingSolution, Rectangle> greedySelection =
+        SelectStrategy<PackingSolution, Rectangle> greedySelection =
                 new FirstFitStrategy(packingStrategy);
 
         Greedy<PackingSolution, Rectangle> greedy =
@@ -215,8 +215,8 @@ public class Controller {
 
     private PackingSolution runGeometry(PackingSolution badSolution, int maxIteration) {
         PackingStrategy randomPacking = new RandomPacking();
-        GreedyStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(randomPacking);
-        GreedyOrdering<Rectangle> ordering = new AreaDescOrder();
+        SelectStrategy<PackingSolution, Rectangle> extender = new FirstFitStrategy(randomPacking);
+        OrderStrategy<Rectangle> ordering = new AreaDescOrder();
         Greedy<PackingSolution, Rectangle> greedySolver = new Greedy<>(ordering, extender);
 
         double start = System.nanoTime();
