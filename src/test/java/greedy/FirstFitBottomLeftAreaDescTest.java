@@ -1,5 +1,7 @@
 package greedy;
 
+import com.sun.management.OperatingSystemMXBean;
+import java.lang.management.ManagementFactory;
 import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
@@ -28,6 +30,7 @@ class FirstFitBottomLeftAreaDescTest {
     private List<Instance> mediumInstances;
     private List<Instance> hardInstances;
     private static Greedy<PackingSolution, Rectangle> greedy;
+    List<Double> cpuLoads = new ArrayList<>();
 
     @BeforeEach
     void setup() {
@@ -47,24 +50,27 @@ class FirstFitBottomLeftAreaDescTest {
 
     @Test
     void easy() {
-
         List<PackingSolution> solutions = new ArrayList<>();
         List<Long> durations = new ArrayList<>();
-
+        int j = 0;
         for (Instance instance : easyInstances) {
 
             PackingSolution initial = new PackingSolution(instance.boxSize());
 
             long start = System.currentTimeMillis();
-            PackingSolution greedySolution =
-                    greedy.solve(initial, instance.rectangles());
 
-            long duration = System.currentTimeMillis() - start;
+            PackingSolution greedySolution = greedy.solve(initial, instance.rectangles());
+
+            long end = System.currentTimeMillis() - start;
+            double cpuLoad    = getCpuLoadPercent();
+
+            System.out.printf("Instance %d → CPU Load: %.2f%%%n", j + 1, cpuLoad);
+            j++;
 
             solutions.add(greedySolution);
-            durations.add(duration);
+            durations.add(end);
+            cpuLoads.add(cpuLoad);
 
-            // Assertions
             assertNotNull(greedySolution);
             assertFalse(greedySolution.boxes().isEmpty());
 
@@ -82,7 +88,7 @@ class FirstFitBottomLeftAreaDescTest {
         );
 
         List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{"Instance", "NumBoxes", "NumRectangles", "Duration(ms)"});
+        csvData.add(new String[]{"Instance", "NumBoxes", "NumRectangles", "Duration(ms)", "CPU(%)"});
 
         for (int i = 0; i < solutions.size(); i++) {
             PackingSolution sol = solutions.get(i);
@@ -90,7 +96,8 @@ class FirstFitBottomLeftAreaDescTest {
                     String.valueOf(i + 1),
                     String.valueOf(sol.boxes().size()),
                     String.valueOf(sol.getRectangles().size()),
-                    String.valueOf(durations.get(i))
+                    String.valueOf(durations.get(i)),
+                    String.format("%.2f", cpuLoads.get(i))
             });
         }
 
@@ -199,5 +206,23 @@ class FirstFitBottomLeftAreaDescTest {
         }
 
         Utils.writeResult(csvData, path);
+    }
+
+    private static final OperatingSystemMXBean osBean =
+            (com.sun.management.OperatingSystemMXBean)
+                    ManagementFactory.getOperatingSystemMXBean();
+
+    /**
+     * Returns CPU time used by the process in milliseconds.
+     */
+    private long getCpuTimeMs() {
+        return osBean.getProcessCpuTime() / 1_000_000; // ns → ms
+    }
+
+    /**
+     * Returns current process CPU load as a percentage (0 - 100).
+     */
+    private double getCpuLoadPercent() {
+        return osBean.getProcessCpuLoad() * 100.0;
     }
 }

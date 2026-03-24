@@ -11,6 +11,8 @@ module app.binpacking {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires jdk.xml.dom;
+    requires java.management;
+    requires jdk.management;
 
     opens app to javafx.fxml;
     exports app;
