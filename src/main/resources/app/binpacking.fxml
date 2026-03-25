@@ -3,37 +3,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox
-        alignment="CENTER"
-        prefHeight="780.0"
-        prefWidth="889.0"
-        spacing="20.0"
-        xmlns="http://javafx.com/javafx/17.0.12"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="app.BinPackingController"
->
+<VBox alignment="CENTER" prefHeight="780.0" prefWidth="889.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.BinPackingController">
 
-    <BorderPane
-            prefHeight="900"
-            prefWidth="1600.0"
-            xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-    >
+    <BorderPane prefHeight="900" prefWidth="1600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
 
         <left>
-            <fx:include source="configbar.fxml" fx:id="configBar" />
+            <fx:include fx:id="configBar" source="configbar.fxml" />
         </left>
 
 
         <center>
             <!-- Wrap the solution Pane in a ScrollPane -->
             <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="780.0" prefWidth="735.0">
-                <Pane
-                        fx:id="solutionPane"
-                        prefHeight="778.0"
-                        prefWidth="661.0"
-                        style="-fx-background-color: lightgray;"
-                />
+                <Pane fx:id="solutionPane" prefHeight="779.0" prefWidth="370.0" style="-fx-background-color: lightgray;" />
             </ScrollPane>
         </center>
 
