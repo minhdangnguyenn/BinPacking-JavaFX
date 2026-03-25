@@ -1,224 +1,155 @@
 package localsearch;
 
 import algorithm.core.greedy.Greedy;
-import algorithm.core.greedy.ordering.generic.OrderStrategy;
 import algorithm.core.greedy.ordering.raw.AreaDescOrder;
 import algorithm.core.greedy.packing.generic.PackingStrategy;
 import algorithm.core.greedy.packing.raw.BottomLeft;
-import algorithm.core.greedy.strategy.generic.SelectStrategy;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearch;
-import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.Geometry;
-import algorithm.core.localsearch.objective.generic.Objective;
 import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
 import algorithm.model.Rectangle;
-import algorithm.solution.generic.Solution;
 import algorithm.solution.raw.PackingSolution;
 import environment.Instance;
 import environment.TestEnvironment;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import environment.utils.Utils;
+import org.junit.jupiter.api.Test;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+class GeometryTest {
 
-public class GeometryTest {
-    private List<Instance> easyInstances = new ArrayList<>();
-    private List<Instance> mediumInstances = new ArrayList<>();
-    private List<Instance> hardInstances = new ArrayList<>();
+    // {numInstances, numRects, minW, minH, maxW, maxH, boxLen}
+    private static final int[][] SMALL_TUPLES = {
+            {  5,   500,  1, 1, 100, 100, 100 },
+            {  5,  1000,  1, 1, 100, 100, 100 },
+            {  3,  3000,  1, 1, 100, 100, 100 }
+    };
 
-    private Greedy<PackingSolution, Rectangle> greedySolver;
-    private static LocalSearch<PackingSolution> localSearch;
-    private TestEnvironment env = new TestEnvironment();
+    private static final int[][] LARGE_TUPLES = {
+            { 10,  1000,  1, 1, 100, 100, 300 },
+            { 10,  3000,  1, 1, 100, 100, 300 },
+            {  5,  5000,  1, 1, 100, 100, 300 },
+            {  3, 10000,  1, 1, 100, 100, 300 },
+    };
 
-    @BeforeEach
-    void setUp() {
-        easyInstances = env.easyInstances(5);
-        mediumInstances = env.getMediumInstances(10);
-        hardInstances = env.getHardInstances(20);
+    // ── Time utilities ───────────────────────────────────────────────────────
+    private static final ThreadMXBean THREAD_MX = ManagementFactory.getThreadMXBean();
 
-        // Initialize the Greedy Solver with Shelf Putting Strategy
+    private long cpuTimeNs() {
+        return THREAD_MX.getCurrentThreadCpuTime();
+    }
+
+    private final MinimizeUsedArea objective = new MinimizeUsedArea();
+
+    // ── Solvers ──────────────────────────────────────────────────────────────
+    private Greedy<PackingSolution, Rectangle> buildGreedy() {
         PackingStrategy bottomLeft = new BottomLeft();
-        OrderStrategy<Rectangle> ordering = new AreaDescOrder();
-        SelectStrategy<PackingSolution, Rectangle> extender =
-                new FirstFitStrategy(bottomLeft);
-
-        greedySolver = new Greedy<>(ordering, extender);
-
-        // Initialize the Local Search Solver
-        Neighborhood<PackingSolution> neighborhood = new Geometry();
-        Objective<PackingSolution> objective = new MinimizeUsedArea();
-        localSearch = new LocalSearch<>(neighborhood, objective, 1000);
+        return new Greedy<>(new AreaDescOrder(), new FirstFitStrategy(bottomLeft));
     }
 
+    private LocalSearch<PackingSolution> buildLocalSearch(int maxIterations) {
+        return new LocalSearch<>(new Geometry(), objective, maxIterations);
+    }
+
+    // ── Main test — runs BOTH modes, writes TWO files ────────────────────────
     @Test
-    void easy() {
+    void runTestEnvironment() {
+        runMode("small", SMALL_TUPLES,  1000);
+        runMode("large", LARGE_TUPLES, 1000);
+    }
 
-        List<Solution> solutions = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
+    private void runMode(String modeName, int[][] tuples, int maxIterations) {
+        Greedy<PackingSolution, Rectangle> greedy = buildGreedy();
+        LocalSearch<PackingSolution> localSearch  = buildLocalSearch(maxIterations);
 
-        // Solve easy instances and check solutions
-        for (Instance instance : easyInstances) {
+        List<String[]> csv = new ArrayList<>();
+        csv.add(new String[]{
+                "Mode", "Tuple",
+                "Instance", "NumRects", "BoxLen",
+                "NumBoxes",
+                "ObjectiveScore",
+                "CpuTime_ms",
+                "WallTime_ms"
+        });
 
-            PackingSolution initial = new PackingSolution(instance.boxSize());
-            Date startTime = new Date();
-            PackingSolution greedySolution = greedySolver.solve(initial, instance.rectangles());
-            PackingSolution solution = localSearch.solve(greedySolution);
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
+        for (int t = 0; t < tuples.length; t++) {
+            int[] tp         = tuples[t];
+            int numInstances = tp[0];
+            int numRects     = tp[1];
+            int minW         = tp[2];
+            int minH         = tp[3];
+            int maxW         = tp[4];
+            int maxH         = tp[5];
+            int boxLen       = tp[6];
 
-            // Store solution and duration
-            solutions.add(solution);
-            durations.add(duration);
+            String tupleLabel = String.format(Locale.US,
+                    "T%d(n=%d,r=%d,min=%d/%d,max=%d/%d,L=%d)",
+                    t + 1, numInstances, numRects, minW, minH, maxW, maxH, boxLen);
 
-            // Basic assertions
-            assertNotNull(solution);
-            assertFalse(solution.boxes().isEmpty());
-            // Check that there are no overlapping rectangles in each box
-            for (var box : solution.boxes()) {
-                assertEquals(0.0, box.totalOverlapRate());
+            System.out.printf(Locale.US, "%n=== [%s] %s ===%n", modeName.toUpperCase(), tupleLabel);
 
-                // Check that no rectangle overflows the box
-                for (Rectangle rectangle: box.getRectangles()) {
-                    assertFalse(box.isOverflow(rectangle));
+            TestEnvironment env = new TestEnvironment();
+            List<Instance> instances = env.generateInstances(
+                    numInstances, numRects, minW, minH, maxW, maxH, boxLen);
+
+            for (int i = 0; i < instances.size(); i++) {
+                Instance instance = instances.get(i);
+                PackingSolution initial = new PackingSolution(instance.boxSize());
+
+                // ── Greedy initial solution + Local Search ────────────────
+                long cpuStart  = cpuTimeNs();
+                long wallStart = System.nanoTime();
+
+                PackingSolution greedySolution = greedy.solve(initial, instance.rectangles());
+                PackingSolution solution       = localSearch.solve(greedySolution);
+                double objectiveScore          = objective.evaluate(solution);
+
+                double cpuMs  = (cpuTimeNs()       - cpuStart)  / 1_000_000.0;
+                double wallMs = (System.nanoTime() - wallStart) / 1_000_000.0;
+
+                int numBoxes = solution.boxes().size();
+
+                System.out.printf(Locale.US,
+                        "  inst %d/%d → boxes=%d | objective score=%.2f, cpu=%.2f ms | wall=%.2f ms%n",
+                        i + 1, numInstances, numBoxes, objectiveScore, cpuMs, wallMs);
+
+                // ── Correctness assertions ────────────────────────────────
+                org.junit.jupiter.api.Assertions.assertNotNull(solution);
+                org.junit.jupiter.api.Assertions.assertFalse(solution.boxes().isEmpty());
+                for (var box : solution.boxes()) {
+                    org.junit.jupiter.api.Assertions.assertEquals(0.0, box.totalOverlapRate(),
+                            "Overlap in instance " + (i + 1));
+                    for (Rectangle rect : box.getRectangles()) {
+                        org.junit.jupiter.api.Assertions.assertFalse(box.isOverflow(rect),
+                                "Overflow in instance " + (i + 1));
+                    }
                 }
+
+                // ── Log row ───────────────────────────────────────────────
+                csv.add(new String[]{
+                        modeName,
+                        tupleLabel,
+                        String.valueOf(i + 1),
+                        String.valueOf(instance.rectangles().size()),
+                        String.valueOf(boxLen),
+                        String.valueOf(numBoxes),
+                        String.format(Locale.US, "%.4f", objectiveScore),
+                        String.format(Locale.US, "%.2f", cpuMs),
+                        String.format(Locale.US, "%.2f", wallMs)
+                });
             }
         }
 
-        Path path = Paths.get(
-                "target",
-                "csv",
-                "localsearch",
-                "Geometry_EasyResults.csv"
-        );
-
-        List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{ "Instance", "NumBoxes", "Duration(ms)" });
-        for (int i = 0; i < solutions.size(); i++) {
-            PackingSolution sol = (PackingSolution) solutions.get(i);
-            String[] data = {
-                    String.valueOf(i + 1),
-                    String.valueOf(sol.boxes().size()),
-                    String.valueOf(durations.get(i))
-            };
-            csvData.add(data);
-        }
-        Utils.writeResult(csvData, path);
-    }
-
-    @Test
-    void medium() {
-
-        List<Solution> solutions = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
-
-        // Solve medium instances and check solutions
-        for (Instance instance : mediumInstances) {
-
-            PackingSolution initial = new PackingSolution(instance.boxSize());
-            Date startTime = new Date();
-            PackingSolution greedySolution = greedySolver.solve(initial, instance.rectangles());
-            PackingSolution solution = localSearch.solve(greedySolution);
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
-
-            // Store solution and duration
-            solutions.add(solution);
-            durations.add(duration);
-
-            // Basic assertions
-            assertNotNull(solution);
-            assertFalse(solution.boxes().isEmpty());
-            // Check that there are no overlapping rectangles in each box
-            for (var box : solution.boxes()) {
-                assertEquals(0.0, box.totalOverlapRate());
-
-                // Check that no rectangle overflows the box
-                for (Rectangle rectangle: box.getRectangles()) {
-                    assertFalse(box.isOverflow(rectangle));
-                }
-            }
-        }
-
-        Path path = Paths.get(
-                "target",
-                "csv",
-                "localsearch",
-                "Geometry_MediumResults.csv"
-        );
-
-        List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{ "Instance", "NumBoxes", "Duration(ms)" });
-        for (int i = 0; i < solutions.size(); i++) {
-            PackingSolution sol = (PackingSolution) solutions.get(i);
-            String[] data = {
-                    String.valueOf(i + 1),
-                    String.valueOf(sol.boxes().size()),
-                    String.valueOf(durations.get(i))
-            };
-            csvData.add(data);
-        }
-        Utils.writeResult(csvData, path);
-    }
-
-    @Test
-    void hard() {
-        List<Solution> solutions = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
-
-        // Solve hard instances and check solutions
-        for (Instance instance : hardInstances) {
-
-            PackingSolution initial = new PackingSolution(instance.boxSize());
-            Date startTime = new Date();
-            PackingSolution greedySolution = greedySolver.solve(initial, instance.rectangles());
-            PackingSolution solution = localSearch.solve(greedySolution);
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
-
-            // Store solution and duration
-            solutions.add(solution);
-            durations.add(duration);
-
-            // Basic assertions
-            assertNotNull(solution);
-            assertFalse(solution.boxes().isEmpty());
-            // Check that there are no overlapping rectangles in each box
-            for (var box : solution.boxes()) {
-                assertEquals(0.0, box.totalOverlapRate());
-
-                // Check that no rectangle overflows the box
-                for (Rectangle rectangle: box.getRectangles()) {
-                    assertFalse(box.isOverflow(rectangle));
-                }
-            }
-        }
-
-        Path path = Paths.get(
-                "target",
-                "csv",
-                "localsearch",
-                "Geometry_HardResults.csv"
-        );
-
-        List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{ "Instance", "NumBoxes", "Duration(ms)" });
-        for (int i = 0; i < solutions.size(); i++) {
-            PackingSolution sol = (PackingSolution) solutions.get(i);
-            String[] data = {
-                    String.valueOf(i + 1),
-                    String.valueOf(sol.boxes().size()),
-                    String.valueOf(durations.get(i))
-            };
-            csvData.add(data);
-        }
-        Utils.writeResult(csvData, path);
+        // target/csv/localsearch_geometry_fast.csv  or  ..._large.csv
+        Path path = Paths.get("target", "csv", "localsearch_geometry_" + modeName + ".csv");
+        Utils.writeResult(csv, path);
+        System.out.printf(Locale.US, "%nLog written → %s%n", path.toAbsolutePath());
     }
 }

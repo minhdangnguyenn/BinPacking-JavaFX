@@ -20,101 +20,45 @@ public class TestEnvironment {
         this.config = new Controller.Config();
     }
 
-    public Controller.Config getConfig() {
-        return config;
-    }
+    /**
+     * Spec-required: generates instances from a parameter tuple.
+     * Tuple: (numInstances, numRects, minWidth, minHeight, maxWidth, maxHeight, boxLength)
+     */
+    public List<Instance> generateInstances(
+            int numInstances,
+            int numRects,
+            int minWidth,
+            int minHeight,
+            int maxWidth,
+            int maxHeight,
+            int boxLength
+    ) {
+        Controller.Config cfg = new Controller.Config();
+        cfg.rectangleCount  = numRects;
+        cfg.minWidth        = minWidth;
+        cfg.maxWidth        = maxWidth;
+        cfg.minHeight       = minHeight;
+        cfg.maxHeight       = maxHeight;
+        cfg.boxLength       = boxLength;
+        // required by validConfig — keep consistent with existing defaults
+        cfg.algorithm          = AlgorithmType.GREEDY.name();
+        cfg.neighborhood       = NeighborhoodType.GEOMETRY.name();
+        cfg.selectionStrategy  = GreedyStrategyType.FIRST_FIT.name();
+        cfg.maxIteration       = 100;
 
-    public List<Rectangle> getRectangles() {
-        return testRectangles;
-    }
+        Utils.validConfig(cfg);
 
-    public List<Instance> easyInstances(int numInstances) {
         List<Instance> instances = new ArrayList<>();
-
-        Controller.Config config = new Controller.Config();
-        config.rectangleCount = 1000;
-        config.minWidth = 1;
-        config.maxWidth = 100;
-        config.minHeight = 1;
-        config.maxHeight = 100;
-        config.boxLength = 100;
-        config.algorithm = AlgorithmType.GREEDY.name();
-        config.neighborhood = NeighborhoodType.GEOMETRY.name();
-        config.selectionStrategy = GreedyStrategyType.FIRST_FIT.name();
-        config.maxIteration = 100;
-
-        Utils.validConfig(config);
-
         for (int i = 0; i < numInstances; i++) {
             List<Rectangle> rectangles = new ArrayList<>();
-            for (int r = 0; r < config.rectangleCount; r++) {
-                int w = random.nextInt(config.maxWidth - config.minWidth + 1) + config.minWidth;
-                int h = random.nextInt(config.maxHeight - config.minHeight + 1) + config.minHeight;
+            for (int r = 0; r < numRects; r++) {
+                int w = random.nextInt(maxWidth  - minWidth  + 1) + minWidth;
+                int h = random.nextInt(maxHeight - minHeight + 1) + minHeight;
                 rectangles.add(new Rectangle(r, w, h));
             }
-            instances.add(new Instance(config.boxLength, rectangles));
+            instances.add(new Instance(boxLength, rectangles));
         }
-
         return instances;
     }
 
-    public List<Instance> getMediumInstances(int numInstances) {
-        List<Instance> instances = new ArrayList<>();
-
-        Controller.Config config = new Controller.Config();
-        config.rectangleCount = 2000;
-        config.minWidth = 1;
-        config.maxWidth = 50;
-        config.minHeight = 1;
-        config.maxHeight = 100;
-        config.boxLength = 150;
-        config.algorithm = AlgorithmType.GREEDY.name();
-        config.neighborhood = NeighborhoodType.GEOMETRY.name();
-        config.selectionStrategy = GreedyStrategyType.FIRST_FIT.name();
-        config.maxIteration = 100;
-
-        Utils.validConfig(config);
-
-        for (int i = 0; i < numInstances; i++) {
-            List<Rectangle> rectangles = new ArrayList<>();
-            for (int r = 0; r < config.rectangleCount; r++) {
-                int w = random.nextInt(config.maxWidth - config.minWidth + 1) + config.minWidth;
-                int h = random.nextInt(config.maxHeight - config.minHeight + 1) + config.minHeight;
-                rectangles.add(new Rectangle(r, w, h));
-            }
-            instances.add(new Instance(config.boxLength, rectangles));
-        }
-
-        return instances;
-    }
-
-    public List<Instance> getHardInstances(int numInstances) {
-        List<Instance> instances = new ArrayList<>();
-
-        Controller.Config config = new Controller.Config();
-        config.rectangleCount = 10_000;
-        config.minWidth = 50;
-        config.maxWidth = 100;
-        config.minHeight = 1;
-        config.maxHeight = 100;
-        config.boxLength = 200;
-        config.algorithm = AlgorithmType.GREEDY.name();
-        config.neighborhood = NeighborhoodType.GEOMETRY.name();
-        config.selectionStrategy = GreedyStrategyType.FIRST_FIT.name();
-        config.maxIteration = 100;
-
-        Utils.validConfig(config);
-
-        for (int i = 0; i < numInstances; i++) {
-            List<Rectangle> rectangles = new ArrayList<>();
-            for (int r = 0; r < config.rectangleCount; r++) {
-                int w = random.nextInt(config.maxWidth - config.minWidth + 1) + config.minWidth;
-                int h = random.nextInt(config.maxHeight - config.minHeight + 1) + config.minHeight;
-                rectangles.add(new Rectangle(r, w, h));
-            }
-            instances.add(new Instance(config.boxLength, rectangles));
-        }
-
-        return instances;
-    }
 }

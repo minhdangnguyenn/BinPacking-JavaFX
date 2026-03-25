@@ -1,11 +1,12 @@
-package localsearch;
+package environment.greedy;
 
-import algorithm.core.localsearch.LocalSearch;
-import algorithm.core.localsearch.neighborhood.raw.Permutation;
-import algorithm.core.localsearch.objective.raw.PermutationObjective;
+import algorithm.core.greedy.Greedy;
+import algorithm.core.greedy.ordering.raw.AreaDescOrder;
+import algorithm.core.greedy.packing.generic.PackingStrategy;
+import algorithm.core.greedy.packing.raw.BottomLeft;
+import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.PackingSolution;
-import algorithm.solution.raw.PermutationSolution;
 import environment.Instance;
 import environment.TestEnvironment;
 import environment.utils.Utils;
@@ -16,11 +17,10 @@ import java.lang.management.ThreadMXBean;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-class PermutationTest {
+class GreedyAreaDescTest {
 
     // {numInstances, numRects, minW, minH, maxW, maxH, boxLen}
     private static final int[][] SMALL_TUPLES = {
@@ -36,6 +36,8 @@ class PermutationTest {
             {  3, 10000,  1, 1, 100, 100, 300 },
     };
 
+    private static final String ALGORITHM_NAME = "Greedy_FF_BL_AreaDESC";
+
     // ── Time utilities ───────────────────────────────────────────────────────
     private static final ThreadMXBean THREAD_MX = ManagementFactory.getThreadMXBean();
 
@@ -43,38 +45,25 @@ class PermutationTest {
         return THREAD_MX.getCurrentThreadCpuTime();
     }
 
-    private PermutationObjective objective = new PermutationObjective();
-
-    private LocalSearch<PermutationSolution> buildLocalSearch(int maxIterations) {
-        return new LocalSearch<>(new Permutation(), objective, maxIterations);
-    }
-
-    /**
-     * Bad initial solution: shuffled copy of rectangles (random ordering).
-     * Mirrors Controller.getShuffleCopyRectangles() + PermutationSolution init.
-     */
-    private PermutationSolution buildBadInitial(List<Rectangle> rectangles, int boxLen) {
-        List<Rectangle> shuffled = new ArrayList<>();
-        for (Rectangle rect : rectangles) {
-            shuffled.add(rect.copy());
-        }
-        Collections.shuffle(shuffled);
-        return new PermutationSolution(shuffled, boxLen);
+    private Greedy<PackingSolution, Rectangle> buildAlgorithm() {
+        PackingStrategy bottomLeft = new BottomLeft();
+        return new Greedy<>(new AreaDescOrder(), new FirstFitStrategy(bottomLeft));
     }
 
     // ── Main test — runs BOTH modes, writes TWO files ────────────────────────
     @Test
     void runTestEnvironment() {
-        runMode("small", SMALL_TUPLES,  1000);
-        runMode("large", LARGE_TUPLES, 1000);
+        runMode("small", SMALL_TUPLES);
+        runMode("large", LARGE_TUPLES);
     }
 
-    private void runMode(String modeName, int[][] tuples, int maxIterations) {
-        LocalSearch<PermutationSolution> localSearch = buildLocalSearch(maxIterations);
+    private void runMode(String modeName, int[][] tuples) {
+        Greedy<PackingSolution, Rectangle> greedy = buildAlgorithm();
 
         List<String[]> csv = new ArrayList<>();
         csv.add(new String[]{
                 "Mode", "Tuple",
+                "Algorithm",
                 "Instance", "NumRects", "BoxLen",
                 "NumBoxes",
                 "CpuTime_ms",
@@ -103,21 +92,13 @@ class PermutationTest {
 
             for (int i = 0; i < instances.size(); i++) {
                 Instance instance = instances.get(i);
+                PackingSolution initial = new PackingSolution(instance.boxSize());
 
-                // ── Bad initial: shuffled rectangle order ─────────────────
-                PermutationSolution initial = buildBadInitial(instance.rectangles(), boxLen);
-
-                System.out.printf(Locale.US,
-                        "  inst %d/%d → bad init created (shuffled order)%n",
-                        i + 1, numInstances);
-
-                // ── Local Search + decode ─────────────────────────────────
+                // ── Measure CPU thread time and wall-clock time ───────────
                 long cpuStart  = cpuTimeNs();
                 long wallStart = System.nanoTime();
 
-                PermutationSolution permutationSolution = localSearch.solve(initial);
-                PackingSolution solution = permutationSolution.decode();
-                double objectiveScore          = objective.evaluate(permutationSolution);
+                PackingSolution solution = greedy.solve(initial, instance.rectangles());
 
                 double cpuMs  = (cpuTimeNs()       - cpuStart)  / 1_000_000.0;
                 double wallMs = (System.nanoTime() - wallStart) / 1_000_000.0;
@@ -125,18 +106,18 @@ class PermutationTest {
                 int numBoxes = solution.boxes().size();
 
                 System.out.printf(Locale.US,
-                        "  inst %d/%d → boxes=%d | objective score=%.2f, cpu=%.2f ms | wall=%.2f ms%n",
-                        i + 1, numInstances, numBoxes, objectiveScore, cpuMs, wallMs);
+                        "  [%s] inst %d/%d → boxes=%d | cpu=%.2f ms | wall=%.2f ms%n",
+                        ALGORITHM_NAME, i + 1, numInstances, numBoxes, cpuMs, wallMs);
 
                 // ── Correctness assertions ────────────────────────────────
-                org.junit.jupiter.api.Assertions.assertNotNull(solution);
-                org.junit.jupiter.api.Assertions.assertFalse(solution.boxes().isEmpty());
+                assertNotNull(solution, ALGORITHM_NAME + " returned null");
+                assertFalse(solution.boxes().isEmpty(), ALGORITHM_NAME + " produced empty solution");
                 for (var box : solution.boxes()) {
-                    org.junit.jupiter.api.Assertions.assertEquals(0.0, box.totalOverlapRate(),
-                            "Overlap in instance " + (i + 1));
+                    assertEquals(box.totalOverlapRate(),
+                            "Overlap in " + ALGORITHM_NAME + " instance " + (i + 1));
                     for (Rectangle rect : box.getRectangles()) {
-                        org.junit.jupiter.api.Assertions.assertFalse(box.isOverflow(rect),
-                                "Overflow in instance " + (i + 1));
+                        assertFalse(box.isOverflow(rect),
+                                "Overflow in " + ALGORITHM_NAME + " instance " + (i + 1));
                     }
                 }
 
@@ -144,19 +125,31 @@ class PermutationTest {
                 csv.add(new String[]{
                         modeName,
                         tupleLabel,
+                        ALGORITHM_NAME,
                         String.valueOf(i + 1),
                         String.valueOf(instance.rectangles().size()),
                         String.valueOf(boxLen),
                         String.valueOf(numBoxes),
-                        String.format(Locale.US, "%.4f", objectiveScore),
                         String.format(Locale.US, "%.2f", cpuMs),
                         String.format(Locale.US, "%.2f", wallMs)
                 });
             }
         }
 
-        Path path = Paths.get("target", "csv", "localsearch_permutation_" + modeName + ".csv");
+        // target/csv/greedy_area_desc_fast.csv  or  ..._large.csv
+        Path path = Paths.get("target", "csv", "greedy_area_desc_" + modeName + ".csv");
         Utils.writeResult(csv, path);
         System.out.printf(Locale.US, "%nLog written → %s%n", path.toAbsolutePath());
+    }
+
+    // ── Assertion helpers ────────────────────────────────────────────────────
+    private static void assertNotNull(Object o, String msg) {
+        org.junit.jupiter.api.Assertions.assertNotNull(o, msg);
+    }
+    private static void assertFalse(boolean b, String msg) {
+        org.junit.jupiter.api.Assertions.assertFalse(b, msg);
+    }
+    private static void assertEquals(double actual, String msg) {
+        org.junit.jupiter.api.Assertions.assertEquals(0.0, actual, msg);
     }
 }

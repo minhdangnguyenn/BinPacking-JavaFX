@@ -1,244 +1,211 @@
 package localsearch;
 
 import algorithm.core.localsearch.LocalSearch;
-import algorithm.core.localsearch.neighborhood.generic.Neighborhood;
 import algorithm.core.localsearch.neighborhood.raw.Overlap;
-import algorithm.core.localsearch.objective.generic.Objective;
+import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
 import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.model.Box;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.OverlapPackingSolution;
-import algorithm.solution.raw.PackingSolution;
 import environment.Instance;
 import environment.TestEnvironment;
 import environment.utils.Utils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+class OverlapTest {
 
-public class OverlapTest {
-    private static List<Instance> easyInstances = new ArrayList<>();
-    private static List<Instance> mediumInstances = new ArrayList<>();
-    private static List<Instance> hardInstances = new ArrayList<>();
+    // {numInstances, numRects, minW, minH, maxW, maxH, boxLen}
+    private static final int[][] SMALL_TUPLES = {
+            {  5,   500,  1, 1, 100, 100, 100 },
+            {  5,  1000,  1, 1, 100, 100, 100 },
+            {  3,  3000,  1, 1, 100, 100, 100 },
+    };
 
-    private static LocalSearch<OverlapPackingSolution> localSearchSolver;
-    static TestEnvironment env = new TestEnvironment();
+    private static final int[][] LARGE_TUPLES = {
+            { 10,  1000,  1, 1, 100, 100, 300 },
+            { 10,  3000,  1, 1, 100, 100, 300 },
+            {  5,  5000,  1, 1, 100, 100, 300 },
+            {  3, 10000,  1, 1, 100, 100, 300 },
+    };
 
-    @BeforeAll
-    static void setUp() {
-        easyInstances = env.easyInstances(5);
-        mediumInstances = env.getMediumInstances(10);
-        hardInstances = env.getHardInstances(20);
+    // ── Time utilities ───────────────────────────────────────────────────────
+    private static final ThreadMXBean THREAD_MX = ManagementFactory.getThreadMXBean();
 
-        // Initialize the Local Search Solver
-        Neighborhood<OverlapPackingSolution> neighborhood = new Overlap();
-        Objective<OverlapPackingSolution> objective = new OverlapObjective();
-        localSearchSolver = new LocalSearch<>(neighborhood, objective, 100);
+    private long cpuTimeNs() {
+        return THREAD_MX.getCurrentThreadCpuTime();
     }
 
+    private OverlapObjective objective = new OverlapObjective();
+
+    private LocalSearch<OverlapPackingSolution> buildLocalSearch(int maxIterations) {
+        return new LocalSearch<>(new Overlap(), objective, maxIterations);
+    }
+
+    /**
+     * Bad initial solution: randomly place all rectangles into the minimum
+     * number of boxes needed by area — rectangles overlap freely.
+     * Mirrors Controller.initOverlapSolution().
+     */
+    private OverlapPackingSolution buildBadInitial(List<Rectangle> rectangles, int boxLen, int maxIterations) {
+        // Shuffle a copy — mirrors getShuffleCopyRectangles()
+        List<Rectangle> rects = new ArrayList<>();
+        for (Rectangle rect : rectangles) {
+            rects.add(rect.copy());
+        }
+        Collections.shuffle(rects);
+
+        Random rand = new Random();
+
+        // Minimum boxes by area
+        int sumArea = 0;
+        for (Rectangle rect : rects) sumArea += rect.getArea();
+        int boxArea    = boxLen * boxLen;
+        int minNumBox  = (int) Math.ceil((double) sumArea / boxArea);
+
+        List<Box> boxes = new ArrayList<>();
+        for (int i = 0; i < Math.max(1, minNumBox); i++) {
+            boxes.add(new Box(i, boxLen));
+        }
+
+        // Randomly assign each rectangle to a box at a random valid position
+        for (Rectangle rect : rects) {
+            int boxIdx = rand.nextInt(boxes.size());
+            Box selectedBox = boxes.get(boxIdx);
+
+            int maxX = boxLen - rect.getWidth();
+            int maxY = boxLen - rect.getHeight();
+            int x    = (maxX > 0) ? rand.nextInt(maxX + 1) : 0;
+            int y    = (maxY > 0) ? rand.nextInt(maxY + 1) : 0;
+
+            selectedBox.addRectangle(rect, x, y);
+        }
+
+        // Build solution from non-empty boxes
+        OverlapPackingSolution solution = new OverlapPackingSolution(boxLen);
+        solution.boxes().clear();
+        for (Box box : boxes) {
+            if (!box.getRectangles().isEmpty()) {
+                solution.addBox(box);
+            }
+        }
+        if (solution.boxes().isEmpty()) {
+            solution.addBox(new Box(0, boxLen));
+        }
+
+        // Wrap with iteration budget
+        OverlapPackingSolution initial = OverlapPackingSolution.init(solution.boxes(), maxIterations);
+        initial.maxIterations    = maxIterations;
+        initial.currentIteration = 0;
+
+        System.out.printf(Locale.US,
+                "  bad init → boxes=%d | rects=%d%n",
+                initial.boxes().size(), rects.size());
+
+        return initial;
+    }
+
+    // ── Main test — runs BOTH modes, writes TWO files ────────────────────────
     @Test
-    void easy() {
+    void runTestEnvironment() {
+        runMode("small", SMALL_TUPLES,  100);
+        runMode("large", LARGE_TUPLES, 100);
+    }
 
-        List<PackingSolution> solutions = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
+    private void runMode(String modeName, int[][] tuples, int maxIterations) {
+        LocalSearch<OverlapPackingSolution> localSearch = buildLocalSearch(maxIterations);
 
-        // Solve easy instances and check solutions
-        for (Instance instance : easyInstances) {
+        List<String[]> csv = new ArrayList<>();
+        csv.add(new String[]{
+                "Mode", "Tuple",
+                "Instance", "NumRects", "BoxLen",
+                "NumBoxes",
+                "ObjectiveScore",
+                "CpuTime_ms",
+                "WallTime_ms"
+        });
 
-            List<Box> testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
+        for (int t = 0; t < tuples.length; t++) {
+            int[] tp         = tuples[t];
+            int numInstances = tp[0];
+            int numRects     = tp[1];
+            int minW         = tp[2];
+            int minH         = tp[3];
+            int maxW         = tp[4];
+            int maxH         = tp[5];
+            int boxLen       = tp[6];
 
-            OverlapPackingSolution initial = OverlapPackingSolution.init(testBoxes, 1000);
-            initial.maxIterations = 100;
-            initial.currentIteration = 0;
+            String tupleLabel = String.format(Locale.US,
+                    "T%d(n=%d,r=%d,min=%d/%d,max=%d/%d,L=%d)",
+                    t + 1, numInstances, numRects, minW, minH, maxW, maxH, boxLen);
 
-            Date startTime = new Date();
-            OverlapPackingSolution solution = localSearchSolver.solve(initial);
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
+            System.out.printf(Locale.US, "%n=== [%s] %s ===%n", modeName.toUpperCase(), tupleLabel);
 
-            // Store solution and duration
-            solutions.add(solution);
-            durations.add(duration);
+            TestEnvironment env = new TestEnvironment();
+            List<Instance> instances = env.generateInstances(
+                    numInstances, numRects, minW, minH, maxW, maxH, boxLen);
 
-            // Basic assertions
-            assertNotNull(solution);
-            assertFalse(solution.boxes().isEmpty());
-            
-            // Check that there are no overlapping rectangles in each box
-            for (Box box : solution.boxes()) {
-                assertEquals(
-                        0.0,
-                        box.totalOverlapRate(),
-                        "Box " + box.getId() + " should have no overlaps"
-                );
+            for (int i = 0; i < instances.size(); i++) {
+                Instance instance = instances.get(i);
 
-                // Check that no rectangle overflows the box
-                for (Rectangle rectangle: box.getRectangles()) {
-                    assertFalse(
-                            box.isOverflow(rectangle),
-                            "Rectangle " + rectangle.getId() + " should not overflow"
-                    );
+                // ── Bad initial: random overlapping placement ─────────────
+                OverlapPackingSolution initial = buildBadInitial(
+                        instance.rectangles(), boxLen, maxIterations);
+
+                // ── Local Search ──────────────────────────────────────────
+                long cpuStart  = cpuTimeNs();
+                long wallStart = System.nanoTime();
+
+                OverlapPackingSolution solution = localSearch.solve(initial);
+                double objectiveScore          = objective.evaluate(solution);
+
+                double cpuMs  = (cpuTimeNs()       - cpuStart)  / 1_000_000.0;
+                double wallMs = (System.nanoTime() - wallStart) / 1_000_000.0;
+
+                int numBoxes = solution.boxes().size();
+
+                System.out.printf(Locale.US,
+                        "  inst %d/%d → boxes=%d | objective score=%.2f | cpu=%.2f ms | wall=%.2f ms%n",
+                        i + 1, numInstances, numBoxes, objectiveScore, cpuMs, wallMs);
+
+                // ── Correctness assertions ────────────────────────────────
+                org.junit.jupiter.api.Assertions.assertNotNull(solution);
+                org.junit.jupiter.api.Assertions.assertFalse(solution.boxes().isEmpty());
+                for (Box box : solution.boxes()) {
+                    org.junit.jupiter.api.Assertions.assertEquals(0.0, box.totalOverlapRate(),
+                            "Box " + box.getId() + " has overlap in instance " + (i + 1));
+                    for (Rectangle rect : box.getRectangles()) {
+                        org.junit.jupiter.api.Assertions.assertFalse(box.isOverflow(rect),
+                                "Rectangle " + rect.getId() + " overflows in instance " + (i + 1));
+                    }
                 }
+
+                // ── Log row ───────────────────────────────────────────────
+                csv.add(new String[]{
+                        modeName,
+                        tupleLabel,
+                        String.valueOf(i + 1),
+                        String.valueOf(instance.rectangles().size()),
+                        String.valueOf(boxLen),
+                        String.valueOf(numBoxes),
+                        String.format(Locale.US, "%.4f", objectiveScore),
+                        String.format(Locale.US, "%.2f", cpuMs),
+                        String.format(Locale.US, "%.2f", wallMs)
+                });
             }
         }
 
-        Path path = Paths.get(
-                "target",
-                "csv",
-                "localsearch",
-                "Overlap_EasyResults.csv"
-        );
-
-        List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{ "Instance", "NumBoxes", "Duration(ms)" });
-        for (int i = 0; i < solutions.size(); i++) {
-            PackingSolution sol = solutions.get(i);
-            String[] data = {
-                    String.valueOf(i + 1),
-                    String.valueOf(sol.boxes().size()),
-                    String.valueOf(durations.get(i))
-            };
-            csvData.add(data);
-        }
-        Utils.writeResult(csvData, path);
-    }
-
-    @Test
-    void medium() {
-
-        List<PackingSolution> solutions = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
-
-        // Solve easy instances and check solutions
-        for (Instance instance : mediumInstances) {
-            List<Box> testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
-
-            OverlapPackingSolution initial = OverlapPackingSolution.init(testBoxes, 1000);
-            initial.maxIterations = 100;
-            initial.currentIteration = 0;
-
-            Date startTime = new Date();
-            OverlapPackingSolution solution = localSearchSolver.solve(initial);
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
-
-            // Store solution and duration
-            solutions.add(solution);
-            durations.add(duration);
-
-            // Basic assertions
-            assertNotNull(solution);
-            assertFalse(solution.boxes().isEmpty());
-
-            // Check that there are no overlapping rectangles in each box
-            for (Box box : solution.boxes()) {
-                assertEquals(
-                        0.0,
-                        box.totalOverlapRate(),
-                        "Box " + box.getId() + " should have no overlaps"
-                );
-
-                // Check that no rectangle overflows the box
-                for (Rectangle rectangle: box.getRectangles()) {
-                    assertFalse(
-                            box.isOverflow(rectangle),
-                            "Rectangle " + rectangle.getId() + " should not overflow"
-                    );
-                }
-            }
-        }
-
-        Path path = Paths.get(
-                "target",
-                "csv",
-                "localsearch",
-                "Overlap_MediumResults.csv"
-        );
-
-        List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{ "Instance", "NumBoxes", "Duration(ms)" });
-        for (int i = 0; i < solutions.size(); i++) {
-            PackingSolution sol = solutions.get(i);
-            String[] data = {
-                    String.valueOf(i + 1),
-                    String.valueOf(sol.boxes().size()),
-                    String.valueOf(durations.get(i))
-            };
-            csvData.add(data);
-        }
-        Utils.writeResult(csvData, path);
-    }
-
-    @Test
-    void hard() {
-
-        List<PackingSolution> solutions = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
-
-        // Solve easy instances and check solutions
-        for (Instance instance : hardInstances) {
-            List<Box> testBoxes = Utils.createOverlapBoxes(instance.boxSize(), instance.rectangles());
-
-            OverlapPackingSolution initial = OverlapPackingSolution.init(testBoxes, 1000);
-            initial.maxIterations = 100;
-            initial.currentIteration = 0;
-
-            Date startTime = new Date();
-            OverlapPackingSolution solution = localSearchSolver.solve(initial);
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
-
-            // Store solution and duration
-            solutions.add(solution);
-            durations.add(duration);
-
-            // Basic assertions
-            assertNotNull(solution);
-            assertFalse(solution.boxes().isEmpty());
-
-            // Check that there are no overlapping rectangles in each box
-            for (Box box : solution.boxes()) {
-                assertEquals(
-                        0.0,
-                        box.totalOverlapRate(),
-                        "Box " + box.getId() + " should have no overlaps"
-                );
-
-                // Check that no rectangle overflows the box
-                for (Rectangle rectangle: box.getRectangles()) {
-                    assertFalse(
-                            box.isOverflow(rectangle),
-                            "Rectangle " + rectangle.getId() + " should not overflow"
-                    );
-                }
-            }
-        }
-
-        Path path = Paths.get(
-                "target",
-                "csv",
-                "localsearch",
-                "Overlap_HardResults.csv"
-        );
-
-        List<String[]> csvData = new ArrayList<>();
-        csvData.add(new String[]{ "Instance", "NumBoxes", "Duration(ms)" });
-        for (int i = 0; i < solutions.size(); i++) {
-            PackingSolution sol = solutions.get(i);
-            String[] data = {
-                    String.valueOf(i + 1),
-                    String.valueOf(sol.boxes().size()),
-                    String.valueOf(durations.get(i))
-            };
-            csvData.add(data);
-        }
-        Utils.writeResult(csvData, path);
+        Path path = Paths.get("target", "csv", "localsearch_overlap_" + modeName + ".csv");
+        Utils.writeResult(csv, path);
+        System.out.printf(Locale.US, "%nLog written → %s%n", path.toAbsolutePath());
     }
 }
