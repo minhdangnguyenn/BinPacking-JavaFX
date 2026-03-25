@@ -1,4 +1,4 @@
-package greedy;
+package environment.greedy;
 
 import algorithm.core.greedy.Greedy;
 import algorithm.core.greedy.ordering.raw.SideDescOrder;
