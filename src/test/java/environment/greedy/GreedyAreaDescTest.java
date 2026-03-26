@@ -137,7 +137,7 @@ class GreedyAreaDescTest {
         }
 
         // target/csv/greedy_area_desc_fast.csv  or  ..._large.csv
-        Path path = Paths.get("target", "csv", "greedy_area_desc_" + modeName + ".csv");
+        Path path = Paths.get("test", "csv", "greedy_area_desc_" + modeName + ".csv");
         Utils.writeResult(csv, path);
         System.out.printf(Locale.US, "%nLog written → %s%n", path.toAbsolutePath());
     }

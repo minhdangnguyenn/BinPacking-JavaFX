@@ -148,7 +148,7 @@ class GeometryTest {
         }
 
         // target/csv/localsearch_geometry_fast.csv  or  ..._large.csv
-        Path path = Paths.get("target", "csv", "localsearch_geometry_" + modeName + ".csv");
+        Path path = Paths.get("test", "csv", "localsearch_geometry_" + modeName + ".csv");
         Utils.writeResult(csv, path);
         System.out.printf(Locale.US, "%nLog written → %s%n", path.toAbsolutePath());
     }

@@ -1,0 +1,14 @@
+Mode,Tuple,Algorithm,Instance,NumRects,BoxLen,NumBoxes,CpuTime_ms,WallTime_ms
+small,T1(n=5,r=500,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,1,500,100,141,78.13,70.86
+small,T1(n=5,r=500,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,2,500,100,148,78.13,72.97
+small,T1(n=5,r=500,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,3,500,100,160,46.88,55.11
+small,T1(n=5,r=500,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,4,500,100,150,46.88,36.88
+small,T1(n=5,r=500,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,5,500,100,150,31.25,44.48
+small,T2(n=5,r=1000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,1,1000,100,283,62.50,74.89
+small,T2(n=5,r=1000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,2,1000,100,300,46.88,53.18
+small,T2(n=5,r=1000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,3,1000,100,274,62.50,54.77
+small,T2(n=5,r=1000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,4,1000,100,290,46.88,53.05
+small,T2(n=5,r=1000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,5,1000,100,287,46.88,37.96
+small,T3(n=3,r=3000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,1,3000,100,836,406.25,402.84
+small,T3(n=3,r=3000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,2,3000,100,835,343.75,356.79
+small,T3(n=3,r=3000,min=1/1,max=100/100,L=100),Greedy_FF_BL_SideDESC,3,3000,100,800,359.38,365.28
