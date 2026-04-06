@@ -41,6 +41,6 @@ public class Utils {
         double P = 1.0 - ((double) currentIteration / maxIterations);
 
         // Ensure it stays within [0.0, 1.0]
-        return Math.max(0.0, Math.min(1.0, P));
+        return Math.clamp(P, 0.0, 1.0);
     }
 }
