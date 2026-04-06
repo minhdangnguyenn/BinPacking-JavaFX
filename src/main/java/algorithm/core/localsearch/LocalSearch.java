@@ -17,10 +17,10 @@ public class LocalSearch<S extends Solution>{
     public LocalSearch(
             Neighborhood<S> neighborhood,
             Objective<S> objective,
-            int maxInteration
+            int maxInteraction
     ) {
         this.neighborhood = neighborhood;
-        this.maxIteration = maxInteration;
+        this.maxIteration = maxInteraction;
         this.objective = objective;
     }
 
