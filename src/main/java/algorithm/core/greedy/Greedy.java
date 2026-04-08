@@ -9,8 +9,8 @@ import java.util.List;
 
 /**
  * This is a generic class for greedy as exercise requirements
- * @param <S> (solution -- in non generic case)
- * @param <I> (rectangle -- in non generic case)
+ * @param <S> (solution -- in non-generic case)
+ * @param <I> (rectangle -- in non-generic case)
  */
 public class Greedy<S extends Solution, I extends Item>{
     private final OrderStrategy<I> ordering;
