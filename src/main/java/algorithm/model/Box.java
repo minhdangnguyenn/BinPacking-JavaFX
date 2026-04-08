@@ -118,13 +118,6 @@ public class Box {
         );
     }
 
-    public void removeRectangle(Rectangle rect) {
-        rect.setPosition(-1, -1); // -1 -1 means removed
-        if (!this.rectangles.remove(rect)) {
-            System.out.println("Rectangle ID " + rect.getId() + " cannot be removed");
-        }
-    }
-
     public Box copy() {
         Box newBox = new Box(this.id, this.getLength());
         for (Rectangle rectangle : this.rectangles) {
@@ -144,22 +137,6 @@ public class Box {
 
     public double getUtilization() {
         return ((double) this.getUsedArea() / this.area) * 100;
-    }
-
-    public boolean containsOverlap() {
-        List<Rectangle> rectangles = this.getRectangles();
-
-        for (int i = 0; i < rectangles.size(); i++) {
-            for (int j = i + 1; j < rectangles.size(); j++) {
-                Rectangle rect1 = rectangles.get(i);
-                Rectangle rect2 = rectangles.get(j);
-
-                if (this.isOverlapping(rect1, rect2)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
     
     public void pushApart(Rectangle rect1, Rectangle rect2, int boxLength) {
@@ -220,50 +197,5 @@ public class Box {
                 rect2.setPosition(rect2.getX(), newY);
             }
         }
-    }
-
-    public List<Rectangle> unpackAllRectangles() {
-        List<Rectangle> rects = new ArrayList<>(this.rectangles);
-
-        for (Rectangle rect : rects) {
-            rect.setPosition(-1, -1);
-        }
-
-        this.rectangles.clear();
-        return rects;
-    }
-
-    public Rectangle getMostOverlappingRectangle(double allowedOverlap) {
-        if (rectangles.size() <= 1) {
-            return null;
-        }
-
-        Rectangle mostOverlappingRect = null;
-        double maxOverlapScore = -1.0;
-
-        for (int i = 0; i < rectangles.size(); i++) {
-            Rectangle rect = rectangles.get(i);
-            double rectOverlapScore = 0.0;
-
-            // Calculate total overlap for this rectangle with all others
-            for (int j = 0; j < rectangles.size(); j++) {
-                if (i != j) {
-                    Rectangle other = rectangles.get(j);
-                    double overlapRate = overlapRate(rect, other);
-
-                    // Only count overlaps exceeding allowed threshold
-                    if (overlapRate > allowedOverlap) {
-                        rectOverlapScore += overlapRate;
-                    }
-                }
-            }
-
-            if (rectOverlapScore > maxOverlapScore) {
-                maxOverlapScore = rectOverlapScore;
-                mostOverlappingRect = rect;
-            }
-        }
-
-        return maxOverlapScore > 0 ? mostOverlappingRect : null;
     }
 }

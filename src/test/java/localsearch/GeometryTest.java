@@ -7,7 +7,7 @@ import algorithm.core.greedy.packing.raw.BottomLeft;
 import algorithm.core.greedy.strategy.raw.FirstFitStrategy;
 import algorithm.core.localsearch.LocalSearch;
 import algorithm.core.localsearch.neighborhood.raw.Geometry;
-import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
+import algorithm.core.localsearch.objective.raw.MaximizeUsedArea;
 import algorithm.model.Rectangle;
 import algorithm.solution.raw.PackingSolution;
 import environment.Instance;
@@ -46,7 +46,7 @@ class GeometryTest {
         return THREAD_MX.getCurrentThreadCpuTime();
     }
 
-    private final MinimizeUsedArea objective = new MinimizeUsedArea();
+    private final MaximizeUsedArea objective = new MaximizeUsedArea();
 
     // ── Solvers ──────────────────────────────────────────────────────────────
     private Greedy<PackingSolution, Rectangle> buildGreedy() {

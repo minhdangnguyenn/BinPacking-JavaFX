@@ -6,6 +6,6 @@ import algorithm.solution.raw.PermutationSolution;
 public class PermutationObjective implements Objective<PermutationSolution> {
     @Override
     public double evaluate(PermutationSolution solution) {
-        return (new MinimizeUsedArea()).evaluate(solution.decode());
+        return (new MaximizeUsedArea()).evaluate(solution.decode());
     }
 }

@@ -6,7 +6,7 @@ import algorithm.solution.raw.PackingSolution;
 
 import java.util.List;
 
-public class MinimizeUsedArea implements Objective<PackingSolution> {
+public class MaximizeUsedArea implements Objective<PackingSolution> {
 
     @Override
     public double evaluate(PackingSolution solution) {

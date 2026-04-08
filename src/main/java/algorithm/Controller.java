@@ -17,7 +17,7 @@ import algorithm.core.localsearch.neighborhood.raw.NeighborhoodType;
 import algorithm.core.localsearch.neighborhood.raw.Overlap;
 import algorithm.core.localsearch.neighborhood.raw.Permutation;
 import algorithm.core.localsearch.objective.generic.Objective;
-import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
+import algorithm.core.localsearch.objective.raw.MaximizeUsedArea;
 import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.core.localsearch.objective.raw.PermutationObjective;
 import algorithm.solution.raw.OverlapPackingSolution;
@@ -226,7 +226,7 @@ public class Controller {
         System.out.println("bad solution init boxes: " + initialSolution.boxes().size() + " boxes");
 
         Neighborhood<PackingSolution> geometry = new Geometry();
-        Objective<PackingSolution> objective = new MinimizeUsedArea();
+        Objective<PackingSolution> objective = new MaximizeUsedArea();
 
         LocalSearch<PackingSolution> ls =
                 new LocalSearch<>(

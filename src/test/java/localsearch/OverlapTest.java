@@ -2,7 +2,6 @@ package localsearch;
 
 import algorithm.core.localsearch.LocalSearch;
 import algorithm.core.localsearch.neighborhood.raw.Overlap;
-import algorithm.core.localsearch.objective.raw.MinimizeUsedArea;
 import algorithm.core.localsearch.objective.raw.OverlapObjective;
 import algorithm.model.Box;
 import algorithm.model.Rectangle;
