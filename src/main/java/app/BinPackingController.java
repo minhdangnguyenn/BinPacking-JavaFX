@@ -20,7 +20,7 @@ public class BinPackingController {
     public ArrayList<Rectangle> rectangles = new ArrayList<>();
     private BoxVisualizer visualizer;
     private final Controller controller = new Controller();
-    private final static int MAXITERATION = 500;
+    private final static int MAXITERATION = 200;
 
     @FXML
     public void initialize() {
