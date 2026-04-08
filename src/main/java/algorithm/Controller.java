@@ -258,6 +258,7 @@ public class Controller {
 
     private PackingSolution runOverlap(int maxIteration) {
         double start = System.nanoTime();
+        // for overlap, spawn rectangles randomly in boxes
         OverlapPackingSolution badOverlap = this.initOverlapSolution(this.getShuffleCopyRectangles());
         OverlapPackingSolution initial = OverlapPackingSolution.init(badOverlap.boxes(), maxIteration);
         System.out.println("bad solution init time: " + (System.nanoTime() - start)/1_000_000.0 + " ms");
@@ -299,6 +300,7 @@ public class Controller {
             sumArea += rect.getArea();
         }
         int boxArea = this.configBoxLength * this.configBoxLength;
+        // the most optimal number of box is calculated as following
         int minNumBox = (int) Math.ceil((double) sumArea / boxArea);
 
         List<Box> boxes = new ArrayList<>();
@@ -308,8 +310,6 @@ public class Controller {
         }
 
         for (Rectangle rect : rects) {
-            // Rectangle rectCopy = rect.copy();
-
             int boxId = rand.nextInt(boxes.size());
             Box selectedBox = boxes.get(boxId);
 
