@@ -2,7 +2,7 @@
 
 **Author:** Dang Minh Nguyen  
 **Date:** April 2026
-
+**Note:** 1.3
 ---
 
 ## 1. Programming Exercise
